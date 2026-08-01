@@ -28,5 +28,11 @@ description = "A four-player riichi mahjong scoring library for MoonBit."
 source = "src"
 
 options(
-  exclude: [ "AGENTS.md", "tools", "**/*_test.mbt", "**/*_wbtest.mbt" ],
+  exclude: [
+    "AGENTS.md",
+    "examples",
+    "tools",
+    "**/*_test.mbt",
+    "**/*_wbtest.mbt",
+  ],
 )

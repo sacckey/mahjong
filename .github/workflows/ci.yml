@@ -50,10 +50,18 @@ jobs:
       - name: Test all targets
         run: moon test --target all --deny-warn
 
+      - name: Build browser boundary
+        run: |
+          moon build --target js src/ffi --deny-warn
+          moon build --target wasm-gc src/ffi --deny-warn
+
+      - name: Smoke test browser boundary
+        run: node --no-warnings examples/browser/smoke.mjs
+
       - name: Check generated interface
         run: |
           moon info
-          git diff --exit-code -- src/pkg.generated.mbti
+          git diff --exit-code -- 'src/**/pkg.generated.mbti'
 
       - name: Check publish package
         run: moon package --list

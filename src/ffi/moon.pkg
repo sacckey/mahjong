@@ -1,0 +1,26 @@
+import {
+  "sacckey/mahjong/transport",
+}
+
+pkgtype(kind: "foreign_library")
+
+supported_targets = "+js+wasm-gc"
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "api_version:mahjong_api_version",
+        "score_json:mahjong_score_json",
+      ],
+      "format": "esm",
+    },
+    "wasm-gc": {
+      "exports": [
+        "api_version:mahjong_api_version",
+        "score_json:mahjong_score_json",
+      ],
+      "use-js-builtin-string": true,
+    },
+  },
+)

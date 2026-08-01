@@ -47,6 +47,24 @@ test "score a standard riichi hand" {
 
 和了形かどうかだけを調べる場合は`is_winning_hand`、既に確定した翻数と符から支払いを計算する場合は`calculate_points`を使用できます。役判定、符計算、ドラ計算、和了形分解は`score`の内部処理です。
 
+## JS・Wasm-GCから使う
+
+MoonBit外との境界には`sacckey/mahjong/ffi`パッケージを使用します。JSとWasm-GCのどちらにも、同じJSONプロトコルを受け取る`mahjong_score_json`と、プロトコルバージョンを返す`mahjong_api_version`がexportされます。
+
+JSONの入力、結果、エラーコードは[`docs/json-api-v1.md`](../docs/json-api-v1.md)で定義しています。境界層はコアのMoonBit APIから分離されているため、MoonBitから利用する場合は引き続き型付きの`score_standard`または`score`を使えます。
+
+## ブラウザ利用例
+
+手牌、和了牌、鳴き・槓、ドラ表示牌、和了条件をGUIで入力できる静的アプリを[`examples/browser`](../examples/browser/)に置いています。
+
+```sh
+moon build --target wasm-gc src/ffi
+moon build --target js src/ffi
+python3 -m http.server 8000
+```
+
+<http://127.0.0.1:8000/examples/browser/>を開いてください。Wasm-GCを優先し、未対応のブラウザではMoonBitのJavaScript生成物へ切り替わります。このアプリと生成物はmooncakesの配布物には含まれません。
+
 ## 開発
 
 ```sh

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>麻雀点数計算 · MoonBit</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">sacckey/mahjong · browser example</p>
+        <h1>麻雀点数計算</h1>
+        <p class="lead">牌と和了条件を選んで、四人リーチ麻雀の点数を計算します。</p>
+      </div>
+      <div class="runtime" aria-live="polite">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="runtime-status">計算エンジンを読み込み中…</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel hand-panel" aria-labelledby="hand-title">
+        <div class="section-heading">
+          <div>
+            <p class="step">01</p>
+            <h2 id="hand-title">牌を選ぶ</h2>
+          </div>
+          <div class="toolbar">
+            <button type="button" class="button secondary" id="sample-button">例題を読み込む</button>
+            <button type="button" class="button ghost" id="reset-button">すべて消す</button>
+          </div>
+        </div>
+
+        <div class="zones">
+          <div class="zone">
+            <div class="zone-label">
+              <h3>手牌</h3>
+              <span id="concealed-count">0 / 13枚</span>
+            </div>
+            <div class="tile-row empty" id="concealed-tiles" aria-label="手牌"></div>
+          </div>
+          <div class="zone compact-zone">
+            <div class="zone-label">
+              <h3>和了牌</h3>
+              <span>1枚</span>
+            </div>
+            <div class="tile-row empty" id="winning-tile" aria-label="和了牌"></div>
+          </div>
+        </div>
+
+        <div class="zones secondary-zones">
+          <div class="zone">
+            <div class="zone-label">
+              <h3>鳴き・槓</h3>
+              <span id="meld-count">0組</span>
+            </div>
+            <div class="meld-row empty" id="melds" aria-label="鳴きと槓"></div>
+          </div>
+          <div class="zone">
+            <div class="zone-label"><h3>ドラ表示牌</h3></div>
+            <div class="tile-row empty" id="dora-tiles" aria-label="ドラ表示牌"></div>
+          </div>
+          <div class="zone">
+            <div class="zone-label"><h3>裏ドラ表示牌</h3></div>
+            <div class="tile-row empty" id="ura-tiles" aria-label="裏ドラ表示牌"></div>
+          </div>
+        </div>
+
+        <div class="picker">
+          <div class="target-tabs" role="group" aria-label="牌の追加先">
+            <button type="button" class="target-tab active" data-target="concealed">手牌へ</button>
+            <button type="button" class="target-tab" data-target="winning">和了牌へ</button>
+            <button type="button" class="target-tab" data-target="dora">ドラへ</button>
+            <button type="button" class="target-tab" data-target="ura">裏ドラへ</button>
+            <button type="button" class="target-tab" data-target="meld">鳴き・槓へ</button>
+          </div>
+
+          <div class="meld-builder hidden" id="meld-builder">
+            <label>
+              種類
+              <select id="meld-kind">
+                <option value="chi">チー</option>
+                <option value="pon">ポン</option>
+                <option value="openKan">明槓</option>
+                <option value="closedKan">暗槓</option>
+                <option value="addedKan">加槓</option>
+              </select>
+            </label>
+            <div class="meld-draft" id="meld-draft">牌を3枚選んでください</div>
+            <button type="button" class="button ghost small" id="clear-meld-draft">選び直す</button>
+          </div>
+
+          <div id="tile-palette" class="tile-palette" aria-label="牌一覧"></div>
+          <p class="picker-help">牌をクリックして追加します。追加済みの牌はクリックすると削除できます。</p>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="conditions-title">
+        <div class="section-heading">
+          <div>
+            <p class="step">02</p>
+            <h2 id="conditions-title">和了条件</h2>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label>和了方法<select id="win-method"><option value="ron">ロン</option><option value="tsumo">ツモ</option></select></label>
+          <label>自風<select id="seat-wind"><option value="east">東家</option><option value="south" selected>南家</option><option value="west">西家</option><option value="north">北家</option></select></label>
+          <label>場風<select id="round-wind"><option value="east">東場</option><option value="south">南場</option><option value="west">西場</option><option value="north">北場</option></select></label>
+          <label>立直<select id="riichi"><option value="none">なし</option><option value="riichi">立直</option><option value="doubleRiichi">ダブル立直</option></select></label>
+          <label>本場<input id="honba" type="number" min="0" value="0" /></label>
+          <label>供託<input id="riichi-sticks" type="number" min="0" value="0" /></label>
+        </div>
+
+        <div class="checks">
+          <label><input type="checkbox" id="ippatsu" /> 一発</label>
+          <label><input type="checkbox" id="rinshan" /> 嶺上開花</label>
+          <label><input type="checkbox" id="chankan" /> 槍槓</label>
+          <label><input type="checkbox" id="haitei" /> 海底摸月</label>
+          <label><input type="checkbox" id="houtei" /> 河底撈魚</label>
+          <label><input type="checkbox" id="tenhou" /> 天和</label>
+          <label><input type="checkbox" id="chiihou" /> 地和</label>
+        </div>
+      </section>
+
+      <section class="calculate-section">
+        <button type="button" class="calculate-button" id="calculate-button" disabled>点数を計算する</button>
+        <p id="input-hint">手牌13枚と和了牌1枚を選んでください</p>
+      </section>
+
+      <section class="panel result-panel" id="result-panel" aria-labelledby="result-title" aria-live="polite">
+        <div class="result-placeholder" id="result-placeholder">
+          <p class="step">03</p>
+          <h2 id="result-title">計算結果</h2>
+          <p>入力が完了すると、ここに翻・符・役・支払いが表示されます。</p>
+        </div>
+        <div class="hidden" id="result-content"></div>
+      </section>
+
+      <details class="debug-panel">
+        <summary>境界APIのJSONを確認</summary>
+        <div class="debug-grid">
+          <div><h3>Request</h3><pre id="request-json">—</pre></div>
+          <div><h3>Response</h3><pre id="response-json">—</pre></div>
+        </div>
+      </details>
+    </main>
+
+    <footer>
+      <span>MoonBit → Wasm-GC / JavaScript</span>
+      <a href="../../src/README.mbt.md">ライブラリREADME</a>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

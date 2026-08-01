@@ -1,0 +1,4 @@
+import {
+  "sacckey/mahjong",
+  "moonbitlang/core/json",
+}

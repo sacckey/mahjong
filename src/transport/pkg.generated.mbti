@@ -1,0 +1,16 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "sacckey/mahjong/transport"
+
+// Values
+pub fn api_version() -> Int
+
+pub fn score_json(String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+
