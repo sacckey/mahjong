@@ -150,7 +150,6 @@ test "dora cannot satisfy the one-yaku requirement" {
     st_s(4),
     dora=[st_s(3)],
   )
-  assert_true(@mahjong.calculate_bonus_han(hand).dora > 0)
   try @mahjong.score_standard(hand) catch {
     NoYaku => ()
     _ => fail("expected NoYaku")
@@ -181,6 +180,14 @@ fn st_counted_hand() -> @mahjong.HandInput {
     dora=[st_m(6)],
     context=st_context(Ron, riichi=Riichi),
   )
+}
+
+///|
+test "is_winning_hand checks structural completion" {
+  let winning = st_counted_hand()
+  assert_true(@mahjong.is_winning_hand(winning))
+  let incomplete : @mahjong.HandInput = { ..winning, winning_tile: st_m(8) }
+  assert_false(@mahjong.is_winning_hand(incomplete))
 }
 
 ///|
@@ -263,7 +270,6 @@ fn st_compound_yakuman_hand() -> @mahjong.HandInput {
 ///|
 test "compound and double yakuman use explicit multipliers and ignore dora" {
   let hand = st_compound_yakuman_hand()
-  assert_eq(@mahjong.calculate_bonus_han(hand).dora, 3)
   let result = @mahjong.score_standard(hand)
   assert_eq(result.yaku, [
     { yaku: Suuankou, han: 0, yakuman_multiplier: 2 },

@@ -50,7 +50,7 @@ fn count_red_tiles(input : HandInput) -> Int {
 /// Every supplied indicator is counted, including duplicates. Ura-dora are
 /// counted only after riichi or double riichi. Indicator tiles themselves are
 /// never included in red-dora totals.
-pub fn calculate_bonus_han(input : HandInput) -> BonusHan raise ScoreError {
+fn calculate_bonus_han(input : HandInput) -> BonusHan raise ScoreError {
   let counts = hand_tile_counts(input)
   let dora = count_indicator_dora(counts, input.dora_indicators)
   let ura_dora = match input.context.riichi {

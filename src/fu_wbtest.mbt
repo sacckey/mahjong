@@ -1,29 +1,29 @@
 ///|
-fn ft_m(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Man, rank)
+fn ft_m(rank : Int) -> Tile {
+  try! Tile::numbered(Man, rank)
 }
 
 ///|
-fn ft_p(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Pin, rank)
+fn ft_p(rank : Int) -> Tile {
+  try! Tile::numbered(Pin, rank)
 }
 
 ///|
-fn ft_s(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Sou, rank)
+fn ft_s(rank : Int) -> Tile {
+  try! Tile::numbered(Sou, rank)
 }
 
 ///|
-fn ft_h(honor : @mahjong.Honor) -> @mahjong.Tile {
-  @mahjong.Tile::honor(honor)
+fn ft_h(honor : Honor) -> Tile {
+  Tile::honor(honor)
 }
 
 ///|
 fn ft_context(
-  win_method : @mahjong.WinMethod,
-  seat? : @mahjong.Wind = South,
-  round? : @mahjong.Wind = East,
-) -> @mahjong.WinContext {
+  win_method : WinMethod,
+  seat? : Wind = South,
+  round? : Wind = East,
+) -> WinContext {
   {
     win_method,
     seat_wind: seat,
@@ -43,11 +43,11 @@ fn ft_context(
 
 ///|
 fn ft_input(
-  concealed : Array[@mahjong.Tile],
-  winning : @mahjong.Tile,
-  melds? : Array[@mahjong.Meld] = [],
-  context? : @mahjong.WinContext = ft_context(Ron),
-) -> @mahjong.HandInput {
+  concealed : Array[Tile],
+  winning : Tile,
+  melds? : Array[Meld] = [],
+  context? : WinContext = ft_context(Ron),
+) -> HandInput {
   {
     concealed_tiles: concealed,
     winning_tile: winning,
@@ -59,19 +59,13 @@ fn ft_input(
 }
 
 ///|
-fn ft_meld(
-  kind : @mahjong.MeldKind,
-  tiles : Array[@mahjong.Tile],
-) -> @mahjong.Meld {
+fn ft_meld(kind : MeldKind, tiles : Array[Tile]) -> Meld {
   { kind, tiles }
 }
 
 ///|
-fn ft_shape_with_wait(
-  hand : @mahjong.HandInput,
-  wanted : @mahjong.WaitKind,
-) -> @mahjong.HandShape {
-  let shapes = try! @mahjong.decompose(hand)
+fn ft_shape_with_wait(hand : HandInput, wanted : WaitKind) -> HandShape {
+  let shapes = try! decompose(hand)
   for shape in shapes {
     match shape {
       Standard(wait~, ..) if wait == wanted => return shape
@@ -82,8 +76,8 @@ fn ft_shape_with_wait(
 }
 
 ///|
-fn ft_seven_pairs_shape(hand : @mahjong.HandInput) -> @mahjong.HandShape {
-  let shapes = try! @mahjong.decompose(hand)
+fn ft_seven_pairs_shape(hand : HandInput) -> HandShape {
+  let shapes = try! decompose(hand)
   for shape in shapes {
     if shape is SevenPairs(_) {
       return shape
@@ -93,8 +87,8 @@ fn ft_seven_pairs_shape(hand : @mahjong.HandInput) -> @mahjong.HandShape {
 }
 
 ///|
-fn ft_orphans_shape(hand : @mahjong.HandInput) -> @mahjong.HandShape {
-  let shapes = try! @mahjong.decompose(hand)
+fn ft_orphans_shape(hand : HandInput) -> HandShape {
+  let shapes = try! decompose(hand)
   for shape in shapes {
     if shape is ThirteenOrphans(_) {
       return shape
@@ -105,16 +99,16 @@ fn ft_orphans_shape(hand : @mahjong.HandInput) -> @mahjong.HandShape {
 
 ///|
 fn ft_calculate(
-  hand : @mahjong.HandInput,
-  shape : @mahjong.HandShape,
-  rules? : @mahjong.RuleSet = @mahjong.RuleSet::standard(),
-) -> (Int, Array[@mahjong.FuItem]) {
-  let yaku = try! @mahjong.detect_yaku(hand, shape, rules)
-  try! @mahjong.calculate_fu(hand, shape, yaku, rules)
+  hand : HandInput,
+  shape : HandShape,
+  rules? : RuleSet = RuleSet::standard(),
+) -> (Int, Array[FuItem]) {
+  let yaku = try! detect_yaku(hand, shape, rules)
+  try! calculate_fu(hand, shape, yaku, rules)
 }
 
 ///|
-fn ft_pinfu_hand(win_method : @mahjong.WinMethod) -> @mahjong.HandInput {
+fn ft_pinfu_hand(win_method : WinMethod) -> HandInput {
   ft_input(
     [
       ft_m(1),
@@ -256,8 +250,8 @@ test "value pair and tanki wait fu are itemized before rounding" {
       ],
     ),
   )
-  let two_fu_double_wind : @mahjong.RuleSet = {
-    ..@mahjong.RuleSet::standard(),
+  let two_fu_double_wind : RuleSet = {
+    ..RuleSet::standard(),
     double_wind_pair_fu: 2,
   }
   assert_eq(
@@ -333,7 +327,7 @@ test "triplet and quad fu distinguish open, closed, simple, and outside groups" 
 }
 
 ///|
-fn ft_shanpon_hand(win_method : @mahjong.WinMethod) -> @mahjong.HandInput {
+fn ft_shanpon_hand(win_method : WinMethod) -> HandInput {
   ft_input(
     [
       ft_m(1),
@@ -459,22 +453,18 @@ test "kanchan and penchan waits each add two fu" {
 test "calculate_fu rejects invalid shapes and rule settings" {
   let hand = ft_pinfu_hand(Ron)
   let shape = ft_shape_with_wait(hand, Ryanmen)
-  let yaku = try! @mahjong.detect_yaku(
-    hand,
-    shape,
-    @mahjong.RuleSet::standard(),
-  )
-  let invalid_rules : @mahjong.RuleSet = {
-    ..@mahjong.RuleSet::standard(),
+  let yaku = try! detect_yaku(hand, shape, RuleSet::standard())
+  let invalid_rules : RuleSet = {
+    ..RuleSet::standard(),
     double_wind_pair_fu: 3,
   }
-  try @mahjong.calculate_fu(hand, shape, yaku, invalid_rules) catch {
+  try calculate_fu(hand, shape, yaku, invalid_rules) catch {
     InvalidRule(_) => ()
     _ => fail("expected InvalidRule")
   } noraise {
     _ => fail("expected calculate_fu to raise")
   }
-  let fake : @mahjong.HandShape = SevenPairs([
+  let fake : HandShape = SevenPairs([
     Numbered(Man, 1),
     Numbered(Man, 2),
     Numbered(Man, 3),
@@ -483,9 +473,7 @@ test "calculate_fu rejects invalid shapes and rule settings" {
     Numbered(Man, 6),
     Numbered(Man, 7),
   ])
-  try
-    @mahjong.calculate_fu(hand, fake, [], @mahjong.RuleSet::standard())
-  catch {
+  try calculate_fu(hand, fake, [], RuleSet::standard()) catch {
     InvalidHandShape => ()
     _ => fail("expected InvalidHandShape")
   } noraise {

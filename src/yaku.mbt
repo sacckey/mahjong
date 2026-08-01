@@ -522,7 +522,7 @@ fn detect_regular_yaku(
 ///
 /// If one or more yakuman match, only yakuman are returned. Dora are evaluated
 /// separately and are not included in this result.
-pub fn detect_yaku(
+fn detect_yaku(
   input : HandInput,
   shape : HandShape,
   rules : RuleSet,

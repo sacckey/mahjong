@@ -136,7 +136,7 @@ fn calculate_standard_fu(
 ///
 /// Seven pairs are fixed at 25 fu. Thirteen orphans have no applicable fu and
 /// return zero with an empty explanation.
-pub fn calculate_fu(
+fn calculate_fu(
   input : HandInput,
   shape : HandShape,
   yaku : Array[YakuValue],

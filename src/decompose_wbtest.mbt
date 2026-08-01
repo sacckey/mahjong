@@ -1,28 +1,28 @@
 ///|
-fn m(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Man, rank)
+fn m(rank : Int) -> Tile {
+  try! Tile::numbered(Man, rank)
 }
 
 ///|
-fn p(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Pin, rank)
+fn p(rank : Int) -> Tile {
+  try! Tile::numbered(Pin, rank)
 }
 
 ///|
-fn s(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Sou, rank)
+fn s(rank : Int) -> Tile {
+  try! Tile::numbered(Sou, rank)
 }
 
 ///|
-fn h(honor : @mahjong.Honor) -> @mahjong.Tile {
-  @mahjong.Tile::honor(honor)
+fn h(honor : Honor) -> Tile {
+  Tile::honor(honor)
 }
 
 ///|
 fn context(
-  win_method : @mahjong.WinMethod,
-  riichi? : @mahjong.RiichiState = NoRiichi,
-) -> @mahjong.WinContext {
+  win_method : WinMethod,
+  riichi? : RiichiState = NoRiichi,
+) -> WinContext {
   {
     win_method,
     seat_wind: South,
@@ -42,11 +42,11 @@ fn context(
 
 ///|
 fn input(
-  concealed_tiles : Array[@mahjong.Tile],
-  winning_tile : @mahjong.Tile,
-  melds? : Array[@mahjong.Meld] = [],
-  win_context? : @mahjong.WinContext = context(Ron),
-) -> @mahjong.HandInput {
+  concealed_tiles : Array[Tile],
+  winning_tile : Tile,
+  melds? : Array[Meld] = [],
+  win_context? : WinContext = context(Ron),
+) -> HandInput {
   {
     concealed_tiles,
     winning_tile,
@@ -58,7 +58,7 @@ fn input(
 }
 
 ///|
-fn basic_standard_input() -> @mahjong.HandInput {
+fn basic_standard_input() -> HandInput {
   input(
     [
       m(1),
@@ -81,18 +81,18 @@ fn basic_standard_input() -> @mahjong.HandInput {
 
 ///|
 test "tile kinds use canonical 34-kind indices" {
-  assert_eq((Numbered(Man, 1) : @mahjong.TileKind).index(), 0)
-  assert_eq((Numbered(Man, 9) : @mahjong.TileKind).index(), 8)
-  assert_eq((Numbered(Pin, 1) : @mahjong.TileKind).index(), 9)
-  assert_eq((Numbered(Sou, 9) : @mahjong.TileKind).index(), 26)
-  assert_eq((HonorTile(East) : @mahjong.TileKind).index(), 27)
-  assert_eq((HonorTile(Red) : @mahjong.TileKind).index(), 33)
+  assert_eq((Numbered(Man, 1) : TileKind).index(), 0)
+  assert_eq((Numbered(Man, 9) : TileKind).index(), 8)
+  assert_eq((Numbered(Pin, 1) : TileKind).index(), 9)
+  assert_eq((Numbered(Sou, 9) : TileKind).index(), 26)
+  assert_eq((HonorTile(East) : TileKind).index(), 27)
+  assert_eq((HonorTile(Red) : TileKind).index(), 33)
 }
 
 ///|
 test "decompose a standard hand with a tanki wait" {
-  let shapes = @mahjong.decompose(basic_standard_input())
-  let expected : @mahjong.HandShape = Standard(
+  let shapes = decompose(basic_standard_input())
+  let expected : HandShape = Standard(
     pair=HonorTile(East),
     groups=[
       Sequence(Numbered(Man, 1), is_open=false),
@@ -103,7 +103,7 @@ test "decompose a standard hand with a tanki wait" {
     wait=Tanki,
   )
   assert_eq(shapes, [expected])
-  assert_true(@mahjong.is_winning_hand(basic_standard_input()))
+  assert_true(is_winning_hand(basic_standard_input()))
 }
 
 ///|
@@ -127,7 +127,7 @@ test "identify standard wait shapes" {
     m(3),
   )
   assert_true(
-    @mahjong.decompose(ryanmen).any(shape => shape is Standard(wait=Ryanmen, ..)),
+    decompose(ryanmen).any(shape => shape is Standard(wait=Ryanmen, ..)),
   )
   let kanchan = input(
     [
@@ -148,7 +148,7 @@ test "identify standard wait shapes" {
     m(4),
   )
   assert_true(
-    @mahjong.decompose(kanchan).any(shape => shape is Standard(wait=Kanchan, ..)),
+    decompose(kanchan).any(shape => shape is Standard(wait=Kanchan, ..)),
   )
   let penchan = input(
     [
@@ -169,7 +169,7 @@ test "identify standard wait shapes" {
     m(3),
   )
   assert_true(
-    @mahjong.decompose(penchan).any(shape => shape is Standard(wait=Penchan, ..)),
+    decompose(penchan).any(shape => shape is Standard(wait=Penchan, ..)),
   )
   let shanpon = input(
     [
@@ -190,19 +190,19 @@ test "identify standard wait shapes" {
     h(White),
   )
   assert_true(
-    @mahjong.decompose(shanpon).any(shape => shape is Standard(wait=Shanpon, ..)),
+    decompose(shanpon).any(shape => shape is Standard(wait=Shanpon, ..)),
   )
 }
 
 ///|
 test "decompose called melds and normalize their tile order" {
-  let chi : @mahjong.Meld = { kind: Chi, tiles: [m(3), m(1), m(2)] }
+  let chi : Meld = { kind: Chi, tiles: [m(3), m(1), m(2)] }
   let hand = input(
     [p(4), p(5), p(6), s(7), s(8), s(9), h(White), h(White), h(White), h(East)],
     h(East),
     melds=[chi],
   )
-  let shapes = @mahjong.decompose(hand)
+  let shapes = decompose(hand)
   assert_eq(shapes, [
     Standard(
       pair=HonorTile(East),
@@ -215,7 +215,7 @@ test "decompose called melds and normalize their tile order" {
       wait=Tanki,
     ),
   ])
-  let counts = @mahjong.hand_tile_counts(hand)
+  let counts = hand_tile_counts(hand)
   assert_eq(counts[0], 1)
   assert_eq(counts[1], 1)
   assert_eq(counts[2], 1)
@@ -225,18 +225,15 @@ test "decompose called melds and normalize their tile order" {
 
 ///|
 test "a closed kan keeps the hand closed and counts four physical tiles" {
-  let closed_kan : @mahjong.Meld = {
-    kind: ClosedKan,
-    tiles: [m(1), m(1), m(1), m(1)],
-  }
+  let closed_kan : Meld = { kind: ClosedKan, tiles: [m(1), m(1), m(1), m(1)] }
   let hand = input(
     [p(1), p(2), p(3), s(1), s(2), s(3), h(White), h(White), h(White), h(East)],
     h(East),
     melds=[closed_kan],
     win_context=context(Ron, riichi=Riichi),
   )
-  @mahjong.validate_hand(hand)
-  let shapes = @mahjong.decompose(hand)
+  validate_hand(hand)
+  let shapes = decompose(hand)
   assert_true(
     shapes.any(shape => {
       shape
@@ -252,7 +249,7 @@ test "a closed kan keeps the hand closed and counts four physical tiles" {
       )
     }),
   )
-  assert_eq(@mahjong.hand_tile_counts(hand)[0], 4)
+  assert_eq(hand_tile_counts(hand)[0], 4)
 }
 
 ///|
@@ -275,7 +272,7 @@ test "decompose seven pairs" {
     ],
     h(East),
   )
-  assert_eq(@mahjong.decompose(hand), [
+  assert_eq(decompose(hand), [
     SevenPairs([
       Numbered(Man, 1),
       Numbered(Man, 2),
@@ -289,7 +286,7 @@ test "decompose seven pairs" {
 }
 
 ///|
-fn thirteen_orphans_tiles() -> Array[@mahjong.Tile] {
+fn thirteen_orphans_tiles() -> Array[Tile] {
   [
     m(1),
     m(9),
@@ -310,7 +307,7 @@ fn thirteen_orphans_tiles() -> Array[@mahjong.Tile] {
 ///|
 test "distinguish thirteen-sided and single thirteen-orphans waits" {
   let thirteen_sided = input(thirteen_orphans_tiles(), h(East))
-  assert_eq(@mahjong.decompose(thirteen_sided), [
+  assert_eq(decompose(thirteen_sided), [
     ThirteenOrphans(wait=KokushiThirteenSided),
   ])
   let single = input(
@@ -331,7 +328,7 @@ test "distinguish thirteen-sided and single thirteen-orphans waits" {
     ],
     h(East),
   )
-  assert_eq(@mahjong.decompose(single), [ThirteenOrphans(wait=KokushiSingle)])
+  assert_eq(decompose(single), [ThirteenOrphans(wait=KokushiSingle)])
 }
 
 ///|
@@ -354,7 +351,7 @@ test "enumerate every interpretation of an ambiguous hand" {
     ],
     m(7),
   )
-  let shapes = @mahjong.decompose(hand)
+  let shapes = decompose(hand)
   assert_true(
     shapes.contains(
       SevenPairs([
@@ -391,24 +388,21 @@ test "tile order does not affect decomposition order" {
     ],
     h(East),
   )
-  assert_eq(
-    @mahjong.decompose(reordered),
-    @mahjong.decompose(basic_standard_input()),
-  )
+  assert_eq(decompose(reordered), decompose(basic_standard_input()))
 }
 
 ///|
 test "reject invalid tiles and excess copies" {
-  let invalid_rank : @mahjong.Tile = { kind: Numbered(Man, 0), is_red: false }
+  let invalid_rank : Tile = { kind: Numbered(Man, 0), is_red: false }
   let bad_rank = basic_standard_input()
   bad_rank.concealed_tiles[0] = invalid_rank
-  try @mahjong.validate_hand(bad_rank) catch {
+  try validate_hand(bad_rank) catch {
     InvalidTile(_) => ()
     _ => fail("expected InvalidTile")
   } noraise {
     _ => fail("expected validation to fail")
   }
-  try @mahjong.Tile::numbered(Man, 4, red=true) catch {
+  try Tile::numbered(Man, 4, red=true) catch {
     InvalidTile(_) => ()
     _ => fail("expected InvalidTile")
   } noraise {
@@ -432,7 +426,7 @@ test "reject invalid tiles and excess copies" {
     ],
     m(1),
   )
-  try @mahjong.validate_hand(five_copies) catch {
+  try validate_hand(five_copies) catch {
     TooManyCopies(Numbered(Man, 1), 5) => ()
     _ => fail("expected TooManyCopies")
   } noraise {
@@ -442,33 +436,33 @@ test "reject invalid tiles and excess copies" {
 
 ///|
 test "reject malformed melds, sizes, and contexts" {
-  let bad_chi : @mahjong.Meld = { kind: Chi, tiles: [m(1), m(2), m(4)] }
+  let bad_chi : Meld = { kind: Chi, tiles: [m(1), m(2), m(4)] }
   let malformed = input(
     [p(4), p(5), p(6), s(7), s(8), s(9), h(White), h(White), h(White), h(East)],
     h(East),
     melds=[bad_chi],
   )
-  try @mahjong.validate_hand(malformed) catch {
+  try validate_hand(malformed) catch {
     InvalidMeld(_) => ()
     _ => fail("expected InvalidMeld")
   } noraise {
     _ => fail("expected validation to fail")
   }
   let wrong_size = input([m(1), m(2), m(3)], m(4))
-  try @mahjong.validate_hand(wrong_size) catch {
+  try validate_hand(wrong_size) catch {
     InvalidHandSize(4) => ()
     _ => fail("expected InvalidHandSize")
   } noraise {
     _ => fail("expected validation to fail")
   }
-  let chi : @mahjong.Meld = { kind: Chi, tiles: [m(1), m(2), m(3)] }
+  let chi : Meld = { kind: Chi, tiles: [m(1), m(2), m(3)] }
   let open_riichi = input(
     [p(4), p(5), p(6), s(7), s(8), s(9), h(White), h(White), h(White), h(East)],
     h(East),
     melds=[chi],
     win_context=context(Ron, riichi=Riichi),
   )
-  try @mahjong.validate_hand(open_riichi) catch {
+  try validate_hand(open_riichi) catch {
     ContradictoryContext(_) => ()
     _ => fail("expected ContradictoryContext")
   } noraise {
@@ -496,8 +490,8 @@ test "an incomplete hand is not a winning hand" {
     ],
     h(South),
   )
-  assert_false(@mahjong.is_winning_hand(incomplete))
-  try @mahjong.decompose(incomplete) catch {
+  assert_false(is_winning_hand(incomplete))
+  try decompose(incomplete) catch {
     NotWinningHand => ()
     _ => fail("expected NotWinningHand")
   } noraise {

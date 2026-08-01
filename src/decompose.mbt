@@ -248,7 +248,7 @@ fn thirteen_orphans_shape(input : HandInput) -> HandShape? {
 ///|
 /// Enumerate every standard, seven-pairs, and thirteen-orphans interpretation
 /// of a validated winning hand.
-pub fn decompose(input : HandInput) -> Array[HandShape] raise ScoreError {
+fn decompose(input : HandInput) -> Array[HandShape] raise ScoreError {
   validate_hand(input)
   let shapes : Array[HandShape] = []
   collect_standard_shapes(input, shapes)

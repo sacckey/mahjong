@@ -1,29 +1,29 @@
 ///|
-fn yt_m(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Man, rank)
+fn yt_m(rank : Int) -> Tile {
+  try! Tile::numbered(Man, rank)
 }
 
 ///|
-fn yt_p(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Pin, rank)
+fn yt_p(rank : Int) -> Tile {
+  try! Tile::numbered(Pin, rank)
 }
 
 ///|
-fn yt_s(rank : Int) -> @mahjong.Tile {
-  try! @mahjong.Tile::numbered(Sou, rank)
+fn yt_s(rank : Int) -> Tile {
+  try! Tile::numbered(Sou, rank)
 }
 
 ///|
-fn yt_h(honor : @mahjong.Honor) -> @mahjong.Tile {
-  @mahjong.Tile::honor(honor)
+fn yt_h(honor : Honor) -> Tile {
+  Tile::honor(honor)
 }
 
 ///|
 fn yt_context(
-  win_method : @mahjong.WinMethod,
-  seat? : @mahjong.Wind = South,
-  round? : @mahjong.Wind = East,
-  riichi? : @mahjong.RiichiState = NoRiichi,
+  win_method : WinMethod,
+  seat? : Wind = South,
+  round? : Wind = East,
+  riichi? : RiichiState = NoRiichi,
   ippatsu? : Bool = false,
   rinshan? : Bool = false,
   chankan? : Bool = false,
@@ -31,7 +31,7 @@ fn yt_context(
   houtei? : Bool = false,
   tenhou? : Bool = false,
   chiihou? : Bool = false,
-) -> @mahjong.WinContext {
+) -> WinContext {
   {
     win_method,
     seat_wind: seat,
@@ -51,11 +51,11 @@ fn yt_context(
 
 ///|
 fn yt_input(
-  concealed : Array[@mahjong.Tile],
-  winning : @mahjong.Tile,
-  melds? : Array[@mahjong.Meld] = [],
-  context? : @mahjong.WinContext = yt_context(Ron),
-) -> @mahjong.HandInput {
+  concealed : Array[Tile],
+  winning : Tile,
+  melds? : Array[Meld] = [],
+  context? : WinContext = yt_context(Ron),
+) -> HandInput {
   {
     concealed_tiles: concealed,
     winning_tile: winning,
@@ -67,22 +67,19 @@ fn yt_input(
 }
 
 ///|
-fn yt_meld(
-  kind : @mahjong.MeldKind,
-  tiles : Array[@mahjong.Tile],
-) -> @mahjong.Meld {
+fn yt_meld(kind : MeldKind, tiles : Array[Tile]) -> Meld {
   { kind, tiles }
 }
 
 ///|
 fn yt_values(
-  hand : @mahjong.HandInput,
-  rules? : @mahjong.RuleSet = @mahjong.RuleSet::standard(),
-) -> Array[@mahjong.YakuValue] {
-  let values : Array[@mahjong.YakuValue] = []
-  let shapes = try! @mahjong.decompose(hand)
+  hand : HandInput,
+  rules? : RuleSet = RuleSet::standard(),
+) -> Array[YakuValue] {
+  let values : Array[YakuValue] = []
+  let shapes = try! decompose(hand)
   for shape in shapes {
-    let shape_values = try! @mahjong.detect_yaku(hand, shape, rules)
+    let shape_values = try! detect_yaku(hand, shape, rules)
     for value in shape_values {
       values.push(value)
     }
@@ -92,15 +89,15 @@ fn yt_values(
 
 ///|
 fn yt_has(
-  hand : @mahjong.HandInput,
-  yaku : @mahjong.Yaku,
-  rules? : @mahjong.RuleSet = @mahjong.RuleSet::standard(),
+  hand : HandInput,
+  yaku : Yaku,
+  rules? : RuleSet = RuleSet::standard(),
 ) -> Bool {
   yt_values(hand, rules~).any(value => value.yaku == yaku)
 }
 
 ///|
-fn yt_max_han(hand : @mahjong.HandInput, yaku : @mahjong.Yaku) -> Int {
+fn yt_max_han(hand : HandInput, yaku : Yaku) -> Int {
   let mut maximum = 0
   for value in yt_values(hand) {
     if value.yaku == yaku && value.han > maximum {
@@ -112,9 +109,9 @@ fn yt_max_han(hand : @mahjong.HandInput, yaku : @mahjong.Yaku) -> Int {
 
 ///|
 fn yt_max_yakuman(
-  hand : @mahjong.HandInput,
-  yaku : @mahjong.Yaku,
-  rules? : @mahjong.RuleSet = @mahjong.RuleSet::standard(),
+  hand : HandInput,
+  yaku : Yaku,
+  rules? : RuleSet = RuleSet::standard(),
 ) -> Int {
   let mut maximum = 0
   for value in yt_values(hand, rules~) {
@@ -126,7 +123,7 @@ fn yt_max_yakuman(
 }
 
 ///|
-fn yt_basic_hand(context : @mahjong.WinContext) -> @mahjong.HandInput {
+fn yt_basic_hand(context : WinContext) -> HandInput {
   yt_input(
     [
       yt_m(1),
@@ -375,10 +372,7 @@ test "detect triplet, quad, and terminal yaku" {
     yt_p(3),
   )
   assert_false(yt_has(shanpon_ron, Sanankou))
-  let shanpon_tsumo : @mahjong.HandInput = {
-    ..shanpon_ron,
-    context: yt_context(Tsumo),
-  }
+  let shanpon_tsumo : HandInput = { ..shanpon_ron, context: yt_context(Tsumo) }
   assert_true(yt_has(shanpon_tsumo, Sanankou))
   let kans = [
     yt_meld(OpenKan, [yt_m(1), yt_m(1), yt_m(1), yt_m(1)]),
@@ -471,10 +465,7 @@ test "apply flush and open tanyao rules" {
     melds=[yt_meld(Chi, [yt_m(2), yt_m(3), yt_m(4)])],
   )
   assert_true(yt_has(open_tanyao, Tanyao))
-  let no_open_tanyao : @mahjong.RuleSet = {
-    ..@mahjong.RuleSet::standard(),
-    open_tanyao: false,
-  }
+  let no_open_tanyao : RuleSet = { ..RuleSet::standard(), open_tanyao: false }
   assert_false(yt_has(open_tanyao, Tanyao, rules=no_open_tanyao))
   assert_true(yt_values(open_tanyao, rules=no_open_tanyao).is_empty())
 }
@@ -802,10 +793,7 @@ test "detect kokushi, chuuren, suukantsu, and tenhou" {
   let tenhou = yt_basic_hand(yt_context(Tsumo, seat=East, tenhou=true))
   assert_true(yt_has(tenhou, Tenhou))
   assert_false(yt_has(tenhou, MenzenTsumo))
-  let singles : @mahjong.RuleSet = {
-    ..@mahjong.RuleSet::standard(),
-    double_yakuman: false,
-  }
+  let singles : RuleSet = { ..RuleSet::standard(), double_yakuman: false }
   assert_eq(yt_max_yakuman(kokushi, KokushiMusou, rules=singles), 1)
   assert_eq(yt_max_yakuman(chuuren, ChuurenPoutou, rules=singles), 1)
 }
@@ -813,7 +801,7 @@ test "detect kokushi, chuuren, suukantsu, and tenhou" {
 ///|
 test "reject a shape that did not come from the hand" {
   let hand = yt_basic_hand(yt_context(Ron))
-  let fake : @mahjong.HandShape = SevenPairs([
+  let fake : HandShape = SevenPairs([
     Numbered(Man, 1),
     Numbered(Man, 2),
     Numbered(Man, 3),
@@ -822,7 +810,7 @@ test "reject a shape that did not come from the hand" {
     Numbered(Man, 6),
     Numbered(Man, 7),
   ])
-  try @mahjong.detect_yaku(hand, fake, @mahjong.RuleSet::standard()) catch {
+  try detect_yaku(hand, fake, RuleSet::standard()) catch {
     InvalidHandShape => ()
     _ => fail("expected InvalidHandShape")
   } noraise {

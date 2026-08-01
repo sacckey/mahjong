@@ -6,25 +6,13 @@ import {
 }
 
 // Values
-pub fn calculate_bonus_han(HandInput) -> BonusHan raise ScoreError
-
-pub fn calculate_fu(HandInput, HandShape, Array[YakuValue], RuleSet) -> (Int, Array[FuItem]) raise ScoreError
-
 pub fn calculate_points(Int, Int, dealer~ : Bool, win_method~ : WinMethod, honba? : Int, riichi_sticks? : Int, kiriage_mangan? : Bool, counted_yakuman? : Bool) -> PointResult raise PointCalculationError
-
-pub fn decompose(HandInput) -> Array[HandShape] raise ScoreError
-
-pub fn detect_yaku(HandInput, HandShape, RuleSet) -> Array[YakuValue] raise ScoreError
-
-pub fn hand_tile_counts(HandInput) -> Array[Int] raise ScoreError
 
 pub fn is_winning_hand(HandInput) -> Bool
 
 pub fn score(HandInput, RuleSet) -> ScoreResult raise ScoreError
 
 pub fn score_standard(HandInput) -> ScoreResult raise ScoreError
-
-pub fn validate_hand(HandInput) -> Unit raise ScoreError
 
 // Errors
 pub(all) suberror PointCalculationError {
@@ -181,7 +169,6 @@ pub(all) enum TileKind {
   Numbered(Suit, Int)
   HonorTile(Honor)
 } derive(Compare, Eq, @debug.Debug)
-pub fn TileKind::index(Self) -> Int raise ScoreError
 
 pub(all) enum WaitKind {
   Ryanmen

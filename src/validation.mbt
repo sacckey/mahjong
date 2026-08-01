@@ -37,7 +37,7 @@ fn tile_kind_from_index(index : Int) -> TileKind {
 
 ///|
 /// Return the canonical 0-based index of a tile kind.
-pub fn TileKind::index(self : TileKind) -> Int raise ScoreError {
+fn TileKind::index(self : TileKind) -> Int raise ScoreError {
   match self {
     Numbered(_, rank) if rank < 1 || rank > 9 =>
       raise InvalidTile("numbered tile rank must be between 1 and 9")
@@ -187,7 +187,7 @@ fn validate_context(input : HandInput) -> Unit raise ScoreError {
 
 ///|
 /// Validate tile representations, melds, hand size, copy counts, and context.
-pub fn validate_hand(input : HandInput) -> Unit raise ScoreError {
+fn validate_hand(input : HandInput) -> Unit raise ScoreError {
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
     add_hand_tile(counts, tile)
@@ -217,7 +217,7 @@ pub fn validate_hand(input : HandInput) -> Unit raise ScoreError {
 ///|
 /// Return physical hand-tile counts in canonical 34-kind order. Dora indicators
 /// are not part of the returned counts.
-pub fn hand_tile_counts(input : HandInput) -> Array[Int] raise ScoreError {
+fn hand_tile_counts(input : HandInput) -> Array[Int] raise ScoreError {
   validate_hand(input)
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
