@@ -10,6 +10,8 @@ pub fn calculate_points(Int, Int, dealer~ : Bool, win_method~ : WinMethod, honba
 
 pub fn decompose(HandInput) -> Array[HandShape] raise ScoreError
 
+pub fn detect_yaku(HandInput, HandShape, RuleSet) -> Array[YakuValue] raise ScoreError
+
 pub fn hand_tile_counts(HandInput) -> Array[Int] raise ScoreError
 
 pub fn is_winning_hand(HandInput) -> Bool
@@ -35,6 +37,7 @@ pub(all) suberror ScoreError {
   InvalidMeld(String)
   ContradictoryContext(String)
   NotWinningHand
+  InvalidHandShape
   NoYaku
 } derive(Eq, @debug.Debug)
 
