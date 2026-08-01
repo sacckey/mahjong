@@ -295,6 +295,7 @@ pub(all) suberror ScoreError {
   ContradictoryContext(String)
   NotWinningHand
   InvalidHandShape
+  InvalidRule(String)
   NoYaku
 } derive(Debug, Eq)
 
