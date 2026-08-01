@@ -92,6 +92,30 @@ pub(all) struct WinContext {
 } derive(Debug, Eq)
 
 ///|
+/// Create a context with no situational yaku, honba, or riichi sticks.
+pub fn WinContext::new(
+  win_method : WinMethod,
+  seat_wind~ : Wind,
+  round_wind~ : Wind,
+) -> WinContext {
+  {
+    win_method,
+    seat_wind,
+    round_wind,
+    riichi: NoRiichi,
+    ippatsu: false,
+    rinshan: false,
+    chankan: false,
+    haitei: false,
+    houtei: false,
+    tenhou: false,
+    chiihou: false,
+    honba: 0,
+    riichi_sticks: 0,
+  }
+}
+
+///|
 /// Complete scoring input. `concealed_tiles` excludes `winning_tile`.
 pub(all) struct HandInput {
   concealed_tiles : Array[Tile]
@@ -101,6 +125,23 @@ pub(all) struct HandInput {
   ura_dora_indicators : Array[Tile]
   context : WinContext
 } derive(Debug, Eq)
+
+///|
+/// Create an input without melds, dora indicators, or ura-dora indicators.
+pub fn HandInput::new(
+  concealed_tiles : Array[Tile],
+  winning_tile~ : Tile,
+  context~ : WinContext,
+) -> HandInput {
+  {
+    concealed_tiles,
+    winning_tile,
+    melds: [],
+    dora_indicators: [],
+    ura_dora_indicators: [],
+    context,
+  }
+}
 
 ///|
 /// Configurable choices in the version-one ruleset.

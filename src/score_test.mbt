@@ -28,17 +28,8 @@ fn st_context(
   riichi_sticks? : Int = 0,
 ) -> @mahjong.WinContext {
   {
-    win_method,
-    seat_wind: seat,
-    round_wind: round,
+    ..@mahjong.WinContext::new(win_method, seat_wind=seat, round_wind=round),
     riichi,
-    ippatsu: false,
-    rinshan: false,
-    chankan: false,
-    haitei: false,
-    houtei: false,
-    tenhou: false,
-    chiihou: false,
     honba,
     riichi_sticks,
   }
@@ -53,13 +44,39 @@ fn st_input(
   context? : @mahjong.WinContext = st_context(Ron),
 ) -> @mahjong.HandInput {
   {
-    concealed_tiles: concealed,
-    winning_tile: winning,
-    melds: [],
+    ..@mahjong.HandInput::new(concealed, winning_tile=winning, context~),
     dora_indicators: dora,
     ura_dora_indicators: ura,
-    context,
   }
+}
+
+///|
+test "input constructors provide neutral defaults" {
+  let context = @mahjong.WinContext::new(Ron, seat_wind=South, round_wind=East)
+  assert_eq(context, {
+    win_method: Ron,
+    seat_wind: South,
+    round_wind: East,
+    riichi: NoRiichi,
+    ippatsu: false,
+    rinshan: false,
+    chankan: false,
+    haitei: false,
+    houtei: false,
+    tenhou: false,
+    chiihou: false,
+    honba: 0,
+    riichi_sticks: 0,
+  })
+  let input = @mahjong.HandInput::new([st_m(1)], winning_tile=st_m(2), context~)
+  assert_eq(input, {
+    concealed_tiles: [st_m(1)],
+    winning_tile: st_m(2),
+    melds: [],
+    dora_indicators: [],
+    ura_dora_indicators: [],
+    context,
+  })
 }
 
 ///|

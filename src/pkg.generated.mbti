@@ -74,6 +74,7 @@ pub(all) struct HandInput {
   ura_dora_indicators : Array[Tile]
   context : WinContext
 } derive(Eq, @debug.Debug)
+pub fn HandInput::new(Array[Tile], winning_tile~ : Tile, context~ : WinContext) -> Self
 
 pub(all) enum HandShape {
   Standard(pair~ : TileKind, groups~ : Array[Group], wait~ : WaitKind)
@@ -195,6 +196,7 @@ pub(all) struct WinContext {
   honba : Int
   riichi_sticks : Int
 } derive(Eq, @debug.Debug)
+pub fn WinContext::new(WinMethod, seat_wind~ : Wind, round_wind~ : Wind) -> Self
 
 pub(all) enum WinMethod {
   Ron

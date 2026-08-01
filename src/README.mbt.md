@@ -14,23 +14,12 @@ MoonBitで実装する四人リーチ麻雀の点数計算ライブラリです�
 ///|
 test "score a standard riichi hand" {
   let tile = (suit, rank) => @mahjong.Tile::numbered(suit, rank)
-  let context : @mahjong.WinContext = {
-    win_method: Ron,
-    seat_wind: South,
-    round_wind: East,
+  let context = {
+    ..@mahjong.WinContext::new(Ron, seat_wind=South, round_wind=East),
     riichi: Riichi,
-    ippatsu: false,
-    rinshan: false,
-    chankan: false,
-    haitei: false,
-    houtei: false,
-    tenhou: false,
-    chiihou: false,
-    honba: 0,
-    riichi_sticks: 0,
   }
-  let input : @mahjong.HandInput = {
-    concealed_tiles: [
+  let input = @mahjong.HandInput::new(
+    [
       tile(Man, 1),
       tile(Man, 2),
       tile(Man, 3),
@@ -45,12 +34,9 @@ test "score a standard riichi hand" {
       tile(Pin, 5),
       tile(Pin, 5),
     ],
-    winning_tile: tile(Sou, 9),
-    melds: [],
-    dora_indicators: [],
-    ura_dora_indicators: [],
-    context,
-  }
+    winning_tile=tile(Sou, 9),
+    context~,
+  )
   let result = @mahjong.score_standard(input)
   assert_eq(result.han, 2)
   assert_eq(result.fu, 30)
