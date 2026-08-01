@@ -1,0 +1,90 @@
+name: Deploy browser example to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Set up MoonBit
+        uses: hustcer/setup-moonbit@v1.22
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build JavaScript runtime
+        run: moon build --target js src/ffi --deny-warn
+
+      - name: Build Wasm-GC runtime
+        run: moon build --target wasm-gc src/ffi --deny-warn
+
+      - name: Run browser smoke test
+        run: node --no-warnings examples/browser/smoke.mjs
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p _site/examples _site/src
+          mkdir -p _site/_build/js/debug/build/ffi
+          mkdir -p _site/_build/wasm-gc/debug/build/ffi
+
+          cp -R examples/browser _site/examples/
+          cp -R docs _site/
+          cp src/README.mbt.md _site/src/
+
+          cp _build/js/debug/build/ffi/ffi.js _site/_build/js/debug/build/ffi/
+          cp _build/js/debug/build/ffi/ffi.js.map _site/_build/js/debug/build/ffi/
+          cp _build/wasm-gc/debug/build/ffi/ffi.wasm _site/_build/wasm-gc/debug/build/ffi/
+          cp _build/wasm-gc/debug/build/ffi/ffi.wasm.map _site/_build/wasm-gc/debug/build/ffi/
+
+          sed 's|<head>|<head>\n    <base href="./examples/browser/" />|' \
+            examples/browser/index.html > _site/index.html
+          touch _site/.nojekyll
+
+          test -f _site/index.html
+          test -f _site/_build/js/debug/build/ffi/ffi.js
+          test -f _site/_build/wasm-gc/debug/build/ffi/ffi.wasm
+          grep -F '<base href="./examples/browser/" />' _site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
