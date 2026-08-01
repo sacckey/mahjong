@@ -199,6 +199,23 @@ test "kiriage mangan is opt in" {
 }
 
 ///|
+test "counted yakuman can be capped at sanbaiman" {
+  let counted = @mahjong.calculate_points(13, 30, dealer=false, win_method=Ron)
+  assert_eq(counted.limit, Yakuman(1))
+  assert_eq(counted.payment, RonPayment(discarder=32000))
+  let capped = @mahjong.calculate_points(
+    13,
+    30,
+    dealer=false,
+    win_method=Ron,
+    counted_yakuman=false,
+  )
+  assert_eq(capped.han, 13)
+  assert_eq(capped.limit, Sanbaiman)
+  assert_eq(capped.payment, RonPayment(discarder=24000))
+}
+
+///|
 test "honba and riichi sticks affect the correct amounts" {
   let ron = @mahjong.calculate_points(
     1,
@@ -246,6 +263,28 @@ test "invalid point inputs are rejected" {
   try @mahjong.calculate_points(1, 27, dealer=false, win_method=Ron) catch {
     InvalidFu(fu) => assert_eq(fu, 27)
     _ => fail("expected InvalidFu")
+  } noraise {
+    _ => fail("expected point calculation to fail")
+  }
+  try
+    @mahjong.calculate_points(1, 30, dealer=false, win_method=Ron, honba=-1)
+  catch {
+    InvalidHonba(honba) => assert_eq(honba, -1)
+    _ => fail("expected InvalidHonba")
+  } noraise {
+    _ => fail("expected point calculation to fail")
+  }
+  try
+    @mahjong.calculate_points(
+      1,
+      30,
+      dealer=false,
+      win_method=Ron,
+      riichi_sticks=-1,
+    )
+  catch {
+    InvalidRiichiSticks(sticks) => assert_eq(sticks, -1)
+    _ => fail("expected InvalidRiichiSticks")
   } noraise {
     _ => fail("expected point calculation to fail")
   }

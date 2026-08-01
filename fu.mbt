@@ -142,9 +142,7 @@ pub fn calculate_fu(
   yaku : Array[YakuValue],
   rules : RuleSet,
 ) -> (Int, Array[FuItem]) raise ScoreError {
-  if rules.double_wind_pair_fu != 2 && rules.double_wind_pair_fu != 4 {
-    raise InvalidRule("double_wind_pair_fu must be 2 or 4")
-  }
+  validate_rules(rules)
   let shapes = decompose(input)
   if !shapes.contains(shape) {
     raise InvalidHandShape

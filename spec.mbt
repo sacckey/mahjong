@@ -300,12 +300,13 @@ pub(all) suberror ScoreError {
 } derive(Debug, Eq)
 
 ///|
-/// Score a hand using the explicitly supplied rules.
+/// Score a hand using the explicitly supplied rules. Every structural
+/// interpretation is evaluated and the highest-paying result is returned.
 declare pub fn score(
   input : HandInput,
   rules : RuleSet,
 ) -> ScoreResult raise ScoreError
 
 ///|
-/// Score a hand using `RuleSet::standard()`.
+/// Score a hand using `RuleSet::standard()` and return its best interpretation.
 declare pub fn score_standard(input : HandInput) -> ScoreResult raise ScoreError

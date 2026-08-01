@@ -22,9 +22,14 @@ fn base_points_and_limit(
   han : Int,
   fu : Int,
   kiriage_mangan : Bool,
+  counted_yakuman : Bool,
 ) -> (Int, Limit) {
   if han >= 13 {
-    (8000, Yakuman(1))
+    if counted_yakuman {
+      (8000, Yakuman(1))
+    } else {
+      (6000, Sanbaiman)
+    }
   } else if han >= 11 {
     (6000, Sanbaiman)
   } else if han >= 8 {
@@ -60,30 +65,16 @@ fn payment_total(payment : WinPayment) -> Int {
 }
 
 ///|
-/// Calculate standard capped riichi-mahjong payments from already determined
-/// han and fu. This function does not decide whether the hand has a yaku.
-pub fn calculate_points(
+fn point_result_from_base(
   han : Int,
   fu : Int,
-  dealer~ : Bool,
-  win_method~ : WinMethod,
-  honba? : Int = 0,
-  riichi_sticks? : Int = 0,
-  kiriage_mangan? : Bool = false,
-) -> PointResult raise PointCalculationError {
-  if han < 1 {
-    raise InvalidHan(han)
-  }
-  if !valid_fu(fu) {
-    raise InvalidFu(fu)
-  }
-  if honba < 0 {
-    raise InvalidHonba(honba)
-  }
-  if riichi_sticks < 0 {
-    raise InvalidRiichiSticks(riichi_sticks)
-  }
-  let (base_points, limit) = base_points_and_limit(han, fu, kiriage_mangan)
+  base_points : Int,
+  limit : Limit,
+  dealer : Bool,
+  win_method : WinMethod,
+  honba : Int,
+  riichi_sticks : Int,
+) -> PointResult {
   let payment = match (dealer, win_method) {
     (true, Ron) =>
       RonPayment(discarder=round_up_100(base_points * 6) + honba * 300)
@@ -107,4 +98,75 @@ pub fn calculate_points(
     riichi_bonus,
     winner_gain: payment_total(payment) + riichi_bonus,
   }
+}
+
+///|
+fn calculate_valid_points(
+  han : Int,
+  fu : Int,
+  dealer : Bool,
+  win_method : WinMethod,
+  honba : Int,
+  riichi_sticks : Int,
+  kiriage_mangan : Bool,
+  counted_yakuman : Bool,
+) -> PointResult {
+  let (base_points, limit) = base_points_and_limit(
+    han, fu, kiriage_mangan, counted_yakuman,
+  )
+  point_result_from_base(
+    han, fu, base_points, limit, dealer, win_method, honba, riichi_sticks,
+  )
+}
+
+///|
+fn calculate_yakuman_points(
+  multiplier : Int,
+  dealer : Bool,
+  win_method : WinMethod,
+  honba : Int,
+  riichi_sticks : Int,
+) -> PointResult {
+  point_result_from_base(
+    0,
+    0,
+    8000 * multiplier,
+    Yakuman(multiplier),
+    dealer,
+    win_method,
+    honba,
+    riichi_sticks,
+  )
+}
+
+///|
+/// Calculate standard capped riichi-mahjong payments from already determined
+/// han and fu. This function does not decide whether the hand has a yaku. When
+/// `counted_yakuman` is false, hands with at least 13 han are capped at
+/// sanbaiman.
+pub fn calculate_points(
+  han : Int,
+  fu : Int,
+  dealer~ : Bool,
+  win_method~ : WinMethod,
+  honba? : Int = 0,
+  riichi_sticks? : Int = 0,
+  kiriage_mangan? : Bool = false,
+  counted_yakuman? : Bool = true,
+) -> PointResult raise PointCalculationError {
+  if han < 1 {
+    raise InvalidHan(han)
+  }
+  if !valid_fu(fu) {
+    raise InvalidFu(fu)
+  }
+  if honba < 0 {
+    raise InvalidHonba(honba)
+  }
+  if riichi_sticks < 0 {
+    raise InvalidRiichiSticks(riichi_sticks)
+  }
+  calculate_valid_points(
+    han, fu, dealer, win_method, honba, riichi_sticks, kiriage_mangan, counted_yakuman,
+  )
 }

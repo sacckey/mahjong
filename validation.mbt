@@ -122,6 +122,13 @@ fn is_closed_hand(input : HandInput) -> Bool {
 }
 
 ///|
+fn validate_rules(rules : RuleSet) -> Unit raise ScoreError {
+  if rules.double_wind_pair_fu != 2 && rules.double_wind_pair_fu != 4 {
+    raise InvalidRule("double_wind_pair_fu must be 2 or 4")
+  }
+}
+
+///|
 fn validate_context(input : HandInput) -> Unit raise ScoreError {
   let context = input.context
   if context.honba < 0 {

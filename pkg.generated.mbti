@@ -10,7 +10,7 @@ pub fn calculate_bonus_han(HandInput) -> BonusHan raise ScoreError
 
 pub fn calculate_fu(HandInput, HandShape, Array[YakuValue], RuleSet) -> (Int, Array[FuItem]) raise ScoreError
 
-pub fn calculate_points(Int, Int, dealer~ : Bool, win_method~ : WinMethod, honba? : Int, riichi_sticks? : Int, kiriage_mangan? : Bool) -> PointResult raise PointCalculationError
+pub fn calculate_points(Int, Int, dealer~ : Bool, win_method~ : WinMethod, honba? : Int, riichi_sticks? : Int, kiriage_mangan? : Bool, counted_yakuman? : Bool) -> PointResult raise PointCalculationError
 
 pub fn decompose(HandInput) -> Array[HandShape] raise ScoreError
 
