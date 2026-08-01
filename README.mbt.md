@@ -21,3 +21,11 @@ println("\{result.han} han / \{result.fu} fu")
 moon check --target all
 moon test --target all
 ```
+
+`MahjongRepository/mahjong`との開発用差分検証は次のコマンドで実行できます。Python依存と生成ケースは配布ライブラリには含まれません。
+
+```sh
+uv run tools/conformance/check.py
+```
+
+詳細は[`tools/conformance/README.md`](tools/conformance/README.md)を参照してください。

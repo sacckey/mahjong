@@ -4,3 +4,4 @@ target/
 target
 .mooncakes/
 .moonagent/
+src/conformance_generated_*_test.mbt
