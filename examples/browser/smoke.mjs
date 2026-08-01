@@ -4,6 +4,7 @@ import {
   mahjong_api_version as jsApiVersion,
   mahjong_score_json as jsScoreJson,
 } from "../../_build/js/debug/build/ffi/ffi.js";
+import { tileAssetRevision, tileAssetUrl } from "./tile-assets.js";
 
 const tile = (kind, red = false) => ({ kind, red });
 const sampleRequest = {
@@ -32,6 +33,13 @@ const sampleRequest = {
   },
   rules: "standard",
 };
+
+assert.equal(tileAssetRevision, "26e127ba2117f45cdce5ea0225748cc0cfad3169");
+assert.match(tileAssetUrl(tile("1m")), /\/Regular\/Man1\.svg$/);
+assert.match(tileAssetUrl(tile("5p", true)), /\/Regular\/Pin5-Dora\.svg$/);
+assert.match(tileAssetUrl(tile("9s")), /\/Regular\/Sou9\.svg$/);
+assert.match(tileAssetUrl(tile("east")), /\/Regular\/Ton\.svg$/);
+assert.match(tileAssetUrl(tile("red")), /\/Regular\/Chun\.svg$/);
 
 function verifyEngine(apiVersion, scoreJson, backend) {
   assert.equal(apiVersion(), 1, `${backend}: API version`);

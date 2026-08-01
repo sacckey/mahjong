@@ -1,3 +1,5 @@
+import { tileAssetUrl } from "./tile-assets.js";
+
 const tileGroups = [
   Array.from({ length: 9 }, (_, index) => ({ kind: `${index + 1}m`, red: false })),
   [{ kind: "5m", red: true }],
@@ -110,6 +112,7 @@ function tileButton(tile, onClick, extraClass = "") {
   button.setAttribute("aria-label", view.label);
   button.title = view.label;
   const face = document.createElement("span");
+  face.className = "tile-fallback";
   face.textContent = view.text;
   button.append(face);
   if (view.mark) {
@@ -118,6 +121,15 @@ function tileButton(tile, onClick, extraClass = "") {
     mark.textContent = view.mark;
     button.append(mark);
   }
+  const image = document.createElement("img");
+  image.alt = "";
+  image.decoding = "async";
+  image.draggable = false;
+  image.referrerPolicy = "no-referrer";
+  image.addEventListener("load", () => button.classList.add("tile-image-loaded"));
+  image.addEventListener("error", () => image.remove());
+  image.src = tileAssetUrl(tile);
+  button.append(image);
   button.addEventListener("click", onClick);
   return button;
 }
