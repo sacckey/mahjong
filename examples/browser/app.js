@@ -1,4 +1,4 @@
-import { tileAssetUrl } from "./tile-assets.js";
+import { tileAssetUrl, tileFrontAssetUrl } from "./tile-assets.js";
 
 const tileGroups = [
   Array.from({ length: 9 }, (_, index) => ({ kind: `${index + 1}m`, red: false })),
@@ -121,15 +121,31 @@ function tileButton(tile, onClick, extraClass = "") {
     mark.textContent = view.mark;
     button.append(mark);
   }
-  const image = document.createElement("img");
-  image.alt = "";
-  image.decoding = "async";
-  image.draggable = false;
-  image.referrerPolicy = "no-referrer";
-  image.addEventListener("load", () => button.classList.add("tile-image-loaded"));
-  image.addEventListener("error", () => image.remove());
-  image.src = tileAssetUrl(tile);
-  button.append(image);
+  const frontImage = document.createElement("img");
+  const faceImage = document.createElement("img");
+  frontImage.className = "tile-front";
+  faceImage.className = "tile-face";
+  let loadedImages = 0;
+  const imageLoaded = () => {
+    loadedImages += 1;
+    if (loadedImages === 2) button.classList.add("tile-image-loaded");
+  };
+  const useFallback = () => {
+    frontImage.remove();
+    faceImage.remove();
+    button.classList.remove("tile-image-loaded");
+  };
+  for (const image of [frontImage, faceImage]) {
+    image.alt = "";
+    image.decoding = "async";
+    image.draggable = false;
+    image.referrerPolicy = "no-referrer";
+    image.addEventListener("load", imageLoaded);
+    image.addEventListener("error", useFallback);
+  }
+  button.append(frontImage, faceImage);
+  frontImage.src = tileFrontAssetUrl;
+  faceImage.src = tileAssetUrl(tile);
   button.addEventListener("click", onClick);
   return button;
 }

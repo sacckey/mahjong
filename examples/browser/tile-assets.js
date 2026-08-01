@@ -3,6 +3,8 @@ export const tileAssetRevision = "26e127ba2117f45cdce5ea0225748cc0cfad3169";
 const tileAssetBase =
   `https://raw.githubusercontent.com/FluffyStuff/riichi-mahjong-tiles/${tileAssetRevision}/Regular/`;
 
+export const tileFrontAssetUrl = `${tileAssetBase}Front.svg`;
+
 const honorAssetNames = {
   east: "Ton",
   south: "Nan",

@@ -4,7 +4,7 @@ import {
   mahjong_api_version as jsApiVersion,
   mahjong_score_json as jsScoreJson,
 } from "../../_build/js/debug/build/ffi/ffi.js";
-import { tileAssetRevision, tileAssetUrl } from "./tile-assets.js";
+import { tileAssetRevision, tileAssetUrl, tileFrontAssetUrl } from "./tile-assets.js";
 
 const tile = (kind, red = false) => ({ kind, red });
 const sampleRequest = {
@@ -35,6 +35,7 @@ const sampleRequest = {
 };
 
 assert.equal(tileAssetRevision, "26e127ba2117f45cdce5ea0225748cc0cfad3169");
+assert.match(tileFrontAssetUrl, /\/Regular\/Front\.svg$/);
 assert.match(tileAssetUrl(tile("1m")), /\/Regular\/Man1\.svg$/);
 assert.match(tileAssetUrl(tile("5p", true)), /\/Regular\/Pin5-Dora\.svg$/);
 assert.match(tileAssetUrl(tile("9s")), /\/Regular\/Sou9\.svg$/);
