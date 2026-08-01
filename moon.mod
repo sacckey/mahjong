@@ -15,14 +15,18 @@ version = "0.1.0"
 
 readme = "src/README.mbt.md"
 
-repository = ""
+repository = "https://github.com/sacckey/mahjong"
 
 license = "Apache-2.0"
 
-keywords = [ ]
+keywords = [ "mahjong", "riichi", "scoring" ]
 
 preferred_target = "wasm"
 
-description = ""
+description = "A four-player riichi mahjong scoring library for MoonBit."
 
 source = "src"
+
+options(
+  exclude: [ "AGENTS.md", "tools", "**/*_test.mbt", "**/*_wbtest.mbt" ],
+)

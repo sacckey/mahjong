@@ -55,6 +55,9 @@ jobs:
           moon info
           git diff --exit-code -- src/pkg.generated.mbti
 
+      - name: Check publish package
+        run: moon package --list
+
   conformance:
     name: Reference conformance
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
