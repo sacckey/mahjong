@@ -132,13 +132,14 @@ pub(all) enum WaitKind {
   Penchan
   Tanki
   Shanpon
+  KokushiSingle
   KokushiThirteenSided
 } derive(Debug, Eq)
 
 ///|
 /// A group in a standard four-groups-and-a-pair hand.
 pub(all) enum Group {
-  Sequence(TileKind)
+  Sequence(TileKind, is_open~ : Bool)
   Triplet(TileKind, is_open~ : Bool)
   Quad(TileKind, is_open~ : Bool)
 } derive(Debug, Eq)

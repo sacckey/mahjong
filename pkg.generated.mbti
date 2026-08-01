@@ -8,9 +8,17 @@ import {
 // Values
 pub fn calculate_points(Int, Int, dealer~ : Bool, win_method~ : WinMethod, honba? : Int, riichi_sticks? : Int, kiriage_mangan? : Bool) -> PointResult raise PointCalculationError
 
+pub fn decompose(HandInput) -> Array[HandShape] raise ScoreError
+
+pub fn hand_tile_counts(HandInput) -> Array[Int] raise ScoreError
+
+pub fn is_winning_hand(HandInput) -> Bool
+
 pub fn score(HandInput, RuleSet) -> ScoreResult raise ScoreError
 
 pub fn score_standard(HandInput) -> ScoreResult raise ScoreError
+
+pub fn validate_hand(HandInput) -> Unit raise ScoreError
 
 // Errors
 pub(all) suberror PointCalculationError {
@@ -57,7 +65,7 @@ pub(all) enum FuReason {
 } derive(Eq, @debug.Debug)
 
 pub(all) enum Group {
-  Sequence(TileKind)
+  Sequence(TileKind, is_open~ : Bool)
   Triplet(TileKind, is_open~ : Bool)
   Quad(TileKind, is_open~ : Bool)
 } derive(Eq, @debug.Debug)
@@ -158,11 +166,14 @@ pub(all) struct Tile {
   kind : TileKind
   is_red : Bool
 } derive(Eq, @debug.Debug)
+pub fn Tile::honor(Honor) -> Self
+pub fn Tile::numbered(Suit, Int, red? : Bool) -> Self raise ScoreError
 
 pub(all) enum TileKind {
   Numbered(Suit, Int)
   HonorTile(Honor)
 } derive(Compare, Eq, @debug.Debug)
+pub fn TileKind::index(Self) -> Int raise ScoreError
 
 pub(all) enum WaitKind {
   Ryanmen
@@ -170,6 +181,7 @@ pub(all) enum WaitKind {
   Penchan
   Tanki
   Shanpon
+  KokushiSingle
   KokushiThirteenSided
 } derive(Eq, @debug.Debug)
 
