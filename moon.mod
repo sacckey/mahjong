@@ -24,3 +24,5 @@ keywords = [ ]
 preferred_target = "wasm"
 
 description = ""
+
+source = "src"

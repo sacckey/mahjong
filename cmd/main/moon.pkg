@@ -1,5 +1,0 @@
-// import {
-//   "sacckey/mahjong" @lib,
-// }
-
-pkgtype(kind: "executable")
