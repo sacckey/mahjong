@@ -389,11 +389,27 @@ async function loadEngine() {
   render();
 }
 
-document.querySelectorAll(".target-tab").forEach((button) => {
-  button.addEventListener("click", () => {
-    state.target = button.dataset.target;
-    document.querySelectorAll(".target-tab").forEach((candidate) => candidate.classList.toggle("active", candidate === button));
-    elements["meld-builder"].classList.toggle("hidden", state.target !== "meld");
+function selectTarget(target) {
+  state.target = target;
+  document.querySelectorAll(".target-zone").forEach((zone) => {
+    const active = zone.dataset.target === target;
+    zone.classList.toggle("active-target", active);
+    if (active) {
+      zone.setAttribute("aria-current", "true");
+    } else {
+      zone.removeAttribute("aria-current");
+    }
+  });
+  elements["meld-builder"].classList.toggle("hidden", target !== "meld");
+}
+
+document.querySelectorAll(".target-zone").forEach((zone) => {
+  zone.addEventListener("click", () => selectTarget(zone.dataset.target));
+  zone.addEventListener("keydown", (event) => {
+    if (event.target === zone && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      selectTarget(zone.dataset.target);
+    }
   });
 });
 
@@ -404,6 +420,7 @@ elements["reset-button"].addEventListener("click", reset);
 elements["calculate-button"].addEventListener("click", calculate);
 
 renderPalette();
+selectTarget(state.target);
 render();
 loadEngine().catch((error) => {
   console.error(error);

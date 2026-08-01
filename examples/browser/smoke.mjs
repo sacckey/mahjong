@@ -42,6 +42,9 @@ assert.match(tileAssetUrl(tile("5p", true)), /\/Regular\/Pin5-Dora\.svg$/);
 assert.match(tileAssetUrl(tile("9s")), /\/Regular\/Sou9\.svg$/);
 assert.match(tileAssetUrl(tile("east")), /\/Regular\/Ton\.svg$/);
 assert.match(tileAssetUrl(tile("red")), /\/Regular\/Chun\.svg$/);
+const browserHtml = await readFile(new URL("./index.html", import.meta.url), "utf8");
+assert.doesNotMatch(browserHtml, /target-tab/);
+assert.equal(browserHtml.match(/class="[^"]*target-zone/g)?.length, 5);
 assert.deepEqual(
   sortHandTiles([
     tile("red"),

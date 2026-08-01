@@ -34,14 +34,14 @@
         </div>
 
         <div class="zones">
-          <div class="zone">
+          <div class="zone target-zone active-target" data-target="concealed" tabindex="0" aria-label="手牌を牌の追加先にする" aria-current="true">
             <div class="zone-label">
               <h3>手牌</h3>
               <span id="concealed-count">0 / 13枚</span>
             </div>
             <div class="tile-row empty" id="concealed-tiles" aria-label="手牌"></div>
           </div>
-          <div class="zone compact-zone">
+          <div class="zone compact-zone target-zone" data-target="winning" tabindex="0" aria-label="和了牌を牌の追加先にする">
             <div class="zone-label">
               <h3>和了牌</h3>
               <span>1枚</span>
@@ -51,32 +51,24 @@
         </div>
 
         <div class="zones secondary-zones">
-          <div class="zone">
+          <div class="zone target-zone" data-target="meld" tabindex="0" aria-label="鳴き・槓を牌の追加先にする">
             <div class="zone-label">
               <h3>鳴き・槓</h3>
               <span id="meld-count">0組</span>
             </div>
             <div class="meld-row empty" id="melds" aria-label="鳴きと槓"></div>
           </div>
-          <div class="zone">
+          <div class="zone target-zone" data-target="dora" tabindex="0" aria-label="ドラ表示牌を牌の追加先にする">
             <div class="zone-label"><h3>ドラ表示牌</h3></div>
             <div class="tile-row empty" id="dora-tiles" aria-label="ドラ表示牌"></div>
           </div>
-          <div class="zone">
+          <div class="zone target-zone" data-target="ura" tabindex="0" aria-label="裏ドラ表示牌を牌の追加先にする">
             <div class="zone-label"><h3>裏ドラ表示牌</h3></div>
             <div class="tile-row empty" id="ura-tiles" aria-label="裏ドラ表示牌"></div>
           </div>
         </div>
 
         <div class="picker">
-          <div class="target-tabs" role="group" aria-label="牌の追加先">
-            <button type="button" class="target-tab active" data-target="concealed">手牌へ</button>
-            <button type="button" class="target-tab" data-target="winning">和了牌へ</button>
-            <button type="button" class="target-tab" data-target="dora">ドラへ</button>
-            <button type="button" class="target-tab" data-target="ura">裏ドラへ</button>
-            <button type="button" class="target-tab" data-target="meld">鳴き・槓へ</button>
-          </div>
-
           <div class="meld-builder hidden" id="meld-builder">
             <label>
               種類
@@ -93,7 +85,7 @@
           </div>
 
           <div id="tile-palette" class="tile-palette" aria-label="牌一覧"></div>
-          <p class="picker-help">牌をクリックして追加します。追加済みの牌はクリックすると削除できます。</p>
+          <p class="picker-help">追加先の枠を選んでから牌をクリックします。追加済みの牌はクリックすると削除できます。</p>
         </div>
       </section>
 
