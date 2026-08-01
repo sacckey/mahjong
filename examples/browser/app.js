@@ -1,4 +1,5 @@
 import { tileAssetUrl, tileFrontAssetUrl } from "./tile-assets.js";
+import { sortHandTiles } from "./tile-order.js";
 
 const tileGroups = [
   Array.from({ length: 9 }, (_, index) => ({ kind: `${index + 1}m`, red: false })),
@@ -197,7 +198,9 @@ function renderPalette() {
 function addTile(tile) {
   const next = copyTile(tile);
   if (state.target === "concealed") {
-    if (state.concealed.length < 13) state.concealed.push(next);
+    if (state.concealed.length < 13) {
+      state.concealed = sortHandTiles([...state.concealed, next]);
+    }
   } else if (state.target === "winning") {
     state.winning = next;
   } else if (state.target === "dora" || state.target === "ura") {
@@ -222,7 +225,11 @@ function inputStatus() {
 }
 
 function render() {
-  renderTileList(elements["concealed-tiles"], state.concealed, (index) => { state.concealed.splice(index, 1); render(); });
+  renderTileList(elements["concealed-tiles"], state.concealed, (index) => {
+    state.concealed.splice(index, 1);
+    state.concealed = sortHandTiles(state.concealed);
+    render();
+  });
   renderTileList(elements["winning-tile"], state.winning ? [state.winning] : [], () => { state.winning = null; render(); });
   renderTileList(elements["dora-tiles"], state.dora, (index) => { state.dora.splice(index, 1); render(); });
   renderTileList(elements["ura-tiles"], state.ura, (index) => { state.ura.splice(index, 1); render(); });
@@ -348,7 +355,9 @@ function reset() {
 
 function loadSample() {
   reset();
-  state.concealed = ["1m", "2m", "3m", "4m", "5m", "6m", "1p", "2p", "3p", "7s", "8s", "5p", "5p"].map((kind) => ({ kind, red: false }));
+  state.concealed = sortHandTiles(
+    ["1m", "2m", "3m", "4m", "5m", "6m", "1p", "2p", "3p", "7s", "8s", "5p", "5p"].map((kind) => ({ kind, red: false })),
+  );
   state.winning = { kind: "9s", red: false };
   elements.riichi.value = "riichi";
   render();
