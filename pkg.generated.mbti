@@ -1,0 +1,264 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "sacckey/mahjong"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn calculate_points(Int, Int, dealer~ : Bool, win_method~ : WinMethod, honba? : Int, riichi_sticks? : Int, kiriage_mangan? : Bool) -> PointResult raise PointCalculationError
+
+pub fn score(HandInput, RuleSet) -> ScoreResult raise ScoreError
+
+pub fn score_standard(HandInput) -> ScoreResult raise ScoreError
+
+// Errors
+pub(all) suberror PointCalculationError {
+  InvalidHan(Int)
+  InvalidFu(Int)
+  InvalidHonba(Int)
+  InvalidRiichiSticks(Int)
+} derive(Eq, @debug.Debug)
+
+pub(all) suberror ScoreError {
+  InvalidTile(String)
+  TooManyCopies(TileKind, Int)
+  InvalidHandSize(Int)
+  InvalidMeld(String)
+  ContradictoryContext(String)
+  NotWinningHand
+  NoYaku
+} derive(Eq, @debug.Debug)
+
+// Types and methods
+pub(all) struct BonusHan {
+  dora : Int
+  ura_dora : Int
+  aka_dora : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct FuItem {
+  reason : FuReason
+  fu : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum FuReason {
+  Base
+  MenzenRon
+  Tsumo
+  ValuePair
+  Wait
+  OpenTriplet
+  ClosedTriplet
+  OpenQuad
+  ClosedQuad
+  OpenPinfuShape
+  SevenPairsFixed
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Group {
+  Sequence(TileKind)
+  Triplet(TileKind, is_open~ : Bool)
+  Quad(TileKind, is_open~ : Bool)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct HandInput {
+  concealed_tiles : Array[Tile]
+  winning_tile : Tile
+  melds : Array[Meld]
+  dora_indicators : Array[Tile]
+  ura_dora_indicators : Array[Tile]
+  context : WinContext
+} derive(Eq, @debug.Debug)
+
+pub(all) enum HandShape {
+  Standard(pair~ : TileKind, groups~ : Array[Group], wait~ : WaitKind)
+  SevenPairs(Array[TileKind])
+  ThirteenOrphans(wait~ : WaitKind)
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Honor {
+  East
+  South
+  West
+  North
+  White
+  Green
+  Red
+} derive(Compare, Eq, @debug.Debug)
+
+pub(all) enum Limit {
+  BelowMangan
+  Mangan
+  Haneman
+  Baiman
+  Sanbaiman
+  Yakuman(Int)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Meld {
+  kind : MeldKind
+  tiles : Array[Tile]
+} derive(Eq, @debug.Debug)
+
+pub(all) enum MeldKind {
+  Chi
+  Pon
+  OpenKan
+  ClosedKan
+  AddedKan
+} derive(Eq, @debug.Debug)
+
+pub(all) struct PointResult {
+  han : Int
+  fu : Int
+  limit : Limit
+  base_points : Int
+  payment : WinPayment
+  riichi_bonus : Int
+  winner_gain : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum RiichiState {
+  NoRiichi
+  Riichi
+  DoubleRiichi
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RuleSet {
+  open_tanyao : Bool
+  kiriage_mangan : Bool
+  double_yakuman : Bool
+  counted_yakuman : Bool
+  double_wind_pair_fu : Int
+} derive(Eq, @debug.Debug)
+pub fn RuleSet::standard() -> Self
+
+pub(all) struct ScoreResult {
+  shape : HandShape
+  yaku : Array[YakuValue]
+  bonus_han : BonusHan
+  han : Int
+  fu : Int
+  fu_items : Array[FuItem]
+  limit : Limit
+  base_points : Int
+  payment : WinPayment
+  riichi_bonus : Int
+  winner_gain : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Suit {
+  Man
+  Pin
+  Sou
+} derive(Compare, Eq, @debug.Debug)
+
+pub(all) struct Tile {
+  kind : TileKind
+  is_red : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum TileKind {
+  Numbered(Suit, Int)
+  HonorTile(Honor)
+} derive(Compare, Eq, @debug.Debug)
+
+pub(all) enum WaitKind {
+  Ryanmen
+  Kanchan
+  Penchan
+  Tanki
+  Shanpon
+  KokushiThirteenSided
+} derive(Eq, @debug.Debug)
+
+pub(all) struct WinContext {
+  win_method : WinMethod
+  seat_wind : Wind
+  round_wind : Wind
+  riichi : RiichiState
+  ippatsu : Bool
+  rinshan : Bool
+  chankan : Bool
+  haitei : Bool
+  houtei : Bool
+  tenhou : Bool
+  chiihou : Bool
+  honba : Int
+  riichi_sticks : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum WinMethod {
+  Ron
+  Tsumo
+} derive(Eq, @debug.Debug)
+
+pub(all) enum WinPayment {
+  RonPayment(discarder~ : Int)
+  DealerTsumoPayment(each~ : Int)
+  NonDealerTsumoPayment(dealer~ : Int, non_dealer_each~ : Int)
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Wind {
+  East
+  South
+  West
+  North
+} derive(Compare, Eq, @debug.Debug)
+
+pub(all) enum Yaku {
+  Riichi
+  DoubleRiichi
+  Ippatsu
+  MenzenTsumo
+  Tanyao
+  Pinfu
+  Iipeikou
+  SeatWind
+  RoundWind
+  WhiteDragon
+  GreenDragon
+  RedDragon
+  RinshanKaihou
+  Chankan
+  HaiteiRaoyue
+  HouteiRaoyui
+  SanshokuDoujun
+  Ittsu
+  Chanta
+  Chiitoitsu
+  Toitoi
+  Sanankou
+  Honroutou
+  SanshokuDoukou
+  Sankantsu
+  Shousangen
+  Junchan
+  Honitsu
+  Ryanpeikou
+  Chinitsu
+  Tenhou
+  Chiihou
+  KokushiMusou
+  Suuankou
+  Daisangen
+  Shousuushi
+  Daisuushi
+  Tsuuiisou
+  Ryuuiisou
+  Chinroutou
+  ChuurenPoutou
+  Suukantsu
+} derive(Compare, Eq, @debug.Debug)
+
+pub(all) struct YakuValue {
+  yaku : Yaku
+  han : Int
+  yakuman_multiplier : Int
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

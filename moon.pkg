@@ -1,0 +1,3 @@
+// `score` and `score_standard` are spec-first declarations. Keep them visible
+// while their implementation is added incrementally.
+warnings = "-declaration_unimplemented"
