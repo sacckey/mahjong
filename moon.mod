@@ -13,7 +13,7 @@ name = "sacckey/mahjong"
 
 version = "0.1.0"
 
-readme = "README.mbt.md"
+readme = "src/README.mbt.md"
 
 repository = ""
 
