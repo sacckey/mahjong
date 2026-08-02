@@ -30,67 +30,68 @@ import {
 pkgtype(kind: "executable")
 ```
 
-`cmd/main/main.mbt`を次の内容にします。この最小例は、確定済みの2翻30符から子のロン和了点を計算します。
+`cmd/main/main.mbt`を次の内容にします。この例は、南家が立直し、平和形を9索でツモ和了した場合を計算します。
 
 ```moonbit nocheck
 ///|
 fn main raise {
-  let result = @mahjong.calculate_points(
-    2,
-    30,
-    dealer=false,
-    win_method=@mahjong.Ron,
+  let tile = (suit, rank) => @mahjong.Tile::numbered(suit, rank)
+  let context = {
+    ..@mahjong.WinContext::new(
+      @mahjong.Tsumo,
+      seat_wind=@mahjong.South,
+      round_wind=@mahjong.East,
+    ),
+    riichi: @mahjong.Riichi,
+  }
+  let input = @mahjong.HandInput::new(
+    [
+      tile(@mahjong.Man, 1),
+      tile(@mahjong.Man, 2),
+      tile(@mahjong.Man, 3),
+      tile(@mahjong.Man, 4),
+      tile(@mahjong.Man, 5),
+      tile(@mahjong.Man, 6),
+      tile(@mahjong.Pin, 1),
+      tile(@mahjong.Pin, 2),
+      tile(@mahjong.Pin, 3),
+      tile(@mahjong.Sou, 7),
+      tile(@mahjong.Sou, 8),
+      tile(@mahjong.Pin, 5),
+      tile(@mahjong.Pin, 5),
+    ],
+    winning_tile=tile(@mahjong.Sou, 9),
+    context~,
   )
-  println("\{result.han}翻 \{result.fu}符 \{result.winner_gain}点")
+  let result = @mahjong.score_standard(input)
+  match result.payment {
+    @mahjong.NonDealerTsumoPayment(dealer~, non_dealer_each~) => {
+      println("\{result.han}翻 \{result.fu}符")
+      println(
+        "子 \{non_dealer_each}点 / 親 \{dealer}点（合計 \{result.winner_gain}点）",
+      )
+    }
+    _ => println("unexpected payment")
+  }
 }
 ```
 
-実行すると`2翻 30符 2000点`と表示されます。
+実行すると次のように表示されます。
 
 ```sh
 moon run cmd/main
 ```
 
+```text
+3翻 20符
+子 700点 / 親 1300点（合計 2700点）
+```
+
 ## 公開API
 
-基本の入口は、標準ルールで計算する`score_standard`と、`RuleSet`を指定する`score`です。入力の`HandInput.concealed_tiles`には和了牌を含めず、和了牌は`winning_tile`へ指定します。
+基本の入口は、標準ルールで計算する`score_standard`と、`RuleSet`を指定する`score`です。上の例のように、`HandInput.concealed_tiles`には和了牌を含めず、ツモ牌またはロン牌を`winning_tile`へ指定します。
 
-次の例は、南家が立直して平和をロン和了した場合です。2翻30符、2,000点になります。
-
-```mbt check
-///|
-test "score a standard riichi hand" {
-  let tile = (suit, rank) => @mahjong.Tile::numbered(suit, rank)
-  let context = {
-    ..@mahjong.WinContext::new(Ron, seat_wind=South, round_wind=East),
-    riichi: Riichi,
-  }
-  let input = @mahjong.HandInput::new(
-    [
-      tile(Man, 1),
-      tile(Man, 2),
-      tile(Man, 3),
-      tile(Man, 4),
-      tile(Man, 5),
-      tile(Man, 6),
-      tile(Pin, 1),
-      tile(Pin, 2),
-      tile(Pin, 3),
-      tile(Sou, 7),
-      tile(Sou, 8),
-      tile(Pin, 5),
-      tile(Pin, 5),
-    ],
-    winning_tile=tile(Sou, 9),
-    context~,
-  )
-  let result = @mahjong.score_standard(input)
-  assert_eq(result.han, 2)
-  assert_eq(result.fu, 30)
-  assert_eq(result.payment, RonPayment(discarder=2000))
-  assert_eq(result.winner_gain, 2000)
-}
-```
+`ScoreResult`からは翻数の`han`、符数の`fu`、支払い内訳の`payment`、供託を含む和了者の受取額`winner_gain`などを取得できます。
 
 和了形かどうかだけを調べる場合は`is_winning_hand`、既に確定した翻数と符から支払いを計算する場合は`calculate_points`を使用できます。役判定、符計算、ドラ計算、和了形分解は`score`の内部処理です。
 
