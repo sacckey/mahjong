@@ -57,6 +57,8 @@ JSONの入力、結果、エラーコードは[`docs/json-api-v1.md`](../docs/js
 
 手牌、和了牌、鳴き・槓、ドラ表示牌、和了条件をGUIで入力できる静的アプリを[`examples/browser`](../examples/browser/)に置いています。
 
+公開版は<https://sacckey.github.io/mahjong/>で試せます。ローカルで動かす場合は、リポジトリのルートで次を実行します。
+
 ```sh
 moon build --target wasm-gc src/ffi
 moon build --target js src/ffi
