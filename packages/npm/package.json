@@ -1,0 +1,50 @@
+{
+  "name": "@sacckey/mahjong",
+  "version": "0.1.0",
+  "description": "Four-player riichi mahjong scoring for JavaScript and TypeScript, powered by MoonBit.",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "dist/engine.js",
+    "dist/engine.wasm",
+    "index.d.ts",
+    "index.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "sh ./scripts/build.sh",
+    "test": "npm run build && node --test test/npm.test.mjs",
+    "prepack": "npm run build"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sacckey/mahjong.git",
+    "directory": "packages/npm"
+  },
+  "homepage": "https://sacckey.github.io/mahjong/",
+  "bugs": "https://github.com/sacckey/mahjong/issues",
+  "keywords": [
+    "mahjong",
+    "riichi",
+    "scoring",
+    "wasm",
+    "moonbit"
+  ],
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  }
+}

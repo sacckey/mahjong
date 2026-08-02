@@ -58,10 +58,7 @@ JS・Wasm-GCなどMoonBit外の呼び出し元では、`sacckey/mahjong/ffi`が�
     "basePoints": 480,
     "payment": {
       "kind": "ron",
-      "discarder": 2000,
-      "each": null,
-      "dealer": null,
-      "nonDealerEach": null
+      "discarder": 2000
     },
     "riichiBonus": 0,
     "winnerGain": 2000,
@@ -90,7 +87,7 @@ JS・Wasm-GCなどMoonBit外の呼び出し元では、`sacckey/mahjong/ffi`が�
 }
 ```
 
-支払いは`ron`、`dealerTsumo`、`nonDealerTsumo`の3形式です。該当しない支払いフィールドは`null`になります。
+支払いは`ron`、`dealerTsumo`、`nonDealerTsumo`の3形式です。`ron`は`discarder`、`dealerTsumo`は`each`、`nonDealerTsumo`は`dealer`と`nonDealerEach`を持ち、該当しない支払いフィールドは出力されません。
 
 ## 失敗
 

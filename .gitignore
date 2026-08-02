@@ -5,3 +5,6 @@ target
 .mooncakes/
 .moonagent/
 src/conformance_generated_*_test.mbt
+packages/npm/dist/
+packages/npm/LICENSE
+packages/npm/*.tgz

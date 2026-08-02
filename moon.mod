@@ -31,6 +31,7 @@ options(
   exclude: [
     "AGENTS.md",
     "examples",
+    "packages",
     "tools",
     "**/*_test.mbt",
     "**/*_wbtest.mbt",

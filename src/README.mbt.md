@@ -101,6 +101,14 @@ MoonBit外との境界には`sacckey/mahjong/ffi`パッケージを使用しま�
 
 JSONの入力、結果、エラーコードは[`docs/json-api-v1.md`](../docs/json-api-v1.md)で定義しています。境界層はコアのMoonBit APIから分離されているため、MoonBitから利用する場合は引き続き型付きの`score_standard`または`score`を使えます。
 
+JavaScript・TypeScriptからは`@sacckey/mahjong`を使用できます。パッケージはWasm-GCを優先し、利用できない環境ではJavaScript生成物へ切り替わります。
+
+```sh
+npm install @sacckey/mahjong
+```
+
+npm向けのAPIと開発手順は[`packages/npm/README.md`](../packages/npm/README.md)を参照してください。
+
 ## ブラウザ利用例
 
 手牌、和了牌、鳴き・槓、ドラ表示牌、和了条件をGUIで入力できる静的アプリを[`examples/browser`](../examples/browser/)に置いています。

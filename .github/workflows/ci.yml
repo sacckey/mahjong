@@ -58,6 +58,14 @@ jobs:
       - name: Smoke test browser boundary
         run: node --no-warnings examples/browser/smoke.mjs
 
+      - name: Test npm package
+        working-directory: packages/npm
+        run: npm test
+
+      - name: Check npm package contents
+        working-directory: packages/npm
+        run: npm pack --dry-run
+
       - name: Check generated interface
         run: |
           moon info
