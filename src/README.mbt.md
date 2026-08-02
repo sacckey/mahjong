@@ -4,6 +4,53 @@ MoonBitで実装する四人リーチ麻雀の点数計算ライブラリです�
 
 通常ルールの一局について、入力検証、和了形列挙、役・ドラ・符の判定、支払い計算、最高点となる解釈の選択まで実装しています。ルールの初期仕様は[`docs/rules-v1.md`](../docs/rules-v1.md)を参照してください。
 
+## インストールと実行
+
+既存のMoonBitプロジェクトにライブラリを追加します。
+
+```sh
+moon add sacckey/mahjong
+```
+
+新規プロジェクトで試す場合は、次のように作成できます。
+
+```sh
+moon new mahjong-example
+cd mahjong-example
+moon add sacckey/mahjong
+```
+
+`cmd/main/moon.pkg`でライブラリをimportします。
+
+```moonbit nocheck
+import {
+  "sacckey/mahjong"
+}
+
+pkgtype(kind: "executable")
+```
+
+`cmd/main/main.mbt`を次の内容にします。この最小例は、確定済みの2翻30符から子のロン和了点を計算します。
+
+```moonbit nocheck
+///|
+fn main raise {
+  let result = @mahjong.calculate_points(
+    2,
+    30,
+    dealer=false,
+    win_method=@mahjong.Ron,
+  )
+  println("\{result.han}翻 \{result.fu}符 \{result.winner_gain}点")
+}
+```
+
+実行すると`2翻 30符 2000点`と表示されます。
+
+```sh
+moon run cmd/main
+```
+
 ## 公開API
 
 基本の入口は、標準ルールで計算する`score_standard`と、`RuleSet`を指定する`score`です。入力の`HandInput.concealed_tiles`には和了牌を含めず、和了牌は`winning_tile`へ指定します。
