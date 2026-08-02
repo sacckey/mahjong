@@ -14,9 +14,10 @@ export class MahjongError extends Error {
 function validateEngine(engine, backend) {
   if (
     typeof engine?.mahjong_api_version !== "function" ||
-    typeof engine?.mahjong_score_json !== "function"
+    typeof engine?.mahjong_score_json !== "function" ||
+    typeof engine?.mahjong_analysis_json !== "function"
   ) {
-    throw new TypeError(`${backend} scoring engine has invalid exports`);
+    throw new TypeError(`${backend} mahjong engine has invalid exports`);
   }
   const apiVersion = engine.mahjong_api_version();
   if (apiVersion !== API_VERSION) {
@@ -25,7 +26,10 @@ function validateEngine(engine, backend) {
     );
   }
   if (typeof engine.mahjong_score_json("{") !== "string") {
-    throw new TypeError(`${backend} scoring engine cannot exchange strings`);
+    throw new TypeError(`${backend} mahjong engine cannot exchange strings`);
+  }
+  if (typeof engine.mahjong_analysis_json("{") !== "string") {
+    throw new TypeError(`${backend} mahjong engine cannot analyze JSON`);
   }
   return engine;
 }
@@ -67,7 +71,7 @@ function decodeResponse(raw) {
   try {
     response = JSON.parse(raw);
   } catch (cause) {
-    throw new TypeError("Scoring engine returned invalid JSON", { cause });
+    throw new TypeError("Mahjong engine returned invalid JSON", { cause });
   }
   if (
     typeof response !== "object" ||
@@ -82,10 +86,32 @@ function decodeResponse(raw) {
 
 function createCalculatorFromEngine(engine, backend) {
   const scoreJson = (input) => engine.mahjong_score_json(input);
+  const analysisJson = (input) => engine.mahjong_analysis_json(input);
   const scoreResponse = (request) =>
     decodeResponse(scoreJson(JSON.stringify(request)));
+  const analysisResponse = (request) =>
+    decodeResponse(
+      analysisJson(
+        JSON.stringify({
+          ...request,
+          input: {
+            ...request.input,
+            melds: request.input.melds ?? [],
+          },
+        }),
+      ),
+    );
   const score = (request) => {
     const response = scoreResponse(request);
+    if (!response.ok) throw new MahjongError(response.error);
+    return response.result;
+  };
+  const analyze = (operation, input) => {
+    const response = analysisResponse({
+      apiVersion: API_VERSION,
+      operation,
+      input,
+    });
     if (!response.ok) throw new MahjongError(response.error);
     return response.result;
   };
@@ -95,6 +121,11 @@ function createCalculatorFromEngine(engine, backend) {
     score,
     scoreJson,
     scoreResponse,
+    analysisJson,
+    analysisResponse,
+    calculateShanten: (input) => analyze("calculateShanten", input),
+    isTenpai: (input) => analyze("isTenpai", input),
+    waitingTiles: (input) => analyze("waitingTiles", input),
   });
 }
 

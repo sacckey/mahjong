@@ -33,6 +33,30 @@ export interface Meld {
   tiles: Tile[];
 }
 
+export interface AnalysisInput {
+  /** All concealed tiles currently in the hand. */
+  concealedTiles: Tile[];
+  melds?: Meld[];
+}
+
+export type AnalysisOperation =
+  | "calculateShanten"
+  | "isTenpai"
+  | "waitingTiles";
+
+export interface AnalysisRequest {
+  apiVersion: typeof API_VERSION;
+  operation: AnalysisOperation;
+  input: AnalysisInput;
+}
+
+export interface ShantenResult {
+  minimum: number;
+  standard: number;
+  sevenPairs: number | null;
+  thirteenOrphans: number | null;
+}
+
 export interface Hand {
   /** The concealed tiles without the winning tile. */
   concealedTiles: Tile[];
@@ -257,6 +281,14 @@ export interface ScoreFailure {
 
 export type ScoreResponse = ScoreSuccess | ScoreFailure;
 
+export interface AnalysisSuccess {
+  apiVersion: typeof API_VERSION;
+  ok: true;
+  result: ShantenResult | boolean | TileKind[];
+}
+
+export type AnalysisResponse = AnalysisSuccess | ScoreFailure;
+
 export class MahjongError extends Error {
   readonly code: ScoreErrorCode;
   readonly details: unknown;
@@ -269,6 +301,11 @@ export interface Calculator {
   score(request: ScoreRequest): ScoreResult;
   scoreResponse(request: ScoreRequest): ScoreResponse;
   scoreJson(input: string): string;
+  calculateShanten(input: AnalysisInput): ShantenResult;
+  isTenpai(input: AnalysisInput): boolean;
+  waitingTiles(input: AnalysisInput): TileKind[];
+  analysisResponse(request: AnalysisRequest): AnalysisResponse;
+  analysisJson(input: string): string;
 }
 
 export function createCalculator(options?: CalculatorOptions): Promise<Calculator>;

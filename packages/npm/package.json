@@ -1,7 +1,7 @@
 {
   "name": "@sacckey/mahjong",
-  "version": "0.1.0",
-  "description": "Four-player riichi mahjong scoring for JavaScript and TypeScript, powered by MoonBit.",
+  "version": "0.2.0",
+  "description": "Four-player riichi mahjong scoring and hand analysis for JavaScript and TypeScript, powered by MoonBit.",
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
@@ -40,6 +40,7 @@
     "mahjong",
     "riichi",
     "scoring",
+    "shanten",
     "wasm",
     "moonbit"
   ],

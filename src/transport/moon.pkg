@@ -1,4 +1,5 @@
 import {
   "sacckey/mahjong",
+  "sacckey/mahjong/analysis",
   "moonbitlang/core/json",
 }

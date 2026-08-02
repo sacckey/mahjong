@@ -130,3 +130,13 @@ fn hand_from_request(
     context: context_from_dto(request.context),
   }
 }
+
+///|
+fn analysis_input_from_request(
+  request : AnalysisRequestDto,
+) -> @analysis.AnalysisInput raise RequestError {
+  @analysis.AnalysisInput::new(
+    request.input.concealedTiles.map(tile_from_dto),
+    melds=request.input.melds.map(meld_from_dto),
+  )
+}

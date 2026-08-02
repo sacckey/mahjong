@@ -111,7 +111,7 @@ import {
 
 ## JS・Wasm-GCから使う
 
-MoonBit外との境界には`sacckey/mahjong/ffi`パッケージを使用します。JSとWasm-GCのどちらにも、同じJSONプロトコルを受け取る`mahjong_score_json`と、プロトコルバージョンを返す`mahjong_api_version`がexportされます。
+MoonBit外との境界には`sacckey/mahjong/ffi`パッケージを使用します。JSとWasm-GCのどちらにも、同じJSONプロトコルを受け取る`mahjong_score_json`、`mahjong_analysis_json`と、プロトコルバージョンを返す`mahjong_api_version`がexportされます。
 
 JSONの入力、結果、エラーコードは[`docs/json-api-v1.md`](../docs/json-api-v1.md)で定義しています。境界層はコアのMoonBit APIから分離されているため、MoonBitから利用する場合は引き続き型付きの`score_standard`または`score`を使えます。
 

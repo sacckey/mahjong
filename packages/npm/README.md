@@ -1,6 +1,6 @@
 # @sacckey/mahjong
 
-MoonBitで実装した四人リーチ麻雀の点数計算ライブラリを、JavaScript・TypeScriptから利用するためのnpmパッケージです。
+MoonBitで実装した四人リーチ麻雀の点数計算・牌姿解析ライブラリを、JavaScript・TypeScriptから利用するためのnpmパッケージです。
 
 ## インストール
 
@@ -50,6 +50,29 @@ console.log(result.han, result.fu, result.payment);
 
 `createCalculator()`はWasm-GCを優先し、利用できない環境ではJavaScript生成物へ自動的に切り替えます。使用中の実装は`calculator.backend`で確認できます。
 
+## シャンテン数・聴牌・待ち牌
+
+`concealedTiles`には、現在の副露前の手牌をすべて渡します。点数計算の入力とは異なり、和了牌を分離しません。副露がなければ`melds`は省略できます。
+
+```js
+const input = {
+  concealedTiles: [
+    "1m", "2m", "3m", "4m", "5m", "6m", "1p",
+    "2p", "3p", "7s", "8s", "5p", "5p",
+  ].map((kind) => tile(kind)),
+};
+
+const shanten = calculator.calculateShanten(input);
+const tenpai = calculator.isTenpai(input);
+const waits = calculator.waitingTiles(input);
+
+console.log(shanten.minimum); // 0
+console.log(tenpai); // true
+console.log(waits); // ["6s", "9s"]
+```
+
+`waitingTiles()`と`isTenpai()`は構造上13枚の入力だけを受け付けます。役、フリテン、河や山に残る枚数は考慮しません。
+
 ## エラー
 
 `score()`は入力や和了判定のエラー時に`MahjongError`をthrowします。`code`を画面表示用の文言に対応付けてください。
@@ -66,7 +89,7 @@ try {
 }
 ```
 
-throwせずに成功・失敗のエンベロープを受け取る場合は`scoreResponse()`、JSON文字列の低レベル境界を直接使う場合は`scoreJson()`を使用します。
+throwせずに成功・失敗のエンベロープを受け取る場合は`scoreResponse()`または`analysisResponse()`、JSON文字列の低レベル境界を直接使う場合は`scoreJson()`または`analysisJson()`を使用します。
 
 JSON API v1の詳細は[GitHubの仕様](https://github.com/sacckey/mahjong/blob/main/docs/json-api-v1.md)を参照してください。
 

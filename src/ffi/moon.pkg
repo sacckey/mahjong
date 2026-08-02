@@ -12,6 +12,7 @@ options(
       "exports": [
         "api_version:mahjong_api_version",
         "score_json:mahjong_score_json",
+        "analysis_json:mahjong_analysis_json",
       ],
       "format": "esm",
     },
@@ -19,6 +20,7 @@ options(
       "exports": [
         "api_version:mahjong_api_version",
         "score_json:mahjong_score_json",
+        "analysis_json:mahjong_analysis_json",
       ],
       "use-js-builtin-string": true,
     },

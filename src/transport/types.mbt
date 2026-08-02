@@ -45,6 +45,19 @@ priv struct ScoreRequestDto {
 } derive(FromJson)
 
 ///|
+priv struct AnalysisInputDto {
+  concealedTiles : Array[TileDto]
+  melds : Array[MeldDto]
+} derive(FromJson)
+
+///|
+priv struct AnalysisRequestDto {
+  apiVersion : Int
+  operation : String
+  input : AnalysisInputDto
+} derive(FromJson)
+
+///|
 priv struct YakuDto {
   id : String
   han : Int
@@ -111,10 +124,25 @@ priv struct ScoreResultDto {
 } derive(ToJson)
 
 ///|
+priv struct ShantenResultDto {
+  minimum : Int
+  standard : Int
+  sevenPairs : Int?
+  thirteenOrphans : Int?
+} derive(ToJson)
+
+///|
 priv struct SuccessEnvelope {
   apiVersion : Int
   ok : Bool
   result : ScoreResultDto
+} derive(ToJson)
+
+///|
+priv struct AnalysisSuccessEnvelope {
+  apiVersion : Int
+  ok : Bool
+  result : Json
 } derive(ToJson)
 
 ///|

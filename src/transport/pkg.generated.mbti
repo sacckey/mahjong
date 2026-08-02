@@ -2,6 +2,8 @@
 package "sacckey/mahjong/transport"
 
 // Values
+pub fn analysis_json(String) -> String
+
 pub fn api_version() -> Int
 
 pub fn score_json(String) -> String

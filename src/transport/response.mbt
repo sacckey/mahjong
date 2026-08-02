@@ -204,3 +204,13 @@ fn score_result_dto(result : @mahjong.ScoreResult) -> ScoreResultDto {
     shape: shape_dto(result.shape),
   }
 }
+
+///|
+fn shanten_result_dto(result : @analysis.ShantenResult) -> ShantenResultDto {
+  {
+    minimum: result.minimum,
+    standard: result.standard,
+    sevenPairs: result.seven_pairs,
+    thirteenOrphans: result.thirteen_orphans,
+  }
+}

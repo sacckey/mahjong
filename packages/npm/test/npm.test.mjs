@@ -48,6 +48,24 @@ const sampleRequest = {
   rules: "standard",
 };
 
+const tenpaiInput = {
+  concealedTiles: [
+    "1m",
+    "2m",
+    "3m",
+    "4m",
+    "5m",
+    "6m",
+    "1p",
+    "2p",
+    "3p",
+    "7s",
+    "8s",
+    "5p",
+    "5p",
+  ].map((kind) => tile(kind)),
+};
+
 function verifyResult(result) {
   assert.equal(result.han, 2);
   assert.equal(result.fu, 30);
@@ -114,6 +132,52 @@ test("score throws MahjongError for scoring errors", async () => {
 test("scoreJson exposes the raw JSON boundary", async () => {
   const calculator = await createCalculator({ backend: "javascript" });
   const response = JSON.parse(calculator.scoreJson("{"));
+  assert.equal(response.ok, false);
+  assert.equal(response.error.code, "invalid_json");
+});
+
+for (const backend of ["javascript", "wasm-gc"]) {
+  test(`${backend} backend analyzes shanten and waits`, async () => {
+    const calculator = await createCalculator({ backend });
+    assert.deepEqual(calculator.calculateShanten(tenpaiInput), {
+      minimum: 0,
+      standard: 0,
+      sevenPairs: 5,
+      thirteenOrphans: 11,
+    });
+    assert.equal(calculator.isTenpai(tenpaiInput), true);
+    assert.deepEqual(calculator.waitingTiles(tenpaiInput), ["6s", "9s"]);
+  });
+}
+
+test("analysisResponse keeps analysis errors as values", async () => {
+  const calculator = await createCalculator({ backend: "javascript" });
+  const response = calculator.analysisResponse({
+    apiVersion: API_VERSION,
+    operation: "waitingTiles",
+    input: {
+      concealedTiles: tenpaiInput.concealedTiles.slice(0, 12),
+    },
+  });
+  assert.equal(response.ok, false);
+  assert.equal(response.error.code, "invalid_hand_size");
+});
+
+test("analysis methods throw MahjongError for invalid hands", async () => {
+  const calculator = await createCalculator({ backend: "javascript" });
+  assert.throws(
+    () =>
+      calculator.calculateShanten({
+        concealedTiles: tenpaiInput.concealedTiles.slice(0, 12),
+      }),
+    (error) =>
+      error instanceof MahjongError && error.code === "invalid_hand_size",
+  );
+});
+
+test("analysisJson exposes the raw JSON boundary", async () => {
+  const calculator = await createCalculator({ backend: "javascript" });
+  const response = JSON.parse(calculator.analysisJson("{"));
   assert.equal(response.ok, false);
   assert.equal(response.error.code, "invalid_json");
 });

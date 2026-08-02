@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
+  mahjong_analysis_json as jsAnalysisJson,
   mahjong_api_version as jsApiVersion,
   mahjong_score_json as jsScoreJson,
 } from "../../_build/js/debug/build/ffi/ffi.js";
@@ -34,6 +35,14 @@ const sampleRequest = {
   },
   rules: "standard",
 };
+const sampleAnalysisRequest = {
+  apiVersion: 1,
+  operation: "waitingTiles",
+  input: {
+    concealedTiles: sampleRequest.hand.concealedTiles,
+    melds: [],
+  },
+};
 
 assert.equal(tileAssetRevision, "26e127ba2117f45cdce5ea0225748cc0cfad3169");
 assert.match(tileFrontAssetUrl, /\/Regular\/Front\.svg$/);
@@ -58,7 +67,7 @@ assert.deepEqual(
   [tile("1m"), tile("5m"), tile("5m", true), tile("9p"), tile("1s"), tile("east"), tile("red")],
 );
 
-function verifyEngine(apiVersion, scoreJson, backend) {
+function verifyEngine(apiVersion, scoreJson, analysisJson, backend) {
   assert.equal(apiVersion(), 1, `${backend}: API version`);
   const response = JSON.parse(scoreJson("{"));
   assert.equal(response.apiVersion, 1, `${backend}: response API version`);
@@ -69,15 +78,23 @@ function verifyEngine(apiVersion, scoreJson, backend) {
   assert.equal(score.result.han, 2, `${backend}: han`);
   assert.equal(score.result.fu, 30, `${backend}: fu`);
   assert.equal(score.result.payment.discarder, 2000, `${backend}: payment`);
+  const analysis = JSON.parse(analysisJson(JSON.stringify(sampleAnalysisRequest)));
+  assert.equal(analysis.ok, true, `${backend}: analysis envelope`);
+  assert.deepEqual(analysis.result, ["6s", "9s"], `${backend}: waiting tiles`);
 }
 
-verifyEngine(jsApiVersion, jsScoreJson, "JavaScript");
+verifyEngine(jsApiVersion, jsScoreJson, jsAnalysisJson, "JavaScript");
 
 const wasmBytes = await readFile(new URL("../../_build/wasm-gc/debug/build/ffi/ffi.wasm", import.meta.url));
 const { instance } = await WebAssembly.instantiate(wasmBytes, {}, {
   builtins: ["js-string"],
   importedStringConstants: "_",
 });
-verifyEngine(instance.exports.mahjong_api_version, instance.exports.mahjong_score_json, "Wasm-GC");
+verifyEngine(
+  instance.exports.mahjong_api_version,
+  instance.exports.mahjong_score_json,
+  instance.exports.mahjong_analysis_json,
+  "Wasm-GC",
+);
 
 console.log("Browser boundary smoke test passed for JavaScript and Wasm-GC.");
