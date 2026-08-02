@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import {
   API_VERSION,
@@ -180,4 +181,36 @@ test("analysisJson exposes the raw JSON boundary", async () => {
   const response = JSON.parse(calculator.analysisJson("{"));
   assert.equal(response.ok, false);
   assert.equal(response.error.code, "invalid_json");
+});
+
+test("an invalid import.meta.url does not break the JavaScript backend", async () => {
+  const source = await readFile(new URL("../index.js", import.meta.url), "utf8");
+  const engineProperty = "__mahjongWorkerdTestEngine";
+  globalThis[engineProperty] = {
+    mahjong_api_version: () => API_VERSION,
+    mahjong_score_json: () =>
+      JSON.stringify({ apiVersion: API_VERSION, ok: false, error: {} }),
+    mahjong_analysis_json: () =>
+      JSON.stringify({ apiVersion: API_VERSION, ok: false, error: {} }),
+  };
+  try {
+    const workerdLikeSource = source
+      .replaceAll("import.meta.url", '""')
+      .replace(
+        'await import("./dist/engine.js")',
+        `globalThis.${engineProperty}`,
+      );
+    const moduleUrl = `data:text/javascript;base64,${Buffer.from(
+      workerdLikeSource,
+    ).toString("base64")}`;
+    const workerdLikeModule = await import(moduleUrl);
+    const javascript = await workerdLikeModule.createCalculator({
+      backend: "javascript",
+    });
+    assert.equal(javascript.backend, "javascript");
+    const automatic = await workerdLikeModule.createCalculator();
+    assert.equal(automatic.backend, "javascript");
+  } finally {
+    delete globalThis[engineProperty];
+  }
 });

@@ -1,6 +1,6 @@
 export const API_VERSION = 1;
 
-const DEFAULT_WASM_URL = new URL("./dist/engine.wasm", import.meta.url);
+const DEFAULT_WASM_PATH = "./dist/engine.wasm";
 
 export class MahjongError extends Error {
   constructor(error) {
@@ -51,8 +51,26 @@ async function readWasm(url) {
   return response.arrayBuffer();
 }
 
+function resolveWasmUrl(wasmUrl) {
+  if (wasmUrl instanceof URL) return wasmUrl;
+  if (typeof wasmUrl === "string") {
+    try {
+      return new URL(wasmUrl);
+    } catch {
+      // Relative URLs need the package module URL as their base.
+    }
+  }
+  const moduleUrl = import.meta.url;
+  if (typeof moduleUrl !== "string" || moduleUrl.length === 0) {
+    throw new TypeError(
+      "Cannot resolve the Wasm-GC engine URL in this runtime; pass an absolute wasmUrl",
+    );
+  }
+  return new URL(wasmUrl ?? DEFAULT_WASM_PATH, moduleUrl);
+}
+
 async function loadWasmEngine(wasmUrl) {
-  const url = wasmUrl instanceof URL ? wasmUrl : new URL(wasmUrl, import.meta.url);
+  const url = resolveWasmUrl(wasmUrl);
   const bytes = await readWasm(url);
   const { instance } = await WebAssembly.instantiate(bytes, {}, {
     builtins: ["js-string"],
@@ -131,10 +149,9 @@ function createCalculatorFromEngine(engine, backend) {
 
 export async function createCalculator(options = {}) {
   const backend = options.backend ?? "auto";
-  const wasmUrl = options.wasmUrl ?? DEFAULT_WASM_URL;
   if (backend === "wasm-gc") {
     return createCalculatorFromEngine(
-      await loadWasmEngine(wasmUrl),
+      await loadWasmEngine(options.wasmUrl),
       "wasm-gc",
     );
   }
@@ -149,7 +166,7 @@ export async function createCalculator(options = {}) {
   }
   try {
     return createCalculatorFromEngine(
-      await loadWasmEngine(wasmUrl),
+      await loadWasmEngine(options.wasmUrl),
       "wasm-gc",
     );
   } catch (wasmError) {

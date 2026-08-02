@@ -50,6 +50,8 @@ console.log(result.han, result.fu, result.payment);
 
 `createCalculator()`はWasm-GCを優先し、利用できない環境ではJavaScript生成物へ自動的に切り替えます。使用中の実装は`calculator.backend`で確認できます。
 
+Cloudflare Workersなどのworkerd環境でJavaScript生成物を使用する場合は、`createCalculator({ backend: "javascript" })`を指定できます。この場合、WasmファイルのURL解決や取得は行いません。
+
 ## シャンテン数・聴牌・待ち牌
 
 `concealedTiles`には、現在の副露前の手牌をすべて渡します。点数計算の入力とは異なり、和了牌を分離しません。副露がなければ`melds`は省略できます。
