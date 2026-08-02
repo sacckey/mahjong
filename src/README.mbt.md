@@ -1,6 +1,6 @@
 # sacckey/mahjong
 
-MoonBitで実装する四人リーチ麻雀の点数計算ライブラリです。
+MoonBitで実装する四人リーチ麻雀の点数計算・牌姿解析ライブラリです。
 
 通常ルールの一局について、入力検証、和了形列挙、役・ドラ・符の判定、支払い計算、最高点となる解釈の選択まで実装しています。ルールの初期仕様は[`docs/rules-v1.md`](../docs/rules-v1.md)を参照してください。
 
@@ -94,6 +94,20 @@ moon run cmd/main
 `ScoreResult`からは翻数の`han`、符数の`fu`、支払い内訳の`payment`、供託を含む和了者の受取額`winner_gain`などを取得できます。
 
 和了形かどうかだけを調べる場合は`is_winning_hand`、既に確定した翻数と符から支払いを計算する場合は`calculate_points`を使用できます。役判定、符計算、ドラ計算、和了形分解は`score`の内部処理です。
+
+## シャンテン数・聴牌・待ち牌
+
+牌姿の解析には`sacckey/mahjong/analysis`パッケージを使用します。点数計算とは独立して、通常形、七対子、国士無双のシャンテン数、構造上の聴牌状態、待ち牌一覧を計算します。
+
+```moonbit nocheck
+///|
+import {
+  "sacckey/mahjong",
+  "sacckey/mahjong/analysis",
+}
+```
+
+基本の入口は`calculate_shanten`、`is_tenpai`、`waiting_tiles`です。待ち牌判定は役、フリテン、河に見えている牌を考慮しません。詳細は[`docs/analysis-v1.md`](../docs/analysis-v1.md)を参照してください。
 
 ## JS・Wasm-GCから使う
 

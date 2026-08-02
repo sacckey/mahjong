@@ -1,0 +1,41 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "sacckey/mahjong/analysis"
+
+import {
+  "moonbitlang/core/debug",
+  "sacckey/mahjong",
+}
+
+// Values
+pub fn calculate_shanten(AnalysisInput) -> ShantenResult raise AnalysisError
+
+pub fn is_tenpai(AnalysisInput) -> Bool raise AnalysisError
+
+pub fn waiting_tiles(AnalysisInput) -> Array[@mahjong.TileKind] raise AnalysisError
+
+// Errors
+pub(all) suberror AnalysisError {
+  InvalidTile(String)
+  TooManyCopies(@mahjong.TileKind, Int)
+  InvalidMeld(String)
+  InvalidHandSize(Int)
+} derive(Eq, @debug.Debug)
+
+// Types and methods
+pub(all) struct AnalysisInput {
+  concealed_tiles : Array[@mahjong.Tile]
+  melds : Array[@mahjong.Meld]
+} derive(Eq, @debug.Debug)
+pub fn AnalysisInput::new(Array[@mahjong.Tile], melds? : Array[@mahjong.Meld]) -> Self
+
+pub(all) struct ShantenResult {
+  minimum : Int
+  standard : Int
+  seven_pairs : Int?
+  thirteen_orphans : Int?
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

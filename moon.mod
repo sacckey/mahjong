@@ -23,7 +23,7 @@ keywords = [ "mahjong", "riichi", "scoring" ]
 
 preferred_target = "wasm"
 
-description = "A four-player riichi mahjong scoring library for MoonBit."
+description = "A four-player riichi mahjong scoring and hand analysis library for MoonBit."
 
 source = "src"
 
