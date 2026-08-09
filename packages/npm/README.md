@@ -75,6 +75,22 @@ console.log(waits); // ["6s", "9s"]
 
 `waitingTiles()`と`isTenpai()`は構造上13枚の入力だけを受け付けます。役、フリテン、河や山に残る枚数は考慮しません。
 
+## 立直後の暗槓
+
+立直時に固定された13枚と、その後にツモった4枚目の牌を渡します。すべての和了形で元の3枚が独立した暗刻になる場合だけ`true`を返します。
+
+```js
+const input = {
+  concealedTiles: [
+    "5m", "5m", "5m", "1p", "2p", "3p", "4p",
+    "5p", "6p", "7s", "8s", "east", "east",
+  ].map((kind) => tile(kind)),
+};
+
+const allowed = calculator.canClosedKanAfterRiichi(input, tile("5m"));
+console.log(allowed); // true
+```
+
 ## エラー
 
 `score()`は入力や和了判定のエラー時に`MahjongError`をthrowします。`code`を画面表示用の文言に対応付けてください。

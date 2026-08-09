@@ -7,6 +7,10 @@ let tenpai_analysis_request : String =
   #|{"apiVersion":1,"operation":"calculateShanten","input":{"concealedTiles":[{"kind":"1m","red":false},{"kind":"2m","red":false},{"kind":"3m","red":false},{"kind":"4m","red":false},{"kind":"5m","red":false},{"kind":"6m","red":false},{"kind":"1p","red":false},{"kind":"2p","red":false},{"kind":"3p","red":false},{"kind":"7s","red":false},{"kind":"8s","red":false},{"kind":"5p","red":false},{"kind":"5p","red":false}],"melds":[]}}
 
 ///|
+let riichi_kan_analysis_request : String =
+  #|{"apiVersion":1,"operation":"canClosedKanAfterRiichi","input":{"concealedTiles":[{"kind":"5m","red":false},{"kind":"5m","red":false},{"kind":"5m","red":false},{"kind":"1p","red":false},{"kind":"2p","red":false},{"kind":"3p","red":false},{"kind":"4p","red":false},{"kind":"5p","red":false},{"kind":"6p","red":false},{"kind":"7s","red":false},{"kind":"8s","red":false},{"kind":"east","red":false},{"kind":"east","red":false}],"melds":[],"drawnTile":{"kind":"5m","red":false}}}
+
+///|
 test "JSON boundary returns a complete score" {
   let response = @transport.score_json(pinfu_request)
   assert_true(response.contains("\"apiVersion\":1"))
@@ -70,6 +74,20 @@ test "analysis JSON boundary reports tenpai and waiting tiles" {
     ),
   )
   assert_true(waits.contains("\"result\":[\"6s\",\"9s\"]"))
+}
+
+///|
+test "analysis JSON boundary checks a closed kan after riichi" {
+  let response = @transport.analysis_json(riichi_kan_analysis_request)
+  assert_true(response.contains("\"ok\":true"))
+  assert_true(response.contains("\"result\":true"))
+  let missing_draw = @transport.analysis_json(
+    riichi_kan_analysis_request.replace(
+      old=",\"drawnTile\":{\"kind\":\"5m\",\"red\":false}",
+      new="",
+    ),
+  )
+  assert_true(missing_draw.contains("\"code\":\"invalid_request\""))
 }
 
 ///|

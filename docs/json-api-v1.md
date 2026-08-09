@@ -92,7 +92,7 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 
 ## 牌姿解析
 
-`mahjong_analysis_json`は`calculateShanten`、`isTenpai`、`waitingTiles`の3操作を受け付けます。`concealedTiles`には現在の副露前の手牌をすべて含め、和了牌は分離しません。
+`mahjong_analysis_json`は`calculateShanten`、`isTenpai`、`waitingTiles`、`canClosedKanAfterRiichi`の4操作を受け付けます。`concealedTiles`には現在の副露前の手牌をすべて含め、和了牌は分離しません。
 
 ```json
 {
@@ -134,6 +134,34 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 ```
 
 `isTenpai`と`waitingTiles`は構造上13枚の入力だけを受け付けます。役、フリテン、河や山に残る枚数は考慮しません。
+
+`canClosedKanAfterRiichi`は、立直時に固定された構造上13枚と、その後にツモった4枚目の`drawnTile`を受け取ります。すべての和了形で元の3枚が独立した暗刻として使われる場合だけ`true`を返します。
+
+```json
+{
+  "apiVersion": 1,
+  "operation": "canClosedKanAfterRiichi",
+  "input": {
+    "concealedTiles": [
+      { "kind": "5m", "red": false },
+      { "kind": "5m", "red": false },
+      { "kind": "5m", "red": false },
+      { "kind": "1p", "red": false },
+      { "kind": "2p", "red": false },
+      { "kind": "3p", "red": false },
+      { "kind": "4p", "red": false },
+      { "kind": "5p", "red": false },
+      { "kind": "6p", "red": false },
+      { "kind": "7s", "red": false },
+      { "kind": "8s", "red": false },
+      { "kind": "east", "red": false },
+      { "kind": "east", "red": false }
+    ],
+    "melds": [],
+    "drawnTile": { "kind": "5m", "red": false }
+  }
+}
+```
 
 ## 失敗
 

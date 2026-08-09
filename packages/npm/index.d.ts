@@ -39,16 +39,34 @@ export interface AnalysisInput {
   melds?: Meld[];
 }
 
-export type AnalysisOperation =
+export type HandAnalysisOperation =
   | "calculateShanten"
   | "isTenpai"
   | "waitingTiles";
 
-export interface AnalysisRequest {
+export interface HandAnalysisRequest {
   apiVersion: typeof API_VERSION;
-  operation: AnalysisOperation;
+  operation: HandAnalysisOperation;
   input: AnalysisInput;
 }
+
+export interface RiichiKanAnalysisInput extends AnalysisInput {
+  drawnTile: Tile;
+}
+
+export interface RiichiKanAnalysisRequest {
+  apiVersion: typeof API_VERSION;
+  operation: "canClosedKanAfterRiichi";
+  input: RiichiKanAnalysisInput;
+}
+
+export type AnalysisOperation =
+  | HandAnalysisOperation
+  | "canClosedKanAfterRiichi";
+
+export type AnalysisRequest =
+  | HandAnalysisRequest
+  | RiichiKanAnalysisRequest;
 
 export interface ShantenResult {
   minimum: number;
@@ -304,6 +322,7 @@ export interface Calculator {
   calculateShanten(input: AnalysisInput): ShantenResult;
   isTenpai(input: AnalysisInput): boolean;
   waitingTiles(input: AnalysisInput): TileKind[];
+  canClosedKanAfterRiichi(input: AnalysisInput, drawnTile: Tile): boolean;
   analysisResponse(request: AnalysisRequest): AnalysisResponse;
   analysisJson(input: string): string;
 }

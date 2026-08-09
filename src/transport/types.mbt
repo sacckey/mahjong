@@ -48,6 +48,7 @@ priv struct ScoreRequestDto {
 priv struct AnalysisInputDto {
   concealedTiles : Array[TileDto]
   melds : Array[MeldDto]
+  drawnTile : TileDto?
 } derive(FromJson)
 
 ///|

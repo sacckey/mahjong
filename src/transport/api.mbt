@@ -170,8 +170,8 @@ pub fn score_json(input : String) -> String {
 ///|
 /// Analyze a hand through a target-independent JSON boundary.
 ///
-/// Supported operations are `calculateShanten`, `isTenpai`, and
-/// `waitingTiles`. This function never raises.
+/// Supported operations are `calculateShanten`, `isTenpai`, `waitingTiles`,
+/// and `canClosedKanAfterRiichi`. This function never raises.
 pub fn analysis_json(input : String) -> String {
   let parsed = @json.parse(input) catch {
     _ =>
@@ -225,6 +225,29 @@ pub fn analysis_json(input : String) -> String {
         error => return analysis_error_response(error)
       }
       encode_analysis_success(@json.to_json(result.map(tile_kind_code)))
+    }
+    "canClosedKanAfterRiichi" => {
+      guard request.input.drawnTile is Some(drawn_tile_dto) else {
+        return encode_error(
+          "invalid_request",
+          "The riichi closed-kan request requires a drawn tile.",
+          Json::null(),
+        )
+      }
+      let drawn_tile = tile_from_dto(drawn_tile_dto) catch {
+        InvalidRequest(message) =>
+          return encode_error(
+            "invalid_request",
+            "The analysis request contains an unsupported value.",
+            Json::object({ "reason": Json::string(message) }),
+          )
+      }
+      let result = @analysis.can_closed_kan_after_riichi(
+        analysis_input, drawn_tile,
+      ) catch {
+        error => return analysis_error_response(error)
+      }
+      encode_analysis_success(@json.to_json(result))
     }
     operation =>
       encode_error(

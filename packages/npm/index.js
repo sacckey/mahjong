@@ -144,6 +144,8 @@ function createCalculatorFromEngine(engine, backend) {
     calculateShanten: (input) => analyze("calculateShanten", input),
     isTenpai: (input) => analyze("isTenpai", input),
     waitingTiles: (input) => analyze("waitingTiles", input),
+    canClosedKanAfterRiichi: (input, drawnTile) =>
+      analyze("canClosedKanAfterRiichi", { ...input, drawnTile }),
   });
 }
 

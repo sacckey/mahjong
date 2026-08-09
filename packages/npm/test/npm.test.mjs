@@ -67,6 +67,24 @@ const tenpaiInput = {
   ].map((kind) => tile(kind)),
 };
 
+const legalRiichiKanInput = {
+  concealedTiles: [
+    "5m",
+    "5m",
+    "5m",
+    "1p",
+    "2p",
+    "3p",
+    "4p",
+    "5p",
+    "6p",
+    "7s",
+    "8s",
+    "east",
+    "east",
+  ].map((kind) => tile(kind)),
+};
+
 function verifyResult(result) {
   assert.equal(result.han, 2);
   assert.equal(result.fu, 30);
@@ -148,6 +166,14 @@ for (const backend of ["javascript", "wasm-gc"]) {
     });
     assert.equal(calculator.isTenpai(tenpaiInput), true);
     assert.deepEqual(calculator.waitingTiles(tenpaiInput), ["6s", "9s"]);
+  });
+
+  test(`${backend} backend checks a closed kan after riichi`, async () => {
+    const calculator = await createCalculator({ backend });
+    assert.equal(
+      calculator.canClosedKanAfterRiichi(legalRiichiKanInput, tile("5m")),
+      true,
+    );
   });
 }
 
