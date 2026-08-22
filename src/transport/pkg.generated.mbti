@@ -15,4 +15,3 @@ pub fn score_json(String) -> String
 // Type aliases
 
 // Traits
-
