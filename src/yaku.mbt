@@ -522,6 +522,26 @@ fn detect_regular_yaku(
 ///
 /// If one or more yakuman match, only yakuman are returned. Dora are evaluated
 /// separately and are not included in this result.
+fn detect_yaku_with_tile_copy_rules(
+  input : HandInput,
+  shape : HandShape,
+  rules : RuleSet,
+  tile_copy_rules : TileCopyRules,
+) -> Array[YakuValue] raise ScoreError {
+  let shapes = decompose_with_tile_copy_rules(input, tile_copy_rules)
+  if !shapes.contains(shape) {
+    raise InvalidHandShape
+  }
+  let counts = hand_tile_counts_with_tile_copy_rules(input, tile_copy_rules)
+  let yakuman = detect_yakuman(input, shape, counts, rules)
+  if !yakuman.is_empty() {
+    yakuman
+  } else {
+    detect_regular_yaku(input, shape, counts, rules)
+  }
+}
+
+///|
 fn detect_yaku(
   input : HandInput,
   shape : HandShape,

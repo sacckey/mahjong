@@ -88,26 +88,38 @@ fn add_count(
   counts : Array[Int],
   index : Int,
   kind : @mahjong.TileKind,
+  tile_copy_rules : @mahjong.TileCopyRules,
 ) -> Unit raise AnalysisError {
   counts[index] += 1
-  if counts[index] > 4 {
+  if tile_copy_rules.max_copies_per_kind is Some(limit) && counts[index] > limit {
     raise TooManyCopies(kind, counts[index])
   }
 }
 
 ///|
-fn validate_input(input : AnalysisInput) -> ValidatedInput raise AnalysisError {
+fn validate_input_with_tile_copy_rules(
+  input : AnalysisInput,
+  tile_copy_rules : @mahjong.TileCopyRules,
+) -> ValidatedInput raise AnalysisError {
+  if tile_copy_rules.max_copies_per_kind is Some(limit) && limit < 1 {
+    raise InvalidRule("max_copies_per_kind must be positive or absent")
+  }
   let concealed_counts = Array::make(34, 0)
   let total_counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
     let index = tile_index(tile)
-    add_count(concealed_counts, index, tile.kind)
-    add_count(total_counts, index, tile.kind)
+    add_count(concealed_counts, index, tile.kind, tile_copy_rules)
+    add_count(total_counts, index, tile.kind, tile_copy_rules)
   }
   for meld in input.melds {
     let indices = validate_meld(meld)
     for index in indices {
-      add_count(total_counts, index, tile_kind_from_index(index))
+      add_count(
+        total_counts,
+        index,
+        tile_kind_from_index(index),
+        tile_copy_rules,
+      )
     }
   }
   let structural_size = input.concealed_tiles.length() +
@@ -116,6 +128,11 @@ fn validate_input(input : AnalysisInput) -> ValidatedInput raise AnalysisError {
     raise InvalidHandSize(structural_size)
   }
   { concealed_counts, total_counts, structural_size }
+}
+
+///|
+fn validate_input(input : AnalysisInput) -> ValidatedInput raise AnalysisError {
+  validate_input_with_tile_copy_rules(input, @mahjong.TileCopyRules::standard())
 }
 
 ///|

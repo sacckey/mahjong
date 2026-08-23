@@ -32,4 +32,5 @@ pub(all) suberror AnalysisError {
   TooManyCopies(@mahjong.TileKind, Int)
   InvalidMeld(String)
   InvalidHandSize(Int)
+  InvalidRule(String)
 } derive(Debug, Eq)

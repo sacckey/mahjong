@@ -144,6 +144,25 @@ pub fn HandInput::new(
 }
 
 ///|
+/// Validation rules for the number of physical copies of one tile kind.
+/// `None` permits any count that fits in the structural hand size.
+pub(all) struct TileCopyRules {
+  max_copies_per_kind : Int?
+} derive(Debug, Eq)
+
+///|
+/// Use the four-copy limit of an ordinary riichi mahjong tile set.
+pub fn TileCopyRules::standard() -> TileCopyRules {
+  { max_copies_per_kind: Some(4) }
+}
+
+///|
+/// Permit duplicate physical tiles beyond the ordinary four copies.
+pub fn TileCopyRules::unlimited() -> TileCopyRules {
+  { max_copies_per_kind: None }
+}
+
+///|
 /// Configurable choices in the version-one ruleset.
 pub(all) struct RuleSet {
   open_tanyao : Bool

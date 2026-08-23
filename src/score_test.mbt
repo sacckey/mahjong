@@ -326,3 +326,54 @@ test "score validates rules before evaluating candidates" {
     _ => fail("expected score to raise")
   }
 }
+
+///|
+test "custom tile copy rules allow a fifth tile as a pair and triplet" {
+  let hand = st_input(
+    [
+      st_m(1),
+      st_m(1),
+      st_m(1),
+      st_m(1),
+      st_p(1),
+      st_p(2),
+      st_p(3),
+      st_p(4),
+      st_p(5),
+      st_p(6),
+      st_s(7),
+      st_s(8),
+      st_s(9),
+    ],
+    st_m(1),
+    context=st_context(Ron, riichi=Riichi),
+  )
+  try @mahjong.score_standard(hand) catch {
+    TooManyCopies(Numbered(Man, 1), 5) => ()
+    _ => fail("expected TooManyCopies")
+  } noraise {
+    _ => fail("expected standard scoring to reject five copies")
+  }
+  let result = @mahjong.score_with_tile_copy_rules(
+    hand,
+    @mahjong.RuleSet::standard(),
+    @mahjong.TileCopyRules::unlimited(),
+  )
+  assert_true(
+    result.shape is Standard(pair=Numbered(Man, 1), groups~, ..) &&
+    groups.any(group => group == Triplet(Numbered(Man, 1), is_open=false)),
+  )
+  let invalid : @mahjong.TileCopyRules = { max_copies_per_kind: Some(0) }
+  try
+    @mahjong.score_with_tile_copy_rules(
+      hand,
+      @mahjong.RuleSet::standard(),
+      invalid,
+    )
+  catch {
+    InvalidRule(_) => ()
+    _ => fail("expected InvalidRule")
+  } noraise {
+    _ => fail("expected a non-positive copy limit to be rejected")
+  }
+}

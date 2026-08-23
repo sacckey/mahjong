@@ -31,4 +31,6 @@ test {
 
 シャンテン数は和了形を`-1`、聴牌を`0`とします。`waiting_tiles`は構造上13枚の入力だけを受け付け、役、フリテン、山に残る枚数は考慮しません。
 
+通常は同一牌種を4枚までに制限します。牌を追加できるゲームでは、`calculate_shanten_with_tile_copy_rules`、`is_tenpai_with_tile_copy_rules`、`waiting_tiles_with_tile_copy_rules`に`@mahjong.TileCopyRules::unlimited()`を渡すと枚数上限を解除できます。立直後暗槓判定は通常麻雀専用のままです。
+
 立直後にツモった牌を暗槓できるかは`can_closed_kan_after_riichi`で判定します。立直時に固定された13枚とツモ牌を渡すと、すべての和了形で元の3枚が独立した暗刻として使われる場合だけ`true`を返します。

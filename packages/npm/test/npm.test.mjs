@@ -85,6 +85,35 @@ const legalRiichiKanInput = {
   ].map((kind) => tile(kind)),
 };
 
+const unlimitedTileCopies = { maxCopiesPerKind: null };
+
+const fiveCopyRequest = {
+  ...sampleRequest,
+  hand: {
+    ...sampleRequest.hand,
+    concealedTiles: [
+      "1m",
+      "1m",
+      "1m",
+      "1m",
+      "1p",
+      "2p",
+      "3p",
+      "4p",
+      "5p",
+      "6p",
+      "7s",
+      "8s",
+      "9s",
+    ].map((kind) => tile(kind)),
+    winningTile: tile("1m"),
+  },
+};
+
+const fiveCopyWaitInput = {
+  concealedTiles: fiveCopyRequest.hand.concealedTiles,
+};
+
 function verifyResult(result) {
   assert.equal(result.han, 2);
   assert.equal(result.fu, 30);
@@ -173,6 +202,29 @@ for (const backend of ["javascript", "wasm-gc"]) {
     assert.equal(
       calculator.canClosedKanAfterRiichi(legalRiichiKanInput, tile("5m")),
       true,
+    );
+  });
+
+  test(`${backend} backend supports unlimited identical tiles`, async () => {
+    const calculator = await createCalculator({ backend });
+    assert.throws(
+      () => calculator.score(fiveCopyRequest),
+      (error) =>
+        error instanceof MahjongError && error.code === "too_many_copies",
+    );
+    const result = calculator.score(fiveCopyRequest, unlimitedTileCopies);
+    assert.equal(result.shape.kind, "standard");
+    assert.equal(result.shape.pair, "1m");
+    assert.equal(
+      result.shape.groups.some(
+        (group) => group.kind === "triplet" && group.tile === "1m",
+      ),
+      true,
+    );
+    assert.deepEqual(calculator.waitingTiles(fiveCopyWaitInput), []);
+    assert.deepEqual(
+      calculator.waitingTiles(fiveCopyWaitInput, unlimitedTileCopies),
+      ["1m"],
     );
   });
 }

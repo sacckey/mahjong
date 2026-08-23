@@ -75,6 +75,21 @@ console.log(waits); // ["6s", "9s"]
 
 `waitingTiles()`と`isTenpai()`は構造上13枚の入力だけを受け付けます。役、フリテン、河や山に残る枚数は考慮しません。
 
+## 同一牌を5枚以上使うゲーム
+
+通常は同一牌種を4枚までに制限します。牌を追加できるゲームでは、第2引数に`maxCopiesPerKind: null`を渡すと、この物理枚数制限だけを解除できます。構造上の手牌枚数、和了形、役、符などのルールは変わりません。
+
+```js
+const tileCopyRules = { maxCopiesPerKind: null };
+
+const result = calculator.score(request, tileCopyRules);
+const shanten = calculator.calculateShanten(input, tileCopyRules);
+const tenpai = calculator.isTenpai(input, tileCopyRules);
+const waits = calculator.waitingTiles(input, tileCopyRules);
+```
+
+たとえば同じ牌が5枚ある場合も、通常の面子分解によって雀頭2枚と刻子3枚として利用できます。正の整数を指定すれば、その枚数を上限にできます。立直後暗槓判定は通常の四人麻雀専用で、この設定の対象外です。
+
 ## 立直後の暗槓
 
 立直時に固定された13枚と、その後にツモった4枚目の牌を渡します。すべての和了形で元の3枚が独立した暗刻になる場合だけ`true`を返します。

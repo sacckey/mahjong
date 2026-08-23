@@ -11,6 +11,14 @@ let riichi_kan_analysis_request : String =
   #|{"apiVersion":1,"operation":"canClosedKanAfterRiichi","input":{"concealedTiles":[{"kind":"5m","red":false},{"kind":"5m","red":false},{"kind":"5m","red":false},{"kind":"1p","red":false},{"kind":"2p","red":false},{"kind":"3p","red":false},{"kind":"4p","red":false},{"kind":"5p","red":false},{"kind":"6p","red":false},{"kind":"7s","red":false},{"kind":"8s","red":false},{"kind":"east","red":false},{"kind":"east","red":false}],"melds":[],"drawnTile":{"kind":"5m","red":false}}}
 
 ///|
+let five_copy_score_request : String =
+  #|{"apiVersion":1,"hand":{"concealedTiles":[{"kind":"1m","red":false},{"kind":"1m","red":false},{"kind":"1m","red":false},{"kind":"1m","red":false},{"kind":"1p","red":false},{"kind":"2p","red":false},{"kind":"3p","red":false},{"kind":"4p","red":false},{"kind":"5p","red":false},{"kind":"6p","red":false},{"kind":"7s","red":false},{"kind":"8s","red":false},{"kind":"9s","red":false}],"winningTile":{"kind":"1m","red":false},"melds":[],"doraIndicators":[],"uraDoraIndicators":[]},"context":{"winMethod":"ron","seatWind":"south","roundWind":"east","riichi":"riichi","ippatsu":false,"rinshan":false,"chankan":false,"haitei":false,"houtei":false,"tenhou":false,"chiihou":false,"honba":0,"riichiSticks":0},"rules":"standard"}
+
+///|
+let five_copy_wait_request : String =
+  #|{"apiVersion":1,"operation":"waitingTiles","input":{"concealedTiles":[{"kind":"1m","red":false},{"kind":"1m","red":false},{"kind":"1m","red":false},{"kind":"1m","red":false},{"kind":"1p","red":false},{"kind":"2p","red":false},{"kind":"3p","red":false},{"kind":"4p","red":false},{"kind":"5p","red":false},{"kind":"6p","red":false},{"kind":"7s","red":false},{"kind":"8s","red":false},{"kind":"9s","red":false}],"melds":[]}}
+
+///|
 test "JSON boundary returns a complete score" {
   let response = @transport.score_json(pinfu_request)
   assert_true(response.contains("\"apiVersion\":1"))
@@ -106,4 +114,35 @@ test "analysis JSON boundary returns protocol and analysis errors" {
     ),
   )
   assert_true(invalid_size.contains("\"code\":\"invalid_hand_size\""))
+}
+
+///|
+test "JSON boundary accepts unlimited tile copies explicitly" {
+  let standard = @transport.score_json(five_copy_score_request)
+  assert_true(standard.contains("\"code\":\"too_many_copies\""))
+  let score = @transport.score_json(
+    five_copy_score_request.replace(
+      old="\"rules\":\"standard\"",
+      new="\"rules\":\"standard\",\"tileCopyRules\":{\"maxCopiesPerKind\":null}",
+    ),
+  )
+  assert_true(score.contains("\"ok\":true"))
+  assert_true(score.contains("\"pair\":\"1m\""))
+  assert_true(score.contains("\"kind\":\"triplet\",\"tile\":\"1m\""))
+  let standard_waits = @transport.analysis_json(five_copy_wait_request)
+  assert_true(standard_waits.contains("\"result\":[]"))
+  let unlimited_waits = @transport.analysis_json(
+    five_copy_wait_request.replace(
+      old="\"input\":",
+      new="\"tileCopyRules\":{\"maxCopiesPerKind\":null},\"input\":",
+    ),
+  )
+  assert_true(unlimited_waits.contains("\"result\":[\"1m\"]"))
+  let invalid_limit = @transport.analysis_json(
+    five_copy_wait_request.replace(
+      old="\"input\":",
+      new="\"tileCopyRules\":{\"maxCopiesPerKind\":0},\"input\":",
+    ),
+  )
+  assert_true(invalid_limit.contains("\"code\":\"invalid_rule\""))
 }

@@ -136,6 +136,27 @@ fn calculate_standard_fu(
 ///
 /// Seven pairs are fixed at 25 fu. Thirteen orphans have no applicable fu and
 /// return zero with an empty explanation.
+fn calculate_fu_with_tile_copy_rules(
+  input : HandInput,
+  shape : HandShape,
+  yaku : Array[YakuValue],
+  rules : RuleSet,
+  tile_copy_rules : TileCopyRules,
+) -> (Int, Array[FuItem]) raise ScoreError {
+  validate_rules(rules)
+  let shapes = decompose_with_tile_copy_rules(input, tile_copy_rules)
+  if !shapes.contains(shape) {
+    raise InvalidHandShape
+  }
+  match shape {
+    Standard(pair~, groups~, wait~) =>
+      calculate_standard_fu(input, pair, groups, wait, yaku, rules)
+    SevenPairs(_) => (25, [fu_item(SevenPairsFixed, 25)])
+    ThirteenOrphans(_) => (0, [])
+  }
+}
+
+///|
 fn calculate_fu(
   input : HandInput,
   shape : HandShape,

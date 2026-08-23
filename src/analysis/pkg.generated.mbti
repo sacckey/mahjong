@@ -9,11 +9,17 @@ import {
 // Values
 pub fn calculate_shanten(AnalysisInput) -> ShantenResult raise AnalysisError
 
+pub fn calculate_shanten_with_tile_copy_rules(AnalysisInput, @mahjong.TileCopyRules) -> ShantenResult raise AnalysisError
+
 pub fn can_closed_kan_after_riichi(AnalysisInput, @mahjong.Tile) -> Bool raise AnalysisError
 
 pub fn is_tenpai(AnalysisInput) -> Bool raise AnalysisError
 
+pub fn is_tenpai_with_tile_copy_rules(AnalysisInput, @mahjong.TileCopyRules) -> Bool raise AnalysisError
+
 pub fn waiting_tiles(AnalysisInput) -> Array[@mahjong.TileKind] raise AnalysisError
+
+pub fn waiting_tiles_with_tile_copy_rules(AnalysisInput, @mahjong.TileCopyRules) -> Array[@mahjong.TileKind] raise AnalysisError
 
 // Errors
 pub(all) suberror AnalysisError {
@@ -21,6 +27,7 @@ pub(all) suberror AnalysisError {
   TooManyCopies(@mahjong.TileKind, Int)
   InvalidMeld(String)
   InvalidHandSize(Int)
+  InvalidRule(String)
 } derive(Eq, @debug.Debug)
 
 // Types and methods

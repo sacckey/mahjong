@@ -46,6 +46,22 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 
 `melds[].kind`は`chi`、`pon`、`openKan`、`closedKan`、`addedKan`のいずれかです。v1では`rules`は`standard`のみを受け付けます。
 
+### 同一牌種の枚数制限
+
+点数計算と牌姿解析では、トップレベルに任意の`tileCopyRules`を指定できます。省略時は通常麻雀と同じ4枚までです。`maxCopiesPerKind`に正の整数を指定するとその枚数を上限とし、`null`を指定すると上限を設けません。
+
+```json
+{
+  "tileCopyRules": {
+    "maxCopiesPerKind": null
+  }
+}
+```
+
+この設定は物理的な同一牌種の枚数検証と、`waitingTiles`が候補牌を除外する上限だけを変更します。構造上の手牌枚数、4面子1雀頭などの和了形、役、符、点数ルールは変更しません。同じ牌が5枚なら、可能な牌姿では雀頭2枚と刻子3枚として分解されます。
+
+`tileCopyRules`は`calculateShanten`、`isTenpai`、`waitingTiles`でも使用できます。`canClosedKanAfterRiichi`は通常の四人麻雀専用であり、常に4枚制限で判定します。
+
 ## 点数計算の成功
 
 ```json
@@ -98,6 +114,7 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 {
   "apiVersion": 1,
   "operation": "calculateShanten",
+  "tileCopyRules": { "maxCopiesPerKind": null },
   "input": {
     "concealedTiles": [
       { "kind": "1m", "red": false },

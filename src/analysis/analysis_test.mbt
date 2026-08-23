@@ -183,3 +183,35 @@ test "analysis validates tile copies and meld structure" {
     _ => fail("expected too many copies")
   }
 }
+
+///|
+test "custom tile copy rules analyze waits and complete hands above four copies" {
+  let waiting = @analysis.AnalysisInput::new([
+    tile(Man, 1),
+    tile(Man, 1),
+    tile(Man, 1),
+    tile(Man, 1),
+    tile(Pin, 1),
+    tile(Pin, 2),
+    tile(Pin, 3),
+    tile(Pin, 4),
+    tile(Pin, 5),
+    tile(Pin, 6),
+    tile(Sou, 7),
+    tile(Sou, 8),
+    tile(Sou, 9),
+  ])
+  assert_eq(@analysis.waiting_tiles(waiting), [])
+  let unlimited = @mahjong.TileCopyRules::unlimited()
+  assert_eq(@analysis.waiting_tiles_with_tile_copy_rules(waiting, unlimited), [
+    Numbered(Man, 1),
+  ])
+  assert_true(@analysis.is_tenpai_with_tile_copy_rules(waiting, unlimited))
+  let complete = @analysis.AnalysisInput::new(
+    [..waiting.concealed_tiles, tile(Man, 1)],
+  )
+  assert_eq(
+    @analysis.calculate_shanten_with_tile_copy_rules(complete, unlimited).minimum,
+    -1,
+  )
+}

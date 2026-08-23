@@ -99,6 +99,12 @@ fn analysis_error_response(error : @analysis.AnalysisError) -> String {
         "The number of structural tiles must be thirteen or fourteen.",
         Json::object({ "size": Json::Json(size) }),
       )
+    @analysis.InvalidRule(message) =>
+      encode_error(
+        "invalid_rule",
+        "The analysis rules configuration is invalid.",
+        Json::object({ "reason": Json::string(message) }),
+      )
   }
 }
 
@@ -157,7 +163,19 @@ pub fn score_json(input : String) -> String {
         Json::object({ "reason": Json::string(message) }),
       )
   }
-  let result = @mahjong.score_standard(hand) catch {
+  let tile_copy_rules = tile_copy_rules_from_dto(request.tileCopyRules) catch {
+    InvalidRequest(message) =>
+      return encode_error(
+        "invalid_request",
+        "The scoring request contains an unsupported value.",
+        Json::object({ "reason": Json::string(message) }),
+      )
+  }
+  let result = @mahjong.score_with_tile_copy_rules(
+    hand,
+    @mahjong.RuleSet::standard(),
+    tile_copy_rules,
+  ) catch {
     error => return score_error_response(error)
   }
   @json.to_json(SuccessEnvelope::{
@@ -207,21 +225,35 @@ pub fn analysis_json(input : String) -> String {
         Json::object({ "reason": Json::string(message) }),
       )
   }
+  let tile_copy_rules = tile_copy_rules_from_dto(request.tileCopyRules) catch {
+    InvalidRequest(message) =>
+      return encode_error(
+        "invalid_request",
+        "The analysis request contains an unsupported value.",
+        Json::object({ "reason": Json::string(message) }),
+      )
+  }
   match request.operation {
     "calculateShanten" => {
-      let result = @analysis.calculate_shanten(analysis_input) catch {
+      let result = @analysis.calculate_shanten_with_tile_copy_rules(
+        analysis_input, tile_copy_rules,
+      ) catch {
         error => return analysis_error_response(error)
       }
       encode_analysis_success(@json.to_json(shanten_result_dto(result)))
     }
     "isTenpai" => {
-      let result = @analysis.is_tenpai(analysis_input) catch {
+      let result = @analysis.is_tenpai_with_tile_copy_rules(
+        analysis_input, tile_copy_rules,
+      ) catch {
         error => return analysis_error_response(error)
       }
       encode_analysis_success(@json.to_json(result))
     }
     "waitingTiles" => {
-      let result = @analysis.waiting_tiles(analysis_input) catch {
+      let result = @analysis.waiting_tiles_with_tile_copy_rules(
+        analysis_input, tile_copy_rules,
+      ) catch {
         error => return analysis_error_response(error)
       }
       encode_analysis_success(@json.to_json(result.map(tile_kind_code)))

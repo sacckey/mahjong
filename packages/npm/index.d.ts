@@ -39,6 +39,11 @@ export interface AnalysisInput {
   melds?: Meld[];
 }
 
+export interface TileCopyRules {
+  /** A positive limit, or null to allow any number of identical tile kinds. */
+  maxCopiesPerKind: number | null;
+}
+
 export type HandAnalysisOperation =
   | "calculateShanten"
   | "isTenpai"
@@ -48,6 +53,7 @@ export interface HandAnalysisRequest {
   apiVersion: typeof API_VERSION;
   operation: HandAnalysisOperation;
   input: AnalysisInput;
+  tileCopyRules?: TileCopyRules;
 }
 
 export interface RiichiKanAnalysisInput extends AnalysisInput {
@@ -109,6 +115,7 @@ export interface ScoreRequest {
   hand: Hand;
   context: WinContext;
   rules: "standard";
+  tileCopyRules?: TileCopyRules;
 }
 
 export type LimitKind =
@@ -316,14 +323,26 @@ export class MahjongError extends Error {
 export interface Calculator {
   readonly apiVersion: typeof API_VERSION;
   readonly backend: Backend;
-  score(request: ScoreRequest): ScoreResult;
-  scoreResponse(request: ScoreRequest): ScoreResponse;
+  score(request: ScoreRequest, tileCopyRules?: TileCopyRules): ScoreResult;
+  scoreResponse(
+    request: ScoreRequest,
+    tileCopyRules?: TileCopyRules,
+  ): ScoreResponse;
   scoreJson(input: string): string;
-  calculateShanten(input: AnalysisInput): ShantenResult;
-  isTenpai(input: AnalysisInput): boolean;
-  waitingTiles(input: AnalysisInput): TileKind[];
+  calculateShanten(
+    input: AnalysisInput,
+    tileCopyRules?: TileCopyRules,
+  ): ShantenResult;
+  isTenpai(input: AnalysisInput, tileCopyRules?: TileCopyRules): boolean;
+  waitingTiles(
+    input: AnalysisInput,
+    tileCopyRules?: TileCopyRules,
+  ): TileKind[];
   canClosedKanAfterRiichi(input: AnalysisInput, drawnTile: Tile): boolean;
-  analysisResponse(request: AnalysisRequest): AnalysisResponse;
+  analysisResponse(
+    request: AnalysisRequest,
+    tileCopyRules?: TileCopyRules,
+  ): AnalysisResponse;
   analysisJson(input: string): string;
 }
 

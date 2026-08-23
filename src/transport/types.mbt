@@ -37,11 +37,17 @@ priv struct ContextDto {
 } derive(FromJson)
 
 ///|
+priv struct TileCopyRulesDto {
+  maxCopiesPerKind : Json
+} derive(FromJson)
+
+///|
 priv struct ScoreRequestDto {
   apiVersion : Int
   hand : HandDto
   context : ContextDto
   rules : String
+  tileCopyRules : TileCopyRulesDto?
 } derive(FromJson)
 
 ///|
@@ -56,6 +62,7 @@ priv struct AnalysisRequestDto {
   apiVersion : Int
   operation : String
   input : AnalysisInputDto
+  tileCopyRules : TileCopyRulesDto?
 } derive(FromJson)
 
 ///|

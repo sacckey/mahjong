@@ -150,6 +150,18 @@ fn shanten_from_counts(counts : Array[Int], meld_count : Int) -> ShantenResult {
 pub fn calculate_shanten(
   input : AnalysisInput,
 ) -> ShantenResult raise AnalysisError {
-  let validated = validate_input(input)
+  calculate_shanten_with_tile_copy_rules(
+    input,
+    @mahjong.TileCopyRules::standard(),
+  )
+}
+
+///|
+/// Calculate shanten with an explicit physical-tile copy limit.
+pub fn calculate_shanten_with_tile_copy_rules(
+  input : AnalysisInput,
+  tile_copy_rules : @mahjong.TileCopyRules,
+) -> ShantenResult raise AnalysisError {
+  let validated = validate_input_with_tile_copy_rules(input, tile_copy_rules)
   shanten_from_counts(validated.concealed_counts, input.melds.length())
 }

@@ -75,11 +75,15 @@ pub fn Tile::honor(honor : Honor) -> Tile {
 }
 
 ///|
-fn add_hand_tile(counts : Array[Int], tile : Tile) -> Unit raise ScoreError {
+fn add_hand_tile(
+  counts : Array[Int],
+  tile : Tile,
+  tile_copy_rules : TileCopyRules,
+) -> Unit raise ScoreError {
   validate_tile(tile)
   let index = tile.kind.index()
   counts[index] += 1
-  if counts[index] > 4 {
+  if tile_copy_rules.max_copies_per_kind is Some(limit) && counts[index] > limit {
     raise TooManyCopies(tile.kind, counts[index])
   }
 }
@@ -125,6 +129,13 @@ fn is_closed_hand(input : HandInput) -> Bool {
 fn validate_rules(rules : RuleSet) -> Unit raise ScoreError {
   if rules.double_wind_pair_fu != 2 && rules.double_wind_pair_fu != 4 {
     raise InvalidRule("double_wind_pair_fu must be 2 or 4")
+  }
+}
+
+///|
+fn validate_tile_copy_rules(rules : TileCopyRules) -> Unit raise ScoreError {
+  if rules.max_copies_per_kind is Some(limit) && limit < 1 {
+    raise InvalidRule("max_copies_per_kind must be positive or absent")
   }
 }
 
@@ -187,16 +198,20 @@ fn validate_context(input : HandInput) -> Unit raise ScoreError {
 
 ///|
 /// Validate tile representations, melds, hand size, copy counts, and context.
-fn validate_hand(input : HandInput) -> Unit raise ScoreError {
+fn validate_hand_with_tile_copy_rules(
+  input : HandInput,
+  tile_copy_rules : TileCopyRules,
+) -> Unit raise ScoreError {
+  validate_tile_copy_rules(tile_copy_rules)
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
-    add_hand_tile(counts, tile)
+    add_hand_tile(counts, tile, tile_copy_rules)
   }
-  add_hand_tile(counts, input.winning_tile)
+  add_hand_tile(counts, input.winning_tile, tile_copy_rules)
   for meld in input.melds {
     validate_meld(meld)
     for tile in meld.tiles {
-      add_hand_tile(counts, tile)
+      add_hand_tile(counts, tile, tile_copy_rules)
     }
   }
   for tile in input.dora_indicators {
@@ -215,10 +230,18 @@ fn validate_hand(input : HandInput) -> Unit raise ScoreError {
 }
 
 ///|
+fn validate_hand(input : HandInput) -> Unit raise ScoreError {
+  validate_hand_with_tile_copy_rules(input, TileCopyRules::standard())
+}
+
+///|
 /// Return physical hand-tile counts in canonical 34-kind order. Dora indicators
 /// are not part of the returned counts.
-fn hand_tile_counts(input : HandInput) -> Array[Int] raise ScoreError {
-  validate_hand(input)
+fn hand_tile_counts_with_tile_copy_rules(
+  input : HandInput,
+  tile_copy_rules : TileCopyRules,
+) -> Array[Int] raise ScoreError {
+  validate_hand_with_tile_copy_rules(input, tile_copy_rules)
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
     counts[tile_kind_index_unchecked(tile.kind)] += 1
@@ -230,4 +253,9 @@ fn hand_tile_counts(input : HandInput) -> Array[Int] raise ScoreError {
     }
   }
   counts
+}
+
+///|
+fn hand_tile_counts(input : HandInput) -> Array[Int] raise ScoreError {
+  hand_tile_counts_with_tile_copy_rules(input, TileCopyRules::standard())
 }

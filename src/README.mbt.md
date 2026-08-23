@@ -91,6 +91,8 @@ moon run cmd/main
 
 基本の入口は、標準ルールで計算する`score_standard`と、`RuleSet`を指定する`score`です。上の例のように、`HandInput.concealed_tiles`には和了牌を含めず、ツモ牌またはロン牌を`winning_tile`へ指定します。
 
+同一牌種を5枚以上使えるゲームでは、`score_with_tile_copy_rules(input, rules, TileCopyRules::unlimited())`を使用できます。通常のAPIはこれまでどおり4枚までです。この設定は物理枚数の検証だけを変更し、5枚なら通常の分解によって雀頭2枚と刻子3枚として扱えます。
+
 `ScoreResult`からは翻数の`han`、符数の`fu`、支払い内訳の`payment`、供託を含む和了者の受取額`winner_gain`などを取得できます。
 
 和了形かどうかだけを調べる場合は`is_winning_hand`、既に確定した翻数と符から支払いを計算する場合は`calculate_points`を使用できます。役判定、符計算、ドラ計算、和了形分解は`score`の内部処理です。
@@ -108,6 +110,8 @@ import {
 ```
 
 基本の入口は`calculate_shanten`、`is_tenpai`、`waiting_tiles`です。待ち牌判定は役、フリテン、河に見えている牌を考慮しません。詳細は[`docs/analysis-v1.md`](../docs/analysis-v1.md)を参照してください。
+
+牌を追加できるゲームでは、対応する`calculate_shanten_with_tile_copy_rules`、`is_tenpai_with_tile_copy_rules`、`waiting_tiles_with_tile_copy_rules`へ`TileCopyRules::unlimited()`を渡せます。
 
 ## JS・Wasm-GCから使う
 

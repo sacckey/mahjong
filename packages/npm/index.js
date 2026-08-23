@@ -105,13 +105,21 @@ function decodeResponse(raw) {
 function createCalculatorFromEngine(engine, backend) {
   const scoreJson = (input) => engine.mahjong_score_json(input);
   const analysisJson = (input) => engine.mahjong_analysis_json(input);
-  const scoreResponse = (request) =>
-    decodeResponse(scoreJson(JSON.stringify(request)));
-  const analysisResponse = (request) =>
+  const scoreResponse = (request, tileCopyRules) =>
+    decodeResponse(
+      scoreJson(
+        JSON.stringify({
+          ...request,
+          ...(tileCopyRules === undefined ? {} : { tileCopyRules }),
+        }),
+      ),
+    );
+  const analysisResponse = (request, tileCopyRules) =>
     decodeResponse(
       analysisJson(
         JSON.stringify({
           ...request,
+          ...(tileCopyRules === undefined ? {} : { tileCopyRules }),
           input: {
             ...request.input,
             melds: request.input.melds ?? [],
@@ -119,17 +127,20 @@ function createCalculatorFromEngine(engine, backend) {
         }),
       ),
     );
-  const score = (request) => {
-    const response = scoreResponse(request);
+  const score = (request, tileCopyRules) => {
+    const response = scoreResponse(request, tileCopyRules);
     if (!response.ok) throw new MahjongError(response.error);
     return response.result;
   };
-  const analyze = (operation, input) => {
-    const response = analysisResponse({
-      apiVersion: API_VERSION,
-      operation,
-      input,
-    });
+  const analyze = (operation, input, tileCopyRules) => {
+    const response = analysisResponse(
+      {
+        apiVersion: API_VERSION,
+        operation,
+        input,
+      },
+      tileCopyRules,
+    );
     if (!response.ok) throw new MahjongError(response.error);
     return response.result;
   };
@@ -141,9 +152,12 @@ function createCalculatorFromEngine(engine, backend) {
     scoreResponse,
     analysisJson,
     analysisResponse,
-    calculateShanten: (input) => analyze("calculateShanten", input),
-    isTenpai: (input) => analyze("isTenpai", input),
-    waitingTiles: (input) => analyze("waitingTiles", input),
+    calculateShanten: (input, tileCopyRules) =>
+      analyze("calculateShanten", input, tileCopyRules),
+    isTenpai: (input, tileCopyRules) =>
+      analyze("isTenpai", input, tileCopyRules),
+    waitingTiles: (input, tileCopyRules) =>
+      analyze("waitingTiles", input, tileCopyRules),
     canClosedKanAfterRiichi: (input, drawnTile) =>
       analyze("canClosedKanAfterRiichi", { ...input, drawnTile }),
   });

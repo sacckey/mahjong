@@ -115,6 +115,40 @@ fn context_from_dto(dto : ContextDto) -> @mahjong.WinContext raise RequestError 
 }
 
 ///|
+fn tile_copy_rules_from_dto(
+  dto : TileCopyRulesDto?,
+) -> @mahjong.TileCopyRules raise RequestError {
+  match dto {
+    Some(value) => {
+      let max_copies_per_kind = match value.maxCopiesPerKind {
+        Null => None
+        json => {
+          guard json is Number(number, ..) else {
+            raise InvalidRequest(
+              "maxCopiesPerKind must be a positive integer or null",
+            )
+          }
+          let limit : Int = @json.from_json(json) catch {
+            _ =>
+              raise InvalidRequest(
+                "maxCopiesPerKind must be a positive integer or null",
+              )
+          }
+          if limit.to_double() != number {
+            raise InvalidRequest(
+              "maxCopiesPerKind must be a positive integer or null",
+            )
+          }
+          Some(limit)
+        }
+      }
+      { max_copies_per_kind, }
+    }
+    None => @mahjong.TileCopyRules::standard()
+  }
+}
+
+///|
 fn hand_from_request(
   request : ScoreRequestDto,
 ) -> @mahjong.HandInput raise RequestError {

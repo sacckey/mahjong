@@ -248,8 +248,7 @@ fn thirteen_orphans_shape(input : HandInput) -> HandShape? {
 ///|
 /// Enumerate every standard, seven-pairs, and thirteen-orphans interpretation
 /// of a validated winning hand.
-fn decompose(input : HandInput) -> Array[HandShape] raise ScoreError {
-  validate_hand(input)
+fn collect_hand_shapes(input : HandInput) -> Array[HandShape] raise ScoreError {
   let shapes : Array[HandShape] = []
   collect_standard_shapes(input, shapes)
   if seven_pairs_shape(input) is Some(shape) {
@@ -262,6 +261,21 @@ fn decompose(input : HandInput) -> Array[HandShape] raise ScoreError {
     raise NotWinningHand
   }
   shapes
+}
+
+///|
+fn decompose_with_tile_copy_rules(
+  input : HandInput,
+  tile_copy_rules : TileCopyRules,
+) -> Array[HandShape] raise ScoreError {
+  validate_hand_with_tile_copy_rules(input, tile_copy_rules)
+  collect_hand_shapes(input)
+}
+
+///|
+fn decompose(input : HandInput) -> Array[HandShape] raise ScoreError {
+  validate_hand(input)
+  collect_hand_shapes(input)
 }
 
 ///|
