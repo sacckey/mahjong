@@ -71,14 +71,22 @@ fn group_is_triplet_or_quad(group : Group) -> Bool {
 }
 
 ///|
-fn count_triplets(groups : Array[Group], first : Int, last : Int) -> Int {
+fn has_triplet_or_quad_kind(groups : Array[Group], index : Int) -> Bool {
+  groups.any(group => {
+    group_is_triplet_or_quad(group) && group_kind_index(group) == index
+  })
+}
+
+///|
+fn count_distinct_triplet_kinds(
+  groups : Array[Group],
+  first : Int,
+  last : Int,
+) -> Int {
   let mut count = 0
-  for group in groups {
-    if group_is_triplet_or_quad(group) {
-      let index = group_kind_index(group)
-      if index >= first && index <= last {
-        count += 1
-      }
+  for index in first..<=last {
+    if has_triplet_or_quad_kind(groups, index) {
+      count += 1
     }
   }
   count
@@ -329,12 +337,15 @@ fn detect_yakuman(
         }
         result.push(yakuman_value(Suuankou, multiplier))
       }
-      if count_triplets(groups, 31, 33) == 3 {
+      if count_distinct_triplet_kinds(groups, 31, 33) == 3 {
         result.push(yakuman_value(Daisangen, 1))
       }
-      let wind_triplets = count_triplets(groups, 27, 30)
+      let wind_triplets = count_distinct_triplet_kinds(groups, 27, 30)
       let pair_index = tile_kind_index_unchecked(pair)
-      if wind_triplets == 3 && pair_index >= 27 && pair_index <= 30 {
+      if wind_triplets == 3 &&
+        pair_index >= 27 &&
+        pair_index <= 30 &&
+        !has_triplet_or_quad_kind(groups, pair_index) {
         result.push(yakuman_value(Shousuushi, 1))
       }
       if wind_triplets == 4 {
@@ -484,7 +495,9 @@ fn append_standard_yaku(
   if groups.filter(group => group is Quad(_, ..)).length() >= 3 {
     result.push(yaku_value(Sankantsu, 2))
   }
-  if count_triplets(groups, 31, 33) == 2 && pair_index >= 31 {
+  if count_distinct_triplet_kinds(groups, 31, 33) == 2 &&
+    pair_index >= 31 &&
+    !has_triplet_or_quad_kind(groups, pair_index) {
     result.push(yaku_value(Shousangen, 2))
   }
 }

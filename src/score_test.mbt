@@ -377,3 +377,85 @@ test "custom tile copy rules allow a fifth tile as a pair and triplet" {
     _ => fail("expected a non-positive copy limit to be rejected")
   }
 }
+
+///|
+test "honor-family yaku require distinct honor tile kinds" {
+  let rules = @mahjong.RuleSet::standard()
+  let unlimited = @mahjong.TileCopyRules::unlimited()
+  let east_only = st_input(
+    Array::make(13, st_h(East)),
+    st_h(East),
+    context=st_context(Tsumo),
+  )
+  let east_only_result = @mahjong.score_with_tile_copy_rules(
+    east_only, rules, unlimited,
+  )
+  assert_true(east_only_result.yaku.any(value => value.yaku == Suuankou))
+  assert_false(east_only_result.yaku.any(value => value.yaku == Daisuushi))
+  let repeated_white = st_input(
+    [..Array::make(9, st_h(White)), ..Array::make(3, st_m(1)), st_m(2)],
+    st_m(2),
+  )
+  let repeated_white_result = @mahjong.score_with_tile_copy_rules(
+    repeated_white, rules, unlimited,
+  )
+  assert_false(repeated_white_result.yaku.any(value => value.yaku == Daisangen))
+  let repeated_east = st_input(
+    [..Array::make(10, st_h(East)), ..Array::make(3, st_m(1))],
+    st_h(East),
+  )
+  let repeated_east_result = @mahjong.score_with_tile_copy_rules(
+    repeated_east, rules, unlimited,
+  )
+  assert_false(repeated_east_result.yaku.any(value => value.yaku == Shousuushi))
+  let repeated_white_pair = st_input(
+    [
+      ..Array::make(7, st_h(White)),
+      ..Array::make(3, st_h(East)),
+      st_m(1),
+      st_m(2),
+      st_m(3),
+    ],
+    st_h(White),
+  )
+  let repeated_white_pair_result = @mahjong.score_with_tile_copy_rules(
+    repeated_white_pair, rules, unlimited,
+  )
+  assert_false(
+    repeated_white_pair_result.yaku.any(value => value.yaku == Shousangen),
+  )
+  let overlapping_wind_pair = st_input(
+    [
+      ..Array::make(4, st_h(East)),
+      ..Array::make(3, st_h(South)),
+      ..Array::make(3, st_h(West)),
+      st_m(1),
+      st_m(2),
+      st_m(3),
+    ],
+    st_h(East),
+  )
+  let overlapping_wind_pair_result = @mahjong.score_with_tile_copy_rules(
+    overlapping_wind_pair, rules, unlimited,
+  )
+  assert_false(
+    overlapping_wind_pair_result.yaku.any(value => value.yaku == Shousuushi),
+  )
+  let overlapping_dragon_pair = st_input(
+    [
+      ..Array::make(4, st_h(White)),
+      ..Array::make(3, st_h(Green)),
+      ..Array::make(3, st_h(East)),
+      st_m(1),
+      st_m(2),
+      st_m(3),
+    ],
+    st_h(White),
+  )
+  let overlapping_dragon_pair_result = @mahjong.score_with_tile_copy_rules(
+    overlapping_dragon_pair, rules, unlimited,
+  )
+  assert_false(
+    overlapping_dragon_pair_result.yaku.any(value => value.yaku == Shousangen),
+  )
+}

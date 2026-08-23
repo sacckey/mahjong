@@ -226,6 +226,74 @@ for (const backend of ["javascript", "wasm-gc"]) {
       calculator.waitingTiles(fiveCopyWaitInput, unlimitedTileCopies),
       ["1m"],
     );
+    const repeatedEastResult = calculator.score(
+      {
+        ...sampleRequest,
+        hand: {
+          ...sampleRequest.hand,
+          concealedTiles: Array.from({ length: 13 }, () => tile("east")),
+          winningTile: tile("east"),
+        },
+        context: {
+          ...sampleRequest.context,
+          winMethod: "tsumo",
+          riichi: "none",
+        },
+      },
+      unlimitedTileCopies,
+    );
+    assert.equal(
+      repeatedEastResult.yaku.some(({ id }) => id === "suuankou"),
+      true,
+    );
+    assert.equal(
+      repeatedEastResult.yaku.some(({ id }) => id === "daisuushi"),
+      false,
+    );
+    const overlappingWindPairResult = calculator.score(
+      {
+        ...sampleRequest,
+        hand: {
+          ...sampleRequest.hand,
+          concealedTiles: [
+            ...Array.from({ length: 4 }, () => tile("east")),
+            ...Array.from({ length: 3 }, () => tile("south")),
+            ...Array.from({ length: 3 }, () => tile("west")),
+            tile("1m"),
+            tile("2m"),
+            tile("3m"),
+          ],
+          winningTile: tile("east"),
+        },
+      },
+      unlimitedTileCopies,
+    );
+    assert.equal(
+      overlappingWindPairResult.yaku.some(({ id }) => id === "shousuushi"),
+      false,
+    );
+    const overlappingDragonPairResult = calculator.score(
+      {
+        ...sampleRequest,
+        hand: {
+          ...sampleRequest.hand,
+          concealedTiles: [
+            ...Array.from({ length: 4 }, () => tile("white")),
+            ...Array.from({ length: 3 }, () => tile("green")),
+            ...Array.from({ length: 3 }, () => tile("east")),
+            tile("1m"),
+            tile("2m"),
+            tile("3m"),
+          ],
+          winningTile: tile("white"),
+        },
+      },
+      unlimitedTileCopies,
+    );
+    assert.equal(
+      overlappingDragonPairResult.yaku.some(({ id }) => id === "shousangen"),
+      false,
+    );
   });
 }
 
