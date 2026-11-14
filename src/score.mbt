@@ -42,18 +42,14 @@ fn score_result_from_points(
 }
 
 ///|
+/// Score one interpretation of a validated hand, or `None` without a yaku.
 fn score_shape(
   input : HandInput,
   shape : HandShape,
   bonus : BonusHan,
   rules : RuleSet,
-  tile_copy_rules : TileCopyRules,
-) -> ScoreResult? raise ScoreError {
-  let yaku = if tile_copy_rules == TileCopyRules::standard() {
-    detect_yaku(input, shape, rules)
-  } else {
-    detect_yaku_with_tile_copy_rules(input, shape, rules, tile_copy_rules)
-  }
+) -> ScoreResult? {
+  let yaku = detect_yaku(input, shape, rules)
   if yaku.is_empty() {
     return None
   }
@@ -72,13 +68,7 @@ fn score_shape(
     )
   }
   let han = yaku_han_total(yaku) + bonus_han_total(bonus)
-  let (fu, fu_items) = if tile_copy_rules == TileCopyRules::standard() {
-    calculate_fu(input, shape, yaku, rules)
-  } else {
-    calculate_fu_with_tile_copy_rules(
-      input, shape, yaku, rules, tile_copy_rules,
-    )
-  }
+  let (fu, fu_items) = calculate_fu(input, shape, yaku, rules)
   let points = calculate_valid_points(
     han,
     fu,
@@ -123,21 +113,11 @@ pub fn score_with_tile_copy_rules(
   tile_copy_rules : TileCopyRules,
 ) -> ScoreResult raise ScoreError {
   validate_rules(rules)
-  let standard_copies = tile_copy_rules == TileCopyRules::standard()
-  let shapes = if standard_copies {
-    decompose(input)
-  } else {
-    decompose_with_tile_copy_rules(input, tile_copy_rules)
-  }
-  let bonus = if standard_copies {
-    calculate_bonus_han(input)
-  } else {
-    calculate_bonus_han_with_tile_copy_rules(input, tile_copy_rules)
-  }
+  let shapes = decompose(input, tile_copy_rules~)
+  let bonus = calculate_bonus_han(input)
   let mut best : ScoreResult? = None
   for shape in shapes {
-    if score_shape(input, shape, bonus, rules, tile_copy_rules)
-      is Some(candidate) {
+    if score_shape(input, shape, bonus, rules) is Some(candidate) {
       match best {
         None => best = Some(candidate)
         Some(current) =>

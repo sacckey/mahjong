@@ -103,8 +103,8 @@ fn ft_calculate(
   shape : HandShape,
   rules~ : RuleSet = RuleSet::standard(),
 ) -> (Int32, Array[FuItem]) {
-  let yaku = try! detect_yaku(hand, shape, rules)
-  try! calculate_fu(hand, shape, yaku, rules)
+  let yaku = detect_yaku(hand, shape, rules)
+  calculate_fu(hand, shape, yaku, rules)
 }
 
 ///|
@@ -447,36 +447,4 @@ test "kanchan and penchan waits each add two fu" {
       ],
     ),
   )
-}
-
-///|
-test "calculate_fu rejects invalid shapes and rule settings" {
-  let hand = ft_pinfu_hand(Ron)
-  let shape = ft_shape_with_wait(hand, Ryanmen)
-  let yaku = try! detect_yaku(hand, shape, RuleSet::standard())
-  let invalid_rules : RuleSet = {
-    ..RuleSet::standard(),
-    double_wind_pair_fu: 3,
-  }
-  try calculate_fu(hand, shape, yaku, invalid_rules) catch {
-    InvalidRule(_) => ()
-    _ => fail("expected InvalidRule")
-  } noraise {
-    _ => fail("expected calculate_fu to raise")
-  }
-  let fake : HandShape = SevenPairs([
-    Numbered(Man, 1),
-    Numbered(Man, 2),
-    Numbered(Man, 3),
-    Numbered(Man, 4),
-    Numbered(Man, 5),
-    Numbered(Man, 6),
-    Numbered(Man, 7),
-  ])
-  try calculate_fu(hand, fake, [], RuleSet::standard()) catch {
-    InvalidHandShape => ()
-    _ => fail("expected InvalidHandShape")
-  } noraise {
-    _ => fail("expected calculate_fu to raise")
-  }
 }

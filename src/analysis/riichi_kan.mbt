@@ -1,14 +1,4 @@
 ///|
-fn first_present_for_riichi_kan(counts : Array[Int32]) -> Int32 {
-  for index in 0..<34 {
-    if counts[index] > 0 {
-      return index
-    }
-  }
-  -1
-}
-
-///|
 fn search_riichi_kan_groups(
   counts : Array[Int32],
   groups_left : Int32,
@@ -16,7 +6,7 @@ fn search_riichi_kan_groups(
   used_required_triplet : Bool,
   found_completion : Ref[Bool],
 ) -> Bool {
-  let index = first_present_for_riichi_kan(counts)
+  let index = first_present(counts)
   if groups_left == 0 {
     if index != -1 {
       return false

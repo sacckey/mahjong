@@ -198,9 +198,9 @@ fn validate_context(input : HandInput) -> Unit raise ScoreError {
 
 ///|
 /// Validate tile representations, melds, hand size, copy counts, and context.
-fn validate_hand_with_tile_copy_rules(
+fn validate_hand(
   input : HandInput,
-  tile_copy_rules : TileCopyRules,
+  tile_copy_rules~ : TileCopyRules = TileCopyRules::standard(),
 ) -> Unit raise ScoreError {
   validate_tile_copy_rules(tile_copy_rules)
   let counts = Array::make(34, 0)
@@ -230,32 +230,14 @@ fn validate_hand_with_tile_copy_rules(
 }
 
 ///|
-fn validate_hand(input : HandInput) -> Unit raise ScoreError {
-  validate_hand_with_tile_copy_rules(input, TileCopyRules::standard())
-}
-
-///|
-/// Return physical hand-tile counts in canonical 34-kind order. Dora indicators
-/// are not part of the returned counts.
-fn hand_tile_counts_with_tile_copy_rules(
-  input : HandInput,
-  tile_copy_rules : TileCopyRules,
-) -> Array[Int32] raise ScoreError {
-  validate_hand_with_tile_copy_rules(input, tile_copy_rules)
-  let counts = Array::make(34, 0)
-  for tile in input.concealed_tiles {
-    counts[tile_kind_index_unchecked(tile.kind)] += 1
-  }
-  counts[tile_kind_index_unchecked(input.winning_tile.kind)] += 1
+/// Return physical hand-tile counts of a validated hand in canonical 34-kind
+/// order. Dora indicators are not part of the returned counts.
+fn hand_tile_counts(input : HandInput) -> Array[Int32] {
+  let counts = concealed_winning_counts(input)
   for meld in input.melds {
     for tile in meld.tiles {
       counts[tile_kind_index_unchecked(tile.kind)] += 1
     }
   }
   counts
-}
-
-///|
-fn hand_tile_counts(input : HandInput) -> Array[Int32] raise ScoreError {
-  hand_tile_counts_with_tile_copy_rules(input, TileCopyRules::standard())
 }

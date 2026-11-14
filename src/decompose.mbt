@@ -1,9 +1,16 @@
 ///|
-fn concealed_winning_counts(input : HandInput) -> Array[Int32] {
+/// Counts of the concealed tiles, excluding the winning tile and melds.
+fn concealed_counts(input : HandInput) -> Array[Int32] {
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
     counts[tile_kind_index_unchecked(tile.kind)] += 1
   }
+  counts
+}
+
+///|
+fn concealed_winning_counts(input : HandInput) -> Array[Int32] {
+  let counts = concealed_counts(input)
   counts[tile_kind_index_unchecked(input.winning_tile.kind)] += 1
   counts
 }
@@ -233,10 +240,7 @@ fn thirteen_orphans_shape(input : HandInput) -> HandShape? {
   if pair_count != 1 {
     return None
   }
-  let concealed = Array::make(34, 0)
-  for tile in input.concealed_tiles {
-    concealed[tile_kind_index_unchecked(tile.kind)] += 1
-  }
+  let concealed = concealed_counts(input)
   let thirteen_sided = orphan_indices.all(index => concealed[index] == 1)
   if thirteen_sided {
     Some(ThirteenOrphans(wait=KokushiThirteenSided))
@@ -264,17 +268,12 @@ fn collect_hand_shapes(input : HandInput) -> Array[HandShape] raise ScoreError {
 }
 
 ///|
-fn decompose_with_tile_copy_rules(
+/// Validate a hand and enumerate every structural interpretation of it.
+fn decompose(
   input : HandInput,
-  tile_copy_rules : TileCopyRules,
+  tile_copy_rules~ : TileCopyRules = TileCopyRules::standard(),
 ) -> Array[HandShape] raise ScoreError {
-  validate_hand_with_tile_copy_rules(input, tile_copy_rules)
-  collect_hand_shapes(input)
-}
-
-///|
-fn decompose(input : HandInput) -> Array[HandShape] raise ScoreError {
-  validate_hand(input)
+  validate_hand(input, tile_copy_rules~)
   collect_hand_shapes(input)
 }
 

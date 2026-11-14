@@ -79,7 +79,7 @@ fn yt_values(
   let values : Array[YakuValue] = []
   let shapes = try! decompose(hand)
   for shape in shapes {
-    let shape_values = try! detect_yaku(hand, shape, rules)
+    let shape_values = detect_yaku(hand, shape, rules)
     for value in shape_values {
       values.push(value)
     }
@@ -796,24 +796,4 @@ test "detect kokushi, chuuren, suukantsu, and tenhou" {
   let singles : RuleSet = { ..RuleSet::standard(), double_yakuman: false, }
   assert_eq(yt_max_yakuman(kokushi, KokushiMusou, rules=singles), 1)
   assert_eq(yt_max_yakuman(chuuren, ChuurenPoutou, rules=singles), 1)
-}
-
-///|
-test "reject a shape that did not come from the hand" {
-  let hand = yt_basic_hand(yt_context(Ron))
-  let fake : HandShape = SevenPairs([
-    Numbered(Man, 1),
-    Numbered(Man, 2),
-    Numbered(Man, 3),
-    Numbered(Man, 4),
-    Numbered(Man, 5),
-    Numbered(Man, 6),
-    Numbered(Man, 7),
-  ])
-  try detect_yaku(hand, fake, RuleSet::standard()) catch {
-    InvalidHandShape => ()
-    _ => fail("expected InvalidHandShape")
-  } noraise {
-    _ => fail("expected detect_yaku to raise")
-  }
 }
