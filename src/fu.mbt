@@ -42,30 +42,15 @@ fn wait_fu(wait : WaitKind) -> Int32 {
 }
 
 ///|
-fn triplet_is_open_for_fu(
-  input : HandInput,
-  wait : WaitKind,
-  kind : TileKind,
-  is_open : Bool,
-) -> Bool {
-  is_open ||
-  (
-    input.context.win_method is Ron &&
-    wait is Shanpon &&
-    tile_kind_index_unchecked(kind) ==
-    tile_kind_index_unchecked(input.winning_tile.kind)
-  )
-}
-
-///|
-fn group_fu(input : HandInput, wait : WaitKind, group : Group) -> FuItem? {
+/// `completed_by_ron` marks the triplet found by `ron_completed_triplet`.
+fn group_fu(group : Group, completed_by_ron : Bool) -> FuItem? {
   match group {
     Sequence(_, ..) => None
     Triplet(kind, is_open~) => {
       let terminal_or_honor = is_terminal_or_honor(
         tile_kind_index_unchecked(kind),
       )
-      let effectively_open = triplet_is_open_for_fu(input, wait, kind, is_open)
+      let effectively_open = is_open || completed_by_ron
       let base = if effectively_open { 2 } else { 4 }
       let fu = if terminal_or_honor { base * 2 } else { base }
       Some(
@@ -116,8 +101,9 @@ fn calculate_standard_fu(
     items.push(fu_item(Wait, wait_value))
     raw_fu += wait_value
   }
-  for group in groups {
-    if group_fu(input, wait, group) is Some(item) {
+  let ron_completed = ron_completed_triplet(input, groups, wait)
+  for index, group in groups {
+    if group_fu(group, ron_completed == Some(index)) is Some(item) {
       items.push(item)
       raw_fu += item.fu
     }

@@ -232,26 +232,39 @@ fn is_value_pair(pair : TileKind, context : WinContext) -> Bool {
 }
 
 ///|
-/// A triplet completed by ron on a shanpon wait does not count as concealed.
+/// Index of the concealed triplet that the winning tile completes on a shanpon
+/// ron. That one triplet counts as open for fu and for concealed-triplet yaku.
+/// Other groups of the same tile kind stay concealed, and a closed quad is
+/// never completed by ron.
+fn ron_completed_triplet(
+  input : HandInput,
+  groups : Array[Group],
+  wait : WaitKind,
+) -> Int32? {
+  if !(input.context.win_method is Ron && wait is Shanpon) {
+    return None
+  }
+  let winning = tile_kind_index_unchecked(input.winning_tile.kind)
+  groups.search_by(group => {
+    group is Triplet(kind, is_open=false) &&
+    tile_kind_index_unchecked(kind) == winning
+  })
+}
+
+///|
 fn concealed_triplet_count(
   input : HandInput,
   groups : Array[Group],
   wait : WaitKind,
 ) -> Int32 {
-  let winning = tile_kind_index_unchecked(input.winning_tile.kind)
-  let mut count = 0
-  for group in groups {
-    match group {
-      Triplet(kind, is_open=false) | Quad(kind, is_open=false) =>
-        if !(input.context.win_method is Ron &&
-          wait is Shanpon &&
-          tile_kind_index_unchecked(kind) == winning) {
-          count += 1
-        }
-      _ => ()
-    }
+  let concealed = groups
+    .filter(group => group_is_triplet_or_quad(group) && !group_is_open(group))
+    .length()
+  if ron_completed_triplet(input, groups, wait) is Some(_) {
+    concealed - 1
+  } else {
+    concealed
   }
-  count
 }
 
 ///|

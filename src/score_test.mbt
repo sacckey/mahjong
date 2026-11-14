@@ -459,3 +459,54 @@ test "honor-family yaku require distinct honor tile kinds" {
     overlapping_dragon_pair_result.yaku.any(value => value.yaku == Shousangen),
   )
 }
+
+///|
+test "a ron on a shanpon wait opens exactly one triplet" {
+  let rules = @mahjong.RuleSet::standard()
+  let unlimited = @mahjong.TileCopyRules::unlimited()
+  let closed_kan = (tile : @mahjong.Tile) => @mahjong.Meld::{
+    kind: ClosedKan,
+    tiles: Array::make(4, tile),
+  }
+  let count_fu = (result : @mahjong.ScoreResult, reason : @mahjong.FuReason) => {
+    result.fu_items.filter(item => item.reason == reason).length()
+  }
+  // The closed kan of the winning tile kind stays concealed: only the triplet
+  // completed by the ron tile is open.
+  let with_kan : @mahjong.HandInput = {
+    ..st_input(
+      [st_m(2), st_m(2), st_m(5), st_m(5), st_s(7), st_s(7), st_s(7)],
+      st_m(2),
+    ),
+    melds: [closed_kan(st_m(2)), closed_kan(st_p(3))],
+  }
+  let with_kan_result = @mahjong.score_with_tile_copy_rules(
+    with_kan, rules, unlimited,
+  )
+  assert_true(with_kan_result.yaku.any(value => value.yaku == Sanankou))
+  assert_eq(count_fu(with_kan_result, OpenTriplet), 1)
+  assert_eq(count_fu(with_kan_result, ClosedQuad), 2)
+  // Of two identical triplets, the ron tile completes one and the other stays
+  // concealed.
+  let twin_tiles = [
+    ..Array::make(5, st_m(2)),
+    st_m(5),
+    st_m(5),
+    ..Array::make(3, st_p(3)),
+    ..Array::make(3, st_s(7)),
+  ]
+  let twin_ron = @mahjong.score_with_tile_copy_rules(
+    st_input(twin_tiles, st_m(2)),
+    rules,
+    unlimited,
+  )
+  assert_true(twin_ron.yaku.any(value => value.yaku == Sanankou))
+  assert_eq(count_fu(twin_ron, OpenTriplet), 1)
+  assert_eq(count_fu(twin_ron, ClosedTriplet), 3)
+  let twin_tsumo = @mahjong.score_with_tile_copy_rules(
+    st_input(twin_tiles, st_m(2), context=st_context(Tsumo)),
+    rules,
+    unlimited,
+  )
+  assert_true(twin_tsumo.yaku.any(value => value.yaku == Suuankou))
+}
