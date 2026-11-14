@@ -1,26 +1,16 @@
 # sacckey/mahjong
 
-MoonBitで実装する四人リーチ麻雀の点数計算・牌姿解析ライブラリです。
+MoonBitで実装した四人リーチ麻雀の点数計算・牌姿解析ライブラリです。
 
-通常ルールの一局について、入力検証、和了形列挙、役・ドラ・符の判定、支払い計算、最高点となる解釈の選択まで実装しています。ルールの初期仕様は[`docs/rules-v1.md`](../docs/rules-v1.md)を参照してください。
+入力検証、和了形の列挙、役・ドラ・符の判定、支払い計算を行い、最も高い点数になる解釈を返します。採用ルールは[`docs/rules-v1.md`](../docs/rules-v1.md)を参照してください。
 
-## インストールと実行
-
-既存のMoonBitプロジェクトにライブラリを追加します。
+## 使い方
 
 ```sh
 moon add sacckey/mahjong
 ```
 
-新規プロジェクトで試す場合は、次のように作成できます。
-
-```sh
-moon new mahjong-example
-cd mahjong-example
-moon add sacckey/mahjong
-```
-
-`cmd/main/moon.pkg`でライブラリをimportします。
+実行するパッケージの`moon.pkg`でimportします。
 
 ```moonbit nocheck
 import {
@@ -30,7 +20,7 @@ import {
 pkgtype(kind: "executable")
 ```
 
-`cmd/main/main.mbt`を次の内容にします。この例は、南家が立直し、平和形を9索でツモ和了した場合を計算します。
+次の例は、南家が立直し、平和形を9索でツモ和了した場合を計算します。`concealed_tiles`には和了牌を含めず、ツモ牌またはロン牌を`winning_tile`へ指定します。
 
 ```moonbit nocheck
 ///|
@@ -76,12 +66,6 @@ fn main raise {
 }
 ```
 
-実行すると次のように表示されます。
-
-```sh
-moon run cmd/main
-```
-
 ```text
 3翻 20符
 子 700点 / 親 1300点（合計 2700点）
@@ -89,57 +73,35 @@ moon run cmd/main
 
 ## 公開API
 
-基本の入口は、標準ルールで計算する`score_standard`と、`RuleSet`を指定する`score`です。上の例のように、`HandInput.concealed_tiles`には和了牌を含めず、ツモ牌またはロン牌を`winning_tile`へ指定します。
+| 関数 | 用途 |
+|---|---|
+| `score_standard(input)` | 標準ルールで点数を計算する |
+| `score(input, rules)` | `RuleSet`を指定して計算する |
+| `score_with_tile_copy_rules(input, rules, tile_copy_rules)` | 同一牌種の枚数上限を変えて計算する |
+| `is_winning_hand(input)` | 和了形かどうかだけを調べる |
+| `calculate_points(han, fu, dealer~, win_method~)` | 確定した翻と符から支払いを計算する |
 
-同一牌種を5枚以上使えるゲームでは、`score_with_tile_copy_rules(input, rules, TileCopyRules::unlimited())`を使用できます。通常のAPIはこれまでどおり4枚までです。この設定は物理枚数の検証だけを変更し、5枚なら通常の分解によって雀頭2枚と刻子3枚として扱えます。
+`ScoreResult`からは翻数`han`、符数`fu`、支払い内訳`payment`、供託を含む和了者の受取額`winner_gain`などを取得できます。
 
-`ScoreResult`からは翻数の`han`、符数の`fu`、支払い内訳の`payment`、供託を含む和了者の受取額`winner_gain`などを取得できます。
+同一牌種を5枚以上使えるゲームでは`TileCopyRules::unlimited()`を渡します。変わるのは物理枚数の検証だけで、5枚あれば雀頭2枚と刻子3枚のように通常どおり分解されます。
 
-和了形かどうかだけを調べる場合は`is_winning_hand`、既に確定した翻数と符から支払いを計算する場合は`calculate_points`を使用できます。役判定、符計算、ドラ計算、和了形分解は`score`の内部処理です。
+## 牌姿解析
 
-## シャンテン数・聴牌・待ち牌
-
-牌姿の解析には`sacckey/mahjong/analysis`パッケージを使用します。点数計算とは独立して、通常形、七対子、国士無双のシャンテン数、構造上の聴牌状態、待ち牌一覧を計算します。
-
-```moonbit nocheck
-///|
-import {
-  "sacckey/mahjong",
-  "sacckey/mahjong/analysis",
-}
-```
-
-基本の入口は`calculate_shanten`、`is_tenpai`、`waiting_tiles`です。待ち牌判定は役、フリテン、河に見えている牌を考慮しません。詳細は[`docs/analysis-v1.md`](../docs/analysis-v1.md)を参照してください。
-
-牌を追加できるゲームでは、対応する`calculate_shanten_with_tile_copy_rules`、`is_tenpai_with_tile_copy_rules`、`waiting_tiles_with_tile_copy_rules`へ`TileCopyRules::unlimited()`を渡せます。
+`sacckey/mahjong/analysis`パッケージの`calculate_shanten`、`is_tenpai`、`waiting_tiles`で、通常形、七対子、国士無双のシャンテン数、構造上の聴牌、待ち牌を調べられます。役、フリテン、河に見えている牌は考慮しません。使用例は[パッケージのREADME](analysis/README.mbt.md)、仕様は[`docs/analysis-v1.md`](../docs/analysis-v1.md)を参照してください。
 
 ## JS・Wasm-GCから使う
 
-MoonBit外との境界には`sacckey/mahjong/ffi`パッケージを使用します。JSとWasm-GCのどちらにも、同じJSONプロトコルを受け取る`mahjong_score_json`、`mahjong_analysis_json`と、プロトコルバージョンを返す`mahjong_api_version`がexportされます。
-
-JSONの入力、結果、エラーコードは[`docs/json-api-v1.md`](../docs/json-api-v1.md)で定義しています。境界層はコアのMoonBit APIから分離されているため、MoonBitから利用する場合は引き続き型付きの`score_standard`または`score`を使えます。
-
-JavaScript・TypeScriptからは`@sacckey/mahjong`を使用できます。パッケージはWasm-GCを優先し、利用できない環境ではJavaScript生成物へ切り替わります。
+JavaScript・TypeScriptからはnpmパッケージを使います。Wasm-GCを優先し、利用できない環境ではJavaScript生成物へ切り替わります。APIは[`packages/npm/README.md`](../packages/npm/README.md)を参照してください。
 
 ```sh
 npm install @sacckey/mahjong
 ```
 
-npm向けのAPIと開発手順は[`packages/npm/README.md`](../packages/npm/README.md)を参照してください。
+MoonBit外から直接呼ぶ場合は、`sacckey/mahjong/ffi`パッケージがexportする`mahjong_score_json`、`mahjong_analysis_json`、`mahjong_api_version`を使います。入力、結果、エラーコードは[`docs/json-api-v1.md`](../docs/json-api-v1.md)で定義しています。
 
 ## ブラウザ利用例
 
-手牌、和了牌、鳴き・槓、ドラ表示牌、和了条件をGUIで入力できる静的アプリを[`examples/browser`](../examples/browser/)に置いています。
-
-公開版は<https://sacckey.github.io/mahjong/>で試せます。ローカルで動かす場合は、リポジトリのルートで次を実行します。
-
-```sh
-moon build --target wasm-gc src/ffi
-moon build --target js src/ffi
-python3 -m http.server 8000
-```
-
-<http://127.0.0.1:8000/examples/browser/>を開いてください。Wasm-GCを優先し、未対応のブラウザではMoonBitのJavaScript生成物へ切り替わります。このアプリと生成物はmooncakesの配布物には含まれません。
+手牌、鳴き、ドラ表示牌、和了条件をGUIで入力できる静的アプリを<https://sacckey.github.io/mahjong/>で公開しています。ソースとローカルでの動かし方は[`examples/browser`](../examples/browser/)にあります。
 
 ## 開発
 
@@ -148,10 +110,4 @@ moon check --target all
 moon test --target all
 ```
 
-`MahjongRepository/mahjong`との開発用差分検証は次のコマンドで実行できます。Python依存と生成ケースは配布ライブラリには含まれません。
-
-```sh
-uv run tools/conformance/check.py
-```
-
-詳細は[`tools/conformance/README.md`](../tools/conformance/README.md)を参照してください。
+`MahjongRepository/mahjong`との差分検証は[`tools/conformance/README.md`](../tools/conformance/README.md)を参照してください。

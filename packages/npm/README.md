@@ -77,7 +77,7 @@ console.log(waits); // ["6s", "9s"]
 
 ## 同一牌を5枚以上使うゲーム
 
-通常は同一牌種を4枚までに制限します。牌を追加できるゲームでは、第2引数に`maxCopiesPerKind: null`を渡すと、この物理枚数制限だけを解除できます。構造上の手牌枚数、和了形、役、符などのルールは変わりません。
+通常は同一牌種を4枚までに制限します。第2引数に`maxCopiesPerKind: null`を渡すと、この枚数制限だけを解除できます。正の整数を渡すとその枚数が上限になります。手牌枚数、和了形、役、符などのルールは変わりません。
 
 ```js
 const tileCopyRules = { maxCopiesPerKind: null };
@@ -88,7 +88,7 @@ const tenpai = calculator.isTenpai(input, tileCopyRules);
 const waits = calculator.waitingTiles(input, tileCopyRules);
 ```
 
-たとえば同じ牌が5枚ある場合も、通常の面子分解によって雀頭2枚と刻子3枚として利用できます。正の整数を指定すれば、その枚数を上限にできます。立直後暗槓判定は通常の四人麻雀専用で、この設定の対象外です。
+同じ牌が5枚あれば、雀頭2枚と刻子3枚のように分解されます。立直後の暗槓判定はこの設定の対象外です。
 
 ## 立直後の暗槓
 
@@ -128,7 +128,7 @@ JSON API v1の詳細は[GitHubの仕様](https://github.com/sacckey/mahjong/blob
 
 ## 開発
 
-リポジトリのルートでMoonBitとNode.jsを利用できるようにし、次を実行します。ビルド時にMoonBitのJavaScript・Wasm-GC生成物が`dist`へコピーされます。
+MoonBitとNode.jsが必要です。ビルド時にMoonBitのJavaScript・Wasm-GC生成物が`dist`へコピーされます。
 
 ```sh
 cd packages/npm
