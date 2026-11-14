@@ -1,21 +1,21 @@
 ///|
-fn yaku_han_total(yaku : Array[YakuValue]) -> Int {
+fn yaku_han_total(yaku : Array[YakuValue]) -> Int32 {
   yaku.fold(init=0, (total, value) => total + value.han)
 }
 
 ///|
-fn yakuman_multiplier_total(yaku : Array[YakuValue]) -> Int {
+fn yakuman_multiplier_total(yaku : Array[YakuValue]) -> Int32 {
   yaku.fold(init=0, (total, value) => total + value.yakuman_multiplier)
 }
 
 ///|
-fn bonus_han_total(bonus : BonusHan) -> Int {
+fn bonus_han_total(bonus : BonusHan) -> Int32 {
   bonus.dora + bonus.ura_dora + bonus.aka_dora
 }
 
 ///|
 fn no_bonus_han() -> BonusHan {
-  { dora: 0, ura_dora: 0, aka_dora: 0 }
+  { dora: 0, ura_dora: 0, aka_dora: 0, }
 }
 
 ///|

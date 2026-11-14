@@ -41,7 +41,7 @@ fn tile_kind_from_code(code : String) -> @mahjong.TileKind raise RequestError {
 
 ///|
 fn tile_from_dto(dto : TileDto) -> @mahjong.Tile raise RequestError {
-  { kind: tile_kind_from_code(dto.kind), is_red: dto.red }
+  { kind: tile_kind_from_code(dto.kind), is_red: dto.red, }
 }
 
 ///|
@@ -58,7 +58,10 @@ fn meld_kind_from_string(kind : String) -> @mahjong.MeldKind raise RequestError 
 
 ///|
 fn meld_from_dto(dto : MeldDto) -> @mahjong.Meld raise RequestError {
-  { kind: meld_kind_from_string(dto.kind), tiles: dto.tiles.map(tile_from_dto) }
+  {
+    kind: meld_kind_from_string(dto.kind),
+    tiles: dto.tiles.map(tile_from_dto),
+  }
 }
 
 ///|
@@ -128,7 +131,7 @@ fn tile_copy_rules_from_dto(
               "maxCopiesPerKind must be a positive integer or null",
             )
           }
-          let limit : Int = @json.from_json(json) catch {
+          let limit : Int32 = @json.from_json(json) catch {
             _ =>
               raise InvalidRequest(
                 "maxCopiesPerKind must be a positive integer or null",

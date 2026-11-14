@@ -1,5 +1,5 @@
 ///|
-fn tile_index(tile : @mahjong.Tile) -> Int raise AnalysisError {
+fn tile_index(tile : @mahjong.Tile) -> Int32 raise AnalysisError {
   let index = match tile.kind {
     Numbered(Man, rank) if rank >= 1 && rank <= 9 => rank - 1
     Numbered(Pin, rank) if rank >= 1 && rank <= 9 => 9 + rank - 1
@@ -24,7 +24,7 @@ fn tile_index(tile : @mahjong.Tile) -> Int raise AnalysisError {
 }
 
 ///|
-fn tile_kind_from_index(index : Int) -> @mahjong.TileKind {
+fn tile_kind_from_index(index : Int32) -> @mahjong.TileKind {
   if index < 9 {
     Numbered(Man, index + 1)
   } else if index < 18 {
@@ -45,7 +45,7 @@ fn tile_kind_from_index(index : Int) -> @mahjong.TileKind {
 }
 
 ///|
-fn validate_meld(meld : @mahjong.Meld) -> Array[Int] raise AnalysisError {
+fn validate_meld(meld : @mahjong.Meld) -> Array[Int32] raise AnalysisError {
   let expected_length = match meld.kind {
     Chi | Pon => 3
     OpenKan | ClosedKan | AddedKan => 4
@@ -53,7 +53,7 @@ fn validate_meld(meld : @mahjong.Meld) -> Array[Int] raise AnalysisError {
   if meld.tiles.length() != expected_length {
     raise InvalidMeld("meld has an invalid number of tiles")
   }
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for tile in meld.tiles {
     indices.push(tile_index(tile))
   }
@@ -78,15 +78,15 @@ fn validate_meld(meld : @mahjong.Meld) -> Array[Int] raise AnalysisError {
 
 ///|
 priv struct ValidatedInput {
-  concealed_counts : Array[Int]
-  total_counts : Array[Int]
-  structural_size : Int
+  concealed_counts : Array[Int32]
+  total_counts : Array[Int32]
+  structural_size : Int32
 }
 
 ///|
 fn add_count(
-  counts : Array[Int],
-  index : Int,
+  counts : Array[Int32],
+  index : Int32,
   kind : @mahjong.TileKind,
   tile_copy_rules : @mahjong.TileCopyRules,
 ) -> Unit raise AnalysisError {
@@ -127,7 +127,7 @@ fn validate_input_with_tile_copy_rules(
   if structural_size != 13 && structural_size != 14 {
     raise InvalidHandSize(structural_size)
   }
-  { concealed_counts, total_counts, structural_size }
+  { concealed_counts, total_counts, structural_size, }
 }
 
 ///|

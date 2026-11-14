@@ -1,15 +1,15 @@
 ///|
-fn ft_m(rank : Int) -> Tile {
+fn ft_m(rank : Int32) -> Tile {
   try! Tile::numbered(Man, rank)
 }
 
 ///|
-fn ft_p(rank : Int) -> Tile {
+fn ft_p(rank : Int32) -> Tile {
   try! Tile::numbered(Pin, rank)
 }
 
 ///|
-fn ft_s(rank : Int) -> Tile {
+fn ft_s(rank : Int32) -> Tile {
   try! Tile::numbered(Sou, rank)
 }
 
@@ -21,8 +21,8 @@ fn ft_h(honor : Honor) -> Tile {
 ///|
 fn ft_context(
   win_method : WinMethod,
-  seat? : Wind = South,
-  round? : Wind = East,
+  seat~ : Wind = South,
+  round~ : Wind = East,
 ) -> WinContext {
   {
     win_method,
@@ -45,8 +45,8 @@ fn ft_context(
 fn ft_input(
   concealed : Array[Tile],
   winning : Tile,
-  melds? : Array[Meld] = [],
-  context? : WinContext = ft_context(Ron),
+  melds~ : Array[Meld] = [],
+  context~ : WinContext = ft_context(Ron),
 ) -> HandInput {
   {
     concealed_tiles: concealed,
@@ -60,7 +60,7 @@ fn ft_input(
 
 ///|
 fn ft_meld(kind : MeldKind, tiles : Array[Tile]) -> Meld {
-  { kind, tiles }
+  { kind, tiles, }
 }
 
 ///|
@@ -101,8 +101,8 @@ fn ft_orphans_shape(hand : HandInput) -> HandShape {
 fn ft_calculate(
   hand : HandInput,
   shape : HandShape,
-  rules? : RuleSet = RuleSet::standard(),
-) -> (Int, Array[FuItem]) {
+  rules~ : RuleSet = RuleSet::standard(),
+) -> (Int32, Array[FuItem]) {
   let yaku = try! detect_yaku(hand, shape, rules)
   try! calculate_fu(hand, shape, yaku, rules)
 }
@@ -134,12 +134,12 @@ fn ft_pinfu_hand(win_method : WinMethod) -> HandInput {
 test "pinfu tsumo is fixed at 20 fu and pinfu ron is 30 fu" {
   let tsumo = ft_pinfu_hand(Tsumo)
   let tsumo_shape = ft_shape_with_wait(tsumo, Ryanmen)
-  assert_eq(ft_calculate(tsumo, tsumo_shape), (20, [{ reason: Base, fu: 20 }]))
+  assert_eq(ft_calculate(tsumo, tsumo_shape), (20, [{ reason: Base, fu: 20, }]))
   let ron = ft_pinfu_hand(Ron)
   let ron_shape = ft_shape_with_wait(ron, Ryanmen)
   assert_eq(
     ft_calculate(ron, ron_shape),
-    (30, [{ reason: Base, fu: 20 }, { reason: MenzenRon, fu: 10 }]),
+    (30, [{ reason: Base, fu: 20, }, { reason: MenzenRon, fu: 10, }]),
   )
 }
 
@@ -166,7 +166,7 @@ test "seven pairs is fixed at 25 fu and thirteen orphans has no fu" {
   let seven_shape = ft_seven_pairs_shape(seven_pairs)
   assert_eq(
     ft_calculate(seven_pairs, seven_shape),
-    (25, [{ reason: SevenPairsFixed, fu: 25 }]),
+    (25, [{ reason: SevenPairsFixed, fu: 25, }]),
   )
   let orphans = ft_input(
     [
@@ -211,7 +211,7 @@ test "open pinfu-shaped ron receives the 30-fu minimum" {
   let shape = ft_shape_with_wait(hand, Ryanmen)
   assert_eq(
     ft_calculate(hand, shape),
-    (30, [{ reason: Base, fu: 20 }, { reason: OpenPinfuShape, fu: 10 }]),
+    (30, [{ reason: Base, fu: 20, }, { reason: OpenPinfuShape, fu: 10, }]),
   )
 }
 
@@ -242,11 +242,11 @@ test "value pair and tanki wait fu are itemized before rounding" {
     (
       50,
       [
-        { reason: Base, fu: 20 },
-        { reason: MenzenRon, fu: 10 },
-        { reason: ValuePair, fu: 4 },
-        { reason: Wait, fu: 2 },
-        { reason: ClosedTriplet, fu: 8 },
+        { reason: Base, fu: 20, },
+        { reason: MenzenRon, fu: 10, },
+        { reason: ValuePair, fu: 4, },
+        { reason: Wait, fu: 2, },
+        { reason: ClosedTriplet, fu: 8, },
       ],
     ),
   )
@@ -259,11 +259,11 @@ test "value pair and tanki wait fu are itemized before rounding" {
     (
       50,
       [
-        { reason: Base, fu: 20 },
-        { reason: MenzenRon, fu: 10 },
-        { reason: ValuePair, fu: 2 },
-        { reason: Wait, fu: 2 },
-        { reason: ClosedTriplet, fu: 8 },
+        { reason: Base, fu: 20, },
+        { reason: MenzenRon, fu: 10, },
+        { reason: ValuePair, fu: 2, },
+        { reason: Wait, fu: 2, },
+        { reason: ClosedTriplet, fu: 8, },
       ],
     ),
   )
@@ -291,11 +291,11 @@ test "value pair and tanki wait fu are itemized before rounding" {
     (
       50,
       [
-        { reason: Base, fu: 20 },
-        { reason: MenzenRon, fu: 10 },
-        { reason: ValuePair, fu: 2 },
-        { reason: Wait, fu: 2 },
-        { reason: ClosedTriplet, fu: 8 },
+        { reason: Base, fu: 20, },
+        { reason: MenzenRon, fu: 10, },
+        { reason: ValuePair, fu: 2, },
+        { reason: Wait, fu: 2, },
+        { reason: ClosedTriplet, fu: 8, },
       ],
     ),
   )
@@ -314,13 +314,13 @@ test "triplet and quad fu distinguish open, closed, simple, and outside groups" 
     (
       80,
       [
-        { reason: Base, fu: 20 },
-        { reason: ValuePair, fu: 2 },
-        { reason: Wait, fu: 2 },
-        { reason: OpenTriplet, fu: 2 },
-        { reason: OpenQuad, fu: 16 },
-        { reason: ClosedTriplet, fu: 4 },
-        { reason: ClosedQuad, fu: 32 },
+        { reason: Base, fu: 20, },
+        { reason: ValuePair, fu: 2, },
+        { reason: Wait, fu: 2, },
+        { reason: OpenTriplet, fu: 2, },
+        { reason: OpenQuad, fu: 16, },
+        { reason: ClosedTriplet, fu: 4, },
+        { reason: ClosedQuad, fu: 32, },
       ],
     ),
   )
@@ -358,11 +358,11 @@ test "a triplet completed by ron is open for fu but stays closed on tsumo" {
     (
       50,
       [
-        { reason: Base, fu: 20 },
-        { reason: MenzenRon, fu: 10 },
-        { reason: ClosedTriplet, fu: 8 },
-        { reason: ClosedTriplet, fu: 4 },
-        { reason: OpenTriplet, fu: 2 },
+        { reason: Base, fu: 20, },
+        { reason: MenzenRon, fu: 10, },
+        { reason: ClosedTriplet, fu: 8, },
+        { reason: ClosedTriplet, fu: 4, },
+        { reason: OpenTriplet, fu: 2, },
       ],
     ),
   )
@@ -373,11 +373,11 @@ test "a triplet completed by ron is open for fu but stays closed on tsumo" {
     (
       40,
       [
-        { reason: Base, fu: 20 },
-        { reason: Tsumo, fu: 2 },
-        { reason: ClosedTriplet, fu: 8 },
-        { reason: ClosedTriplet, fu: 4 },
-        { reason: ClosedTriplet, fu: 4 },
+        { reason: Base, fu: 20, },
+        { reason: Tsumo, fu: 2, },
+        { reason: ClosedTriplet, fu: 8, },
+        { reason: ClosedTriplet, fu: 4, },
+        { reason: ClosedTriplet, fu: 4, },
       ],
     ),
   )
@@ -410,9 +410,9 @@ test "kanchan and penchan waits each add two fu" {
     (
       40,
       [
-        { reason: Base, fu: 20 },
-        { reason: MenzenRon, fu: 10 },
-        { reason: Wait, fu: 2 },
+        { reason: Base, fu: 20, },
+        { reason: MenzenRon, fu: 10, },
+        { reason: Wait, fu: 2, },
       ],
     ),
   )
@@ -441,9 +441,9 @@ test "kanchan and penchan waits each add two fu" {
     (
       40,
       [
-        { reason: Base, fu: 20 },
-        { reason: MenzenRon, fu: 10 },
-        { reason: Wait, fu: 2 },
+        { reason: Base, fu: 20, },
+        { reason: MenzenRon, fu: 10, },
+        { reason: Wait, fu: 2, },
       ],
     ),
   )

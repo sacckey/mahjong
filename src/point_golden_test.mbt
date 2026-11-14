@@ -1,12 +1,12 @@
 ///|
 struct RonGoldenCase {
   name : String
-  han : Int
-  fu : Int
+  han : Int32
+  fu : Int32
   dealer : Bool
-  expected_base : Int
+  expected_base : Int32
   expected_limit : @mahjong.Limit
-  expected_payment : Int
+  expected_payment : Int32
 }
 
 ///|

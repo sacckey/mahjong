@@ -1,12 +1,12 @@
 ///|
-const API_VERSION : Int = 1
+const API_VERSION : Int32 = 1
 
 ///|
 fn encode_error(code : String, message : String, details : Json) -> String {
   @json.to_json(ErrorEnvelope::{
     apiVersion: API_VERSION,
     ok: false,
-    error: { code, message, details },
+    error: { code, message, details, },
   }).stringify()
 }
 
@@ -119,7 +119,7 @@ fn encode_analysis_success(result : Json) -> String {
 
 ///|
 /// Return the version of the JSON protocol.
-pub fn api_version() -> Int {
+pub fn api_version() -> Int32 {
   API_VERSION
 }
 

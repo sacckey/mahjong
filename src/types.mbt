@@ -1,13 +1,15 @@
 ///|
 /// A numbered-tile suit.
+#derive(Debug, Eq, Compare)
 pub(all) enum Suit {
   Man
   Pin
   Sou
-} derive(Debug, Eq, Compare)
+}
 
 ///|
 /// An honor tile.
+#derive(Debug, Eq, Compare)
 pub(all) enum Honor {
   East
   South
@@ -16,65 +18,73 @@ pub(all) enum Honor {
   White
   Green
   Red
-} derive(Debug, Eq, Compare)
+}
 
 ///|
 /// One of the 34 tile kinds. Numbered ranks must be between 1 and 9.
+#derive(Debug, Eq, Compare)
 pub(all) enum TileKind {
-  Numbered(Suit, Int)
+  Numbered(Suit, Int32)
   HonorTile(Honor)
-} derive(Debug, Eq, Compare)
+}
 
 ///|
 /// A physical tile. A red tile must be a numbered five.
+#derive(Debug, Eq)
 pub(all) struct Tile {
   kind : TileKind
   is_red : Bool
-} derive(Debug, Eq)
+}
 
 ///|
 /// A called or declared meld.
+#derive(Debug, Eq)
 pub(all) enum MeldKind {
   Chi
   Pon
   OpenKan
   ClosedKan
   AddedKan
-} derive(Debug, Eq)
+}
 
 ///|
 /// Tiles in a meld are stored explicitly so red fives are preserved.
+#derive(Debug, Eq)
 pub(all) struct Meld {
   kind : MeldKind
   tiles : Array[Tile]
-} derive(Debug, Eq)
+}
 
 ///|
 /// A player's seat or the prevailing wind.
+#derive(Debug, Eq, Compare)
 pub(all) enum Wind {
   East
   South
   West
   North
-} derive(Debug, Eq, Compare)
+}
 
 ///|
 /// How the hand was won.
+#derive(Debug, Eq)
 pub(all) enum WinMethod {
   Ron
   Tsumo
-} derive(Debug, Eq)
+}
 
 ///|
 /// Riichi state supplied by the game engine.
+#derive(Debug, Eq)
 pub(all) enum RiichiState {
   NoRiichi
   Riichi
   DoubleRiichi
-} derive(Debug, Eq)
+}
 
 ///|
 /// Situational facts that cannot be inferred from the tiles alone.
+#derive(Debug, Eq)
 pub(all) struct WinContext {
   win_method : WinMethod
   seat_wind : Wind
@@ -87,9 +97,9 @@ pub(all) struct WinContext {
   houtei : Bool
   tenhou : Bool
   chiihou : Bool
-  honba : Int
-  riichi_sticks : Int
-} derive(Debug, Eq)
+  honba : Int32
+  riichi_sticks : Int32
+}
 
 ///|
 /// Create a context with no situational yaku, honba, or riichi sticks.
@@ -117,6 +127,7 @@ pub fn WinContext::new(
 
 ///|
 /// Complete scoring input. `concealed_tiles` excludes `winning_tile`.
+#derive(Debug, Eq)
 pub(all) struct HandInput {
   concealed_tiles : Array[Tile]
   winning_tile : Tile
@@ -124,7 +135,7 @@ pub(all) struct HandInput {
   dora_indicators : Array[Tile]
   ura_dora_indicators : Array[Tile]
   context : WinContext
-} derive(Debug, Eq)
+}
 
 ///|
 /// Create an input without melds, dora indicators, or ura-dora indicators.
@@ -146,31 +157,33 @@ pub fn HandInput::new(
 ///|
 /// Validation rules for the number of physical copies of one tile kind.
 /// `None` permits any count that fits in the structural hand size.
+#derive(Debug, Eq)
 pub(all) struct TileCopyRules {
-  max_copies_per_kind : Int?
-} derive(Debug, Eq)
+  max_copies_per_kind : Int32?
+}
 
 ///|
 /// Use the four-copy limit of an ordinary riichi mahjong tile set.
 pub fn TileCopyRules::standard() -> TileCopyRules {
-  { max_copies_per_kind: Some(4) }
+  { max_copies_per_kind: Some(4), }
 }
 
 ///|
 /// Permit duplicate physical tiles beyond the ordinary four copies.
 pub fn TileCopyRules::unlimited() -> TileCopyRules {
-  { max_copies_per_kind: None }
+  { max_copies_per_kind: None, }
 }
 
 ///|
 /// Configurable choices in the version-one ruleset.
+#derive(Debug, Eq)
 pub(all) struct RuleSet {
   open_tanyao : Bool
   kiriage_mangan : Bool
   double_yakuman : Bool
   counted_yakuman : Bool
-  double_wind_pair_fu : Int
-} derive(Debug, Eq)
+  double_wind_pair_fu : Int32
+}
 
 ///|
 /// The default rules described in `docs/rules-v1.md`.
@@ -186,6 +199,7 @@ pub fn RuleSet::standard() -> RuleSet {
 
 ///|
 /// Wait shape used for fu and yaku evaluation.
+#derive(Debug, Eq)
 pub(all) enum WaitKind {
   Ryanmen
   Kanchan
@@ -194,26 +208,29 @@ pub(all) enum WaitKind {
   Shanpon
   KokushiSingle
   KokushiThirteenSided
-} derive(Debug, Eq)
+}
 
 ///|
 /// A group in a standard four-groups-and-a-pair hand.
+#derive(Debug, Eq)
 pub(all) enum Group {
   Sequence(TileKind, is_open~ : Bool)
   Triplet(TileKind, is_open~ : Bool)
   Quad(TileKind, is_open~ : Bool)
-} derive(Debug, Eq)
+}
 
 ///|
 /// One structural interpretation of a winning hand.
+#derive(Debug, Eq)
 pub(all) enum HandShape {
   Standard(pair~ : TileKind, groups~ : Array[Group], wait~ : WaitKind)
   SevenPairs(Array[TileKind])
   ThirteenOrphans(wait~ : WaitKind)
-} derive(Debug, Eq)
+}
 
 ///|
 /// Standard yaku and yakuman supported by version one.
+#derive(Debug, Eq, Compare)
 pub(all) enum Yaku {
   Riichi
   DoubleRiichi
@@ -257,26 +274,29 @@ pub(all) enum Yaku {
   Chinroutou
   ChuurenPoutou
   Suukantsu
-} derive(Debug, Eq, Compare)
+}
 
 ///|
 /// One matched yaku. Exactly one of `han` and `yakuman_multiplier` is non-zero.
+#derive(Debug, Eq)
 pub(all) struct YakuValue {
   yaku : Yaku
-  han : Int
-  yakuman_multiplier : Int
-} derive(Debug, Eq)
+  han : Int32
+  yakuman_multiplier : Int32
+}
 
 ///|
 /// Bonus han do not satisfy the one-yaku requirement.
+#derive(Debug, Eq)
 pub(all) struct BonusHan {
-  dora : Int
-  ura_dora : Int
-  aka_dora : Int
-} derive(Debug, Eq)
+  dora : Int32
+  ura_dora : Int32
+  aka_dora : Int32
+}
 
 ///|
 /// A reason contributing to the rounded fu total.
+#derive(Debug, Eq)
 pub(all) enum FuReason {
   Base
   MenzenRon
@@ -289,72 +309,78 @@ pub(all) enum FuReason {
   ClosedQuad
   OpenPinfuShape
   SevenPairsFixed
-} derive(Debug, Eq)
+}
 
 ///|
 /// One item in the fu explanation.
+#derive(Debug, Eq)
 pub(all) struct FuItem {
   reason : FuReason
-  fu : Int
-} derive(Debug, Eq)
+  fu : Int32
+}
 
 ///|
 /// Limit category applied to the basic points.
+#derive(Debug, Eq)
 pub(all) enum Limit {
   BelowMangan
   Mangan
   Haneman
   Baiman
   Sanbaiman
-  Yakuman(Int)
-} derive(Debug, Eq)
+  Yakuman(Int32)
+}
 
 ///|
 /// Final payment by win method. Values already include honba.
+#derive(Debug, Eq)
 pub(all) enum WinPayment {
-  RonPayment(discarder~ : Int)
-  DealerTsumoPayment(each~ : Int)
-  NonDealerTsumoPayment(dealer~ : Int, non_dealer_each~ : Int)
-} derive(Debug, Eq)
+  RonPayment(discarder~ : Int32)
+  DealerTsumoPayment(each~ : Int32)
+  NonDealerTsumoPayment(dealer~ : Int32, non_dealer_each~ : Int32)
+}
 
 ///|
 /// Result of the arithmetic point calculation.
+#derive(Debug, Eq)
 pub(all) struct PointResult {
-  han : Int
-  fu : Int
+  han : Int32
+  fu : Int32
   limit : Limit
-  base_points : Int
+  base_points : Int32
   payment : WinPayment
-  riichi_bonus : Int
-  winner_gain : Int
-} derive(Debug, Eq)
+  riichi_bonus : Int32
+  winner_gain : Int32
+}
 
 ///|
 /// Complete result returned after hand evaluation.
+#derive(Debug, Eq)
 pub(all) struct ScoreResult {
   shape : HandShape
   yaku : Array[YakuValue]
   bonus_han : BonusHan
-  han : Int
-  fu : Int
+  han : Int32
+  fu : Int32
   fu_items : Array[FuItem]
   limit : Limit
-  base_points : Int
+  base_points : Int32
   payment : WinPayment
-  riichi_bonus : Int
-  winner_gain : Int
-} derive(Debug, Eq)
+  riichi_bonus : Int32
+  winner_gain : Int32
+}
 
 ///|
 /// Errors from validating or evaluating a hand.
+#derive(Debug, Eq)
 pub(all) suberror ScoreError {
   InvalidTile(String)
-  TooManyCopies(TileKind, Int)
-  InvalidHandSize(Int)
+  TooManyCopies(TileKind, Int32)
+  InvalidHandSize(Int32)
   InvalidMeld(String)
   ContradictoryContext(String)
   NotWinningHand
   InvalidHandShape
   InvalidRule(String)
   NoYaku
-} derive(Debug, Eq)
+}

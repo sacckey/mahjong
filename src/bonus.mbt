@@ -14,7 +14,10 @@ fn dora_kind(indicator : TileKind) -> TileKind {
 }
 
 ///|
-fn count_indicator_dora(counts : Array[Int], indicators : Array[Tile]) -> Int {
+fn count_indicator_dora(
+  counts : Array[Int32],
+  indicators : Array[Tile],
+) -> Int32 {
   let mut total = 0
   for indicator in indicators {
     let kind = dora_kind(indicator.kind)
@@ -24,7 +27,7 @@ fn count_indicator_dora(counts : Array[Int], indicators : Array[Tile]) -> Int {
 }
 
 ///|
-fn count_red_tiles(input : HandInput) -> Int {
+fn count_red_tiles(input : HandInput) -> Int32 {
   let mut total = 0
   for tile in input.concealed_tiles {
     if tile.is_red {
@@ -61,7 +64,7 @@ fn calculate_bonus_han_with_tile_copy_rules(
       count_indicator_dora(counts, input.ura_dora_indicators)
     NoRiichi => 0
   }
-  { dora, ura_dora, aka_dora: count_red_tiles(input) }
+  { dora, ura_dora, aka_dora: count_red_tiles(input), }
 }
 
 ///|

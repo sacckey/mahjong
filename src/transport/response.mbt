@@ -31,11 +31,11 @@ fn wait_id(wait : @mahjong.WaitKind) -> String {
 fn group_dto(group : @mahjong.Group) -> GroupDto {
   match group {
     @mahjong.Sequence(tile, is_open~) =>
-      { kind: "sequence", tile: tile_kind_code(tile), open: is_open }
+      { kind: "sequence", tile: tile_kind_code(tile), open: is_open, }
     @mahjong.Triplet(tile, is_open~) =>
-      { kind: "triplet", tile: tile_kind_code(tile), open: is_open }
+      { kind: "triplet", tile: tile_kind_code(tile), open: is_open, }
     @mahjong.Quad(tile, is_open~) =>
-      { kind: "quad", tile: tile_kind_code(tile), open: is_open }
+      { kind: "quad", tile: tile_kind_code(tile), open: is_open, }
   }
 }
 
@@ -137,13 +137,13 @@ fn fu_reason_id(reason : @mahjong.FuReason) -> String {
 ///|
 fn limit_dto(limit : @mahjong.Limit) -> LimitDto {
   match limit {
-    @mahjong.BelowMangan => { kind: "belowMangan", yakumanMultiplier: 0 }
-    @mahjong.Mangan => { kind: "mangan", yakumanMultiplier: 0 }
-    @mahjong.Haneman => { kind: "haneman", yakumanMultiplier: 0 }
-    @mahjong.Baiman => { kind: "baiman", yakumanMultiplier: 0 }
-    @mahjong.Sanbaiman => { kind: "sanbaiman", yakumanMultiplier: 0 }
+    @mahjong.BelowMangan => { kind: "belowMangan", yakumanMultiplier: 0, }
+    @mahjong.Mangan => { kind: "mangan", yakumanMultiplier: 0, }
+    @mahjong.Haneman => { kind: "haneman", yakumanMultiplier: 0, }
+    @mahjong.Baiman => { kind: "baiman", yakumanMultiplier: 0, }
+    @mahjong.Sanbaiman => { kind: "sanbaiman", yakumanMultiplier: 0, }
     @mahjong.Yakuman(multiplier) =>
-      { kind: "yakuman", yakumanMultiplier: multiplier }
+      { kind: "yakuman", yakumanMultiplier: multiplier, }
   }
 }
 

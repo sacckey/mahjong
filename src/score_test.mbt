@@ -1,15 +1,15 @@
 ///|
-fn st_m(rank : Int, red? : Bool = false) -> @mahjong.Tile {
+fn st_m(rank : Int32, red~ : Bool = false) -> @mahjong.Tile {
   try! @mahjong.Tile::numbered(Man, rank, red~)
 }
 
 ///|
-fn st_p(rank : Int) -> @mahjong.Tile {
+fn st_p(rank : Int32) -> @mahjong.Tile {
   try! @mahjong.Tile::numbered(Pin, rank)
 }
 
 ///|
-fn st_s(rank : Int) -> @mahjong.Tile {
+fn st_s(rank : Int32) -> @mahjong.Tile {
   try! @mahjong.Tile::numbered(Sou, rank)
 }
 
@@ -21,11 +21,11 @@ fn st_h(honor : @mahjong.Honor) -> @mahjong.Tile {
 ///|
 fn st_context(
   win_method : @mahjong.WinMethod,
-  seat? : @mahjong.Wind = South,
-  round? : @mahjong.Wind = East,
-  riichi? : @mahjong.RiichiState = NoRiichi,
-  honba? : Int = 0,
-  riichi_sticks? : Int = 0,
+  seat~ : @mahjong.Wind = South,
+  round~ : @mahjong.Wind = East,
+  riichi~ : @mahjong.RiichiState = NoRiichi,
+  honba~ : Int32 = 0,
+  riichi_sticks~ : Int32 = 0,
 ) -> @mahjong.WinContext {
   {
     ..@mahjong.WinContext::new(win_method, seat_wind=seat, round_wind=round),
@@ -39,9 +39,9 @@ fn st_context(
 fn st_input(
   concealed : Array[@mahjong.Tile],
   winning : @mahjong.Tile,
-  dora? : Array[@mahjong.Tile] = [],
-  ura? : Array[@mahjong.Tile] = [],
-  context? : @mahjong.WinContext = st_context(Ron),
+  dora~ : Array[@mahjong.Tile] = [],
+  ura~ : Array[@mahjong.Tile] = [],
+  context~ : @mahjong.WinContext = st_context(Ron),
 ) -> @mahjong.HandInput {
   {
     ..@mahjong.HandInput::new(concealed, winning_tile=winning, context~),
@@ -107,17 +107,17 @@ test "score integrates yaku dora fu honba and riichi sticks" {
   let base = st_pinfu_hand(
     st_context(Ron, riichi=Riichi, honba=2, riichi_sticks=1),
   )
-  let hand : @mahjong.HandInput = { ..base, dora_indicators: [st_p(4)] }
+  let hand : @mahjong.HandInput = { ..base, dora_indicators: [st_p(4)], }
   let result = @mahjong.score_standard(hand)
   assert_true(result.shape is Standard(wait=Ryanmen, ..))
   assert_true(result.yaku.any(value => value.yaku == Riichi && value.han == 1))
   assert_true(result.yaku.any(value => value.yaku == Pinfu && value.han == 1))
-  assert_eq(result.bonus_han, { dora: 2, ura_dora: 0, aka_dora: 0 })
+  assert_eq(result.bonus_han, { dora: 2, ura_dora: 0, aka_dora: 0, })
   assert_eq(result.han, 4)
   assert_eq(result.fu, 30)
   assert_eq(result.fu_items, [
-    { reason: Base, fu: 20 },
-    { reason: MenzenRon, fu: 10 },
+    { reason: Base, fu: 20, },
+    { reason: MenzenRon, fu: 10, },
   ])
   assert_eq(result.limit, BelowMangan)
   assert_eq(result.base_points, 1920)
@@ -203,7 +203,7 @@ fn st_counted_hand() -> @mahjong.HandInput {
 test "is_winning_hand checks structural completion" {
   let winning = st_counted_hand()
   assert_true(@mahjong.is_winning_hand(winning))
-  let incomplete : @mahjong.HandInput = { ..winning, winning_tile: st_m(8) }
+  let incomplete : @mahjong.HandInput = { ..winning, winning_tile: st_m(8), }
   assert_false(@mahjong.is_winning_hand(incomplete))
 }
 
@@ -289,11 +289,11 @@ test "compound and double yakuman use explicit multipliers and ignore dora" {
   let hand = st_compound_yakuman_hand()
   let result = @mahjong.score_standard(hand)
   assert_eq(result.yaku, [
-    { yaku: Suuankou, han: 0, yakuman_multiplier: 2 },
-    { yaku: Daisuushi, han: 0, yakuman_multiplier: 2 },
-    { yaku: Tsuuiisou, han: 0, yakuman_multiplier: 1 },
+    { yaku: Suuankou, han: 0, yakuman_multiplier: 2, },
+    { yaku: Daisuushi, han: 0, yakuman_multiplier: 2, },
+    { yaku: Tsuuiisou, han: 0, yakuman_multiplier: 1, },
   ])
-  assert_eq(result.bonus_han, { dora: 0, ura_dora: 0, aka_dora: 0 })
+  assert_eq(result.bonus_han, { dora: 0, ura_dora: 0, aka_dora: 0, })
   assert_eq(result.han, 0)
   assert_eq(result.fu, 0)
   assert_true(result.fu_items.is_empty())
@@ -363,7 +363,7 @@ test "custom tile copy rules allow a fifth tile as a pair and triplet" {
     result.shape is Standard(pair=Numbered(Man, 1), groups~, ..) &&
     groups.any(group => group == Triplet(Numbered(Man, 1), is_open=false)),
   )
-  let invalid : @mahjong.TileCopyRules = { max_copies_per_kind: Some(0) }
+  let invalid : @mahjong.TileCopyRules = { max_copies_per_kind: Some(0), }
   try
     @mahjong.score_with_tile_copy_rules(
       hand,

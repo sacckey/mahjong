@@ -2,17 +2,18 @@
 /// Hand-authored expected values for the standard rules. These values are not
 /// generated from the scoring implementation; future external datasets should
 /// be normalized into the same summary before comparison.
+#derive(Debug, Eq)
 struct ScoreGoldenSummary {
   yaku : Array[@mahjong.YakuValue]
   bonus_han : @mahjong.BonusHan
-  han : Int
-  fu : Int
+  han : Int32
+  fu : Int32
   limit : @mahjong.Limit
-  base_points : Int
+  base_points : Int32
   payment : @mahjong.WinPayment
-  riichi_bonus : Int
-  winner_gain : Int
-} derive(Debug, Eq)
+  riichi_bonus : Int32
+  winner_gain : Int32
+}
 
 ///|
 struct ScoreGoldenCase {
@@ -22,17 +23,17 @@ struct ScoreGoldenCase {
 }
 
 ///|
-fn sg_m(rank : Int) -> @mahjong.Tile {
+fn sg_m(rank : Int32) -> @mahjong.Tile {
   try! @mahjong.Tile::numbered(Man, rank)
 }
 
 ///|
-fn sg_p(rank : Int) -> @mahjong.Tile {
+fn sg_p(rank : Int32) -> @mahjong.Tile {
   try! @mahjong.Tile::numbered(Pin, rank)
 }
 
 ///|
-fn sg_s(rank : Int) -> @mahjong.Tile {
+fn sg_s(rank : Int32) -> @mahjong.Tile {
   try! @mahjong.Tile::numbered(Sou, rank)
 }
 
@@ -44,9 +45,9 @@ fn sg_h(honor : @mahjong.Honor) -> @mahjong.Tile {
 ///|
 fn sg_context(
   win_method : @mahjong.WinMethod,
-  seat? : @mahjong.Wind = South,
-  round? : @mahjong.Wind = East,
-  riichi? : @mahjong.RiichiState = NoRiichi,
+  seat~ : @mahjong.Wind = South,
+  round~ : @mahjong.Wind = East,
+  riichi~ : @mahjong.RiichiState = NoRiichi,
 ) -> @mahjong.WinContext {
   {
     win_method,
@@ -69,8 +70,8 @@ fn sg_context(
 fn sg_input(
   concealed : Array[@mahjong.Tile],
   winning : @mahjong.Tile,
-  melds? : Array[@mahjong.Meld] = [],
-  context? : @mahjong.WinContext = sg_context(Ron),
+  melds~ : Array[@mahjong.Meld] = [],
+  context~ : @mahjong.WinContext = sg_context(Ron),
 ) -> @mahjong.HandInput {
   {
     concealed_tiles: concealed,
@@ -83,18 +84,18 @@ fn sg_input(
 }
 
 ///|
-fn sg_yaku(yaku : @mahjong.Yaku, han : Int) -> @mahjong.YakuValue {
-  { yaku, han, yakuman_multiplier: 0 }
+fn sg_yaku(yaku : @mahjong.Yaku, han : Int32) -> @mahjong.YakuValue {
+  { yaku, han, yakuman_multiplier: 0, }
 }
 
 ///|
-fn sg_yakuman(yaku : @mahjong.Yaku, multiplier : Int) -> @mahjong.YakuValue {
-  { yaku, han: 0, yakuman_multiplier: multiplier }
+fn sg_yakuman(yaku : @mahjong.Yaku, multiplier : Int32) -> @mahjong.YakuValue {
+  { yaku, han: 0, yakuman_multiplier: multiplier, }
 }
 
 ///|
 fn sg_no_bonus() -> @mahjong.BonusHan {
-  { dora: 0, ura_dora: 0, aka_dora: 0 }
+  { dora: 0, ura_dora: 0, aka_dora: 0, }
 }
 
 ///|
@@ -160,7 +161,7 @@ fn sg_seven_pairs_hand() -> @mahjong.HandInput {
 
 ///|
 fn sg_open_tanyao_hand() -> @mahjong.HandInput {
-  let chi : @mahjong.Meld = { kind: Chi, tiles: [sg_m(2), sg_m(3), sg_m(4)] }
+  let chi : @mahjong.Meld = { kind: Chi, tiles: [sg_m(2), sg_m(3), sg_m(4)], }
   sg_input(
     [
       sg_p(3),

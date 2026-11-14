@@ -1,5 +1,5 @@
 ///|
-fn tile_kind_index_unchecked(kind : TileKind) -> Int {
+fn tile_kind_index_unchecked(kind : TileKind) -> Int32 {
   match kind {
     Numbered(Man, rank) => rank - 1
     Numbered(Pin, rank) => 9 + rank - 1
@@ -15,7 +15,7 @@ fn tile_kind_index_unchecked(kind : TileKind) -> Int {
 }
 
 ///|
-fn tile_kind_from_index(index : Int) -> TileKind {
+fn tile_kind_from_index(index : Int32) -> TileKind {
   if index < 9 {
     Numbered(Man, index + 1)
   } else if index < 18 {
@@ -37,7 +37,7 @@ fn tile_kind_from_index(index : Int) -> TileKind {
 
 ///|
 /// Return the canonical 0-based index of a tile kind.
-fn TileKind::index(self : TileKind) -> Int raise ScoreError {
+fn TileKind::index(self : TileKind) -> Int32 raise ScoreError {
   match self {
     Numbered(_, rank) if rank < 1 || rank > 9 =>
       raise InvalidTile("numbered tile rank must be between 1 and 9")
@@ -60,10 +60,10 @@ fn validate_tile(tile : Tile) -> Unit raise ScoreError {
 /// Construct a validated numbered tile.
 pub fn Tile::numbered(
   suit : Suit,
-  rank : Int,
-  red? : Bool = false,
+  rank : Int32,
+  red~ : Bool = false,
 ) -> Tile raise ScoreError {
-  let tile = { kind: Numbered(suit, rank), is_red: red }
+  let tile = { kind: Numbered(suit, rank), is_red: red, }
   validate_tile(tile)
   tile
 }
@@ -71,12 +71,12 @@ pub fn Tile::numbered(
 ///|
 /// Construct an honor tile.
 pub fn Tile::honor(honor : Honor) -> Tile {
-  { kind: HonorTile(honor), is_red: false }
+  { kind: HonorTile(honor), is_red: false, }
 }
 
 ///|
 fn add_hand_tile(
-  counts : Array[Int],
+  counts : Array[Int32],
   tile : Tile,
   tile_copy_rules : TileCopyRules,
 ) -> Unit raise ScoreError {
@@ -97,7 +97,7 @@ fn validate_meld(meld : Meld) -> Unit raise ScoreError {
   if meld.tiles.length() != expected_length {
     raise InvalidMeld("meld has an invalid number of tiles")
   }
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for tile in meld.tiles {
     validate_tile(tile)
     indices.push(tile.kind.index())
@@ -240,7 +240,7 @@ fn validate_hand(input : HandInput) -> Unit raise ScoreError {
 fn hand_tile_counts_with_tile_copy_rules(
   input : HandInput,
   tile_copy_rules : TileCopyRules,
-) -> Array[Int] raise ScoreError {
+) -> Array[Int32] raise ScoreError {
   validate_hand_with_tile_copy_rules(input, tile_copy_rules)
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
@@ -256,6 +256,6 @@ fn hand_tile_counts_with_tile_copy_rules(
 }
 
 ///|
-fn hand_tile_counts(input : HandInput) -> Array[Int] raise ScoreError {
+fn hand_tile_counts(input : HandInput) -> Array[Int32] raise ScoreError {
   hand_tile_counts_with_tile_copy_rules(input, TileCopyRules::standard())
 }

@@ -1,15 +1,15 @@
 ///|
-fn yt_m(rank : Int) -> Tile {
+fn yt_m(rank : Int32) -> Tile {
   try! Tile::numbered(Man, rank)
 }
 
 ///|
-fn yt_p(rank : Int) -> Tile {
+fn yt_p(rank : Int32) -> Tile {
   try! Tile::numbered(Pin, rank)
 }
 
 ///|
-fn yt_s(rank : Int) -> Tile {
+fn yt_s(rank : Int32) -> Tile {
   try! Tile::numbered(Sou, rank)
 }
 
@@ -21,16 +21,16 @@ fn yt_h(honor : Honor) -> Tile {
 ///|
 fn yt_context(
   win_method : WinMethod,
-  seat? : Wind = South,
-  round? : Wind = East,
-  riichi? : RiichiState = NoRiichi,
-  ippatsu? : Bool = false,
-  rinshan? : Bool = false,
-  chankan? : Bool = false,
-  haitei? : Bool = false,
-  houtei? : Bool = false,
-  tenhou? : Bool = false,
-  chiihou? : Bool = false,
+  seat~ : Wind = South,
+  round~ : Wind = East,
+  riichi~ : RiichiState = NoRiichi,
+  ippatsu~ : Bool = false,
+  rinshan~ : Bool = false,
+  chankan~ : Bool = false,
+  haitei~ : Bool = false,
+  houtei~ : Bool = false,
+  tenhou~ : Bool = false,
+  chiihou~ : Bool = false,
 ) -> WinContext {
   {
     win_method,
@@ -53,8 +53,8 @@ fn yt_context(
 fn yt_input(
   concealed : Array[Tile],
   winning : Tile,
-  melds? : Array[Meld] = [],
-  context? : WinContext = yt_context(Ron),
+  melds~ : Array[Meld] = [],
+  context~ : WinContext = yt_context(Ron),
 ) -> HandInput {
   {
     concealed_tiles: concealed,
@@ -68,13 +68,13 @@ fn yt_input(
 
 ///|
 fn yt_meld(kind : MeldKind, tiles : Array[Tile]) -> Meld {
-  { kind, tiles }
+  { kind, tiles, }
 }
 
 ///|
 fn yt_values(
   hand : HandInput,
-  rules? : RuleSet = RuleSet::standard(),
+  rules~ : RuleSet = RuleSet::standard(),
 ) -> Array[YakuValue] {
   let values : Array[YakuValue] = []
   let shapes = try! decompose(hand)
@@ -91,13 +91,13 @@ fn yt_values(
 fn yt_has(
   hand : HandInput,
   yaku : Yaku,
-  rules? : RuleSet = RuleSet::standard(),
+  rules~ : RuleSet = RuleSet::standard(),
 ) -> Bool {
   yt_values(hand, rules~).any(value => value.yaku == yaku)
 }
 
 ///|
-fn yt_max_han(hand : HandInput, yaku : Yaku) -> Int {
+fn yt_max_han(hand : HandInput, yaku : Yaku) -> Int32 {
   let mut maximum = 0
   for value in yt_values(hand) {
     if value.yaku == yaku && value.han > maximum {
@@ -111,8 +111,8 @@ fn yt_max_han(hand : HandInput, yaku : Yaku) -> Int {
 fn yt_max_yakuman(
   hand : HandInput,
   yaku : Yaku,
-  rules? : RuleSet = RuleSet::standard(),
-) -> Int {
+  rules~ : RuleSet = RuleSet::standard(),
+) -> Int32 {
   let mut maximum = 0
   for value in yt_values(hand, rules~) {
     if value.yaku == yaku && value.yakuman_multiplier > maximum {
@@ -372,7 +372,7 @@ test "detect triplet, quad, and terminal yaku" {
     yt_p(3),
   )
   assert_false(yt_has(shanpon_ron, Sanankou))
-  let shanpon_tsumo : HandInput = { ..shanpon_ron, context: yt_context(Tsumo) }
+  let shanpon_tsumo : HandInput = { ..shanpon_ron, context: yt_context(Tsumo), }
   assert_true(yt_has(shanpon_tsumo, Sanankou))
   let kans = [
     yt_meld(OpenKan, [yt_m(1), yt_m(1), yt_m(1), yt_m(1)]),
@@ -465,7 +465,7 @@ test "apply flush and open tanyao rules" {
     melds=[yt_meld(Chi, [yt_m(2), yt_m(3), yt_m(4)])],
   )
   assert_true(yt_has(open_tanyao, Tanyao))
-  let no_open_tanyao : RuleSet = { ..RuleSet::standard(), open_tanyao: false }
+  let no_open_tanyao : RuleSet = { ..RuleSet::standard(), open_tanyao: false, }
   assert_false(yt_has(open_tanyao, Tanyao, rules=no_open_tanyao))
   assert_true(yt_values(open_tanyao, rules=no_open_tanyao).is_empty())
 }
@@ -793,7 +793,7 @@ test "detect kokushi, chuuren, suukantsu, and tenhou" {
   let tenhou = yt_basic_hand(yt_context(Tsumo, seat=East, tenhou=true))
   assert_true(yt_has(tenhou, Tenhou))
   assert_false(yt_has(tenhou, MenzenTsumo))
-  let singles : RuleSet = { ..RuleSet::standard(), double_yakuman: false }
+  let singles : RuleSet = { ..RuleSet::standard(), double_yakuman: false, }
   assert_eq(yt_max_yakuman(kokushi, KokushiMusou, rules=singles), 1)
   assert_eq(yt_max_yakuman(chuuren, ChuurenPoutou, rules=singles), 1)
 }

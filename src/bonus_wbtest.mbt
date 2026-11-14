@@ -1,15 +1,15 @@
 ///|
-fn bt_m(rank : Int, red? : Bool = false) -> Tile {
+fn bt_m(rank : Int32, red~ : Bool = false) -> Tile {
   try! Tile::numbered(Man, rank, red~)
 }
 
 ///|
-fn bt_p(rank : Int, red? : Bool = false) -> Tile {
+fn bt_p(rank : Int32, red~ : Bool = false) -> Tile {
   try! Tile::numbered(Pin, rank, red~)
 }
 
 ///|
-fn bt_s(rank : Int, red? : Bool = false) -> Tile {
+fn bt_s(rank : Int32, red~ : Bool = false) -> Tile {
   try! Tile::numbered(Sou, rank, red~)
 }
 
@@ -19,7 +19,7 @@ fn bt_h(honor : Honor) -> Tile {
 }
 
 ///|
-fn bt_context(riichi? : RiichiState = NoRiichi) -> WinContext {
+fn bt_context(riichi~ : RiichiState = NoRiichi) -> WinContext {
   {
     win_method: Ron,
     seat_wind: South,
@@ -41,10 +41,10 @@ fn bt_context(riichi? : RiichiState = NoRiichi) -> WinContext {
 fn bt_input(
   concealed : Array[Tile],
   winning : Tile,
-  melds? : Array[Meld] = [],
-  dora? : Array[Tile] = [],
-  ura? : Array[Tile] = [],
-  context? : WinContext = bt_context(),
+  melds~ : Array[Meld] = [],
+  dora~ : Array[Tile] = [],
+  ura~ : Array[Tile] = [],
+  context~ : WinContext = bt_context(),
 ) -> HandInput {
   {
     concealed_tiles: concealed,
@@ -58,9 +58,9 @@ fn bt_input(
 
 ///|
 fn bt_red_hand(
-  context? : WinContext = bt_context(),
-  dora? : Array[Tile] = [],
-  ura? : Array[Tile] = [],
+  context~ : WinContext = bt_context(),
+  dora~ : Array[Tile] = [],
+  ura~ : Array[Tile] = [],
 ) -> HandInput {
   bt_input(
     [
@@ -204,7 +204,7 @@ test "bonus calculation validates indicator representations" {
   let hand = bt_red_hand()
   let invalid : HandInput = {
     ..hand,
-    dora_indicators: [{ kind: Numbered(Man, 10), is_red: false }],
+    dora_indicators: [{ kind: Numbered(Man, 10), is_red: false, }],
   }
   try calculate_bonus_han(invalid) catch {
     InvalidTile(_) => ()

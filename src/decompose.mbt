@@ -1,5 +1,5 @@
 ///|
-fn concealed_winning_counts(input : HandInput) -> Array[Int] {
+fn concealed_winning_counts(input : HandInput) -> Array[Int32] {
   let counts = Array::make(34, 0)
   for tile in input.concealed_tiles {
     counts[tile_kind_index_unchecked(tile.kind)] += 1
@@ -9,7 +9,7 @@ fn concealed_winning_counts(input : HandInput) -> Array[Int] {
 }
 
 ///|
-fn first_present_tile(counts : Array[Int]) -> Int {
+fn first_present_tile(counts : Array[Int32]) -> Int32 {
   let mut found = -1
   for index in 0..<34 {
     if found == -1 && counts[index] > 0 {
@@ -21,8 +21,8 @@ fn first_present_tile(counts : Array[Int]) -> Int {
 
 ///|
 fn collect_closed_groups(
-  counts : Array[Int],
-  groups_left : Int,
+  counts : Array[Int32],
+  groups_left : Int32,
   groups : Array[Group],
   results : Array[Array[Group]],
 ) -> Unit {
@@ -80,7 +80,7 @@ fn meld_to_group(meld : Meld) -> Group {
 }
 
 ///|
-fn group_sort_key(group : Group) -> Int {
+fn group_sort_key(group : Group) -> Int32 {
   match group {
     Sequence(kind, is_open~) =>
       tile_kind_index_unchecked(kind) * 10 + (if is_open { 1 } else { 0 })
@@ -105,7 +105,7 @@ fn sorted_complete_groups(
 }
 
 ///|
-fn wait_for_sequence(start : Int, winning : Int) -> WaitKind {
+fn wait_for_sequence(start : Int32, winning : Int32) -> WaitKind {
   let start_rank = start % 9 + 1
   let offset = winning - start
   if offset == 1 {
@@ -119,9 +119,9 @@ fn wait_for_sequence(start : Int, winning : Int) -> WaitKind {
 
 ///|
 fn waits_for_standard_shape(
-  pair : Int,
+  pair : Int32,
   closed_groups : Array[Group],
-  winning : Int,
+  winning : Int32,
 ) -> Array[WaitKind] {
   let waits : Array[WaitKind] = []
   if pair == winning {
@@ -203,12 +203,12 @@ fn seven_pairs_shape(input : HandInput) -> HandShape? {
 }
 
 ///|
-let orphan_indices : Array[Int] = [
+let orphan_indices : Array[Int32] = [
   0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33,
 ]
 
 ///|
-fn is_orphan_index(index : Int) -> Bool {
+fn is_orphan_index(index : Int32) -> Bool {
   orphan_indices.contains(index)
 }
 

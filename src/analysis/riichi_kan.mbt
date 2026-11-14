@@ -1,5 +1,5 @@
 ///|
-fn first_present_for_riichi_kan(counts : Array[Int]) -> Int {
+fn first_present_for_riichi_kan(counts : Array[Int32]) -> Int32 {
   for index in 0..<34 {
     if counts[index] > 0 {
       return index
@@ -10,9 +10,9 @@ fn first_present_for_riichi_kan(counts : Array[Int]) -> Int {
 
 ///|
 fn search_riichi_kan_groups(
-  counts : Array[Int],
-  groups_left : Int,
-  kan_tile : Int,
+  counts : Array[Int32],
+  groups_left : Int32,
+  kan_tile : Int32,
   used_required_triplet : Bool,
   found_completion : Ref[Bool],
 ) -> Bool {
@@ -84,9 +84,9 @@ fn search_riichi_kan_groups(
 
 ///|
 fn search_riichi_kan_completion(
-  counts : Array[Int],
-  groups_needed : Int,
-  kan_tile : Int,
+  counts : Array[Int32],
+  groups_needed : Int32,
+  kan_tile : Int32,
   found_completion : Ref[Bool],
 ) -> Bool {
   for pair in 0..<34 {
