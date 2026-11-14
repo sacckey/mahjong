@@ -1,6 +1,6 @@
 ///|
 /// Return the JSON protocol version to a foreign caller.
-pub fn api_version() -> Int {
+pub fn api_version() -> Int32 {
   @transport.api_version()
 }
 

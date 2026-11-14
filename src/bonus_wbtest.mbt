@@ -1,15 +1,15 @@
 ///|
-fn bt_m(rank : Int, red? : Bool = false) -> Tile {
+fn bt_m(rank : Int32, red~ : Bool = false) -> Tile {
   try! Tile::numbered(Man, rank, red~)
 }
 
 ///|
-fn bt_p(rank : Int, red? : Bool = false) -> Tile {
+fn bt_p(rank : Int32, red~ : Bool = false) -> Tile {
   try! Tile::numbered(Pin, rank, red~)
 }
 
 ///|
-fn bt_s(rank : Int, red? : Bool = false) -> Tile {
+fn bt_s(rank : Int32, red~ : Bool = false) -> Tile {
   try! Tile::numbered(Sou, rank, red~)
 }
 
@@ -19,7 +19,7 @@ fn bt_h(honor : Honor) -> Tile {
 }
 
 ///|
-fn bt_context(riichi? : RiichiState = NoRiichi) -> WinContext {
+fn bt_context(riichi~ : RiichiState = NoRiichi) -> WinContext {
   {
     win_method: Ron,
     seat_wind: South,
@@ -41,10 +41,10 @@ fn bt_context(riichi? : RiichiState = NoRiichi) -> WinContext {
 fn bt_input(
   concealed : Array[Tile],
   winning : Tile,
-  melds? : Array[Meld] = [],
-  dora? : Array[Tile] = [],
-  ura? : Array[Tile] = [],
-  context? : WinContext = bt_context(),
+  melds~ : Array[Meld] = [],
+  dora~ : Array[Tile] = [],
+  ura~ : Array[Tile] = [],
+  context~ : WinContext = bt_context(),
 ) -> HandInput {
   {
     concealed_tiles: concealed,
@@ -58,9 +58,9 @@ fn bt_input(
 
 ///|
 fn bt_red_hand(
-  context? : WinContext = bt_context(),
-  dora? : Array[Tile] = [],
-  ura? : Array[Tile] = [],
+  context~ : WinContext = bt_context(),
+  dora~ : Array[Tile] = [],
+  ura~ : Array[Tile] = [],
 ) -> HandInput {
   bt_input(
     [
@@ -106,11 +106,7 @@ test "numbered nines and terminal honors wrap to the first tile" {
     bt_h(White),
     dora=[bt_m(9), bt_p(9), bt_s(9), bt_h(North), bt_h(Red)],
   )
-  assert_eq(try! calculate_bonus_han(hand), {
-    dora: 12,
-    ura_dora: 0,
-    aka_dora: 0,
-  })
+  assert_eq(calculate_bonus_han(hand), { dora: 12, ura_dora: 0, aka_dora: 0, })
 }
 
 ///|
@@ -142,31 +138,27 @@ test "every honor indicator advances within its own cycle" {
       bt_h(Red),
     ],
   )
-  assert_eq(try! calculate_bonus_han(hand).dora, 7)
+  assert_eq(calculate_bonus_han(hand).dora, 7)
 }
 
 ///|
 test "red tiles are both aka dora and ordinary dora when indicated" {
   let hand = bt_red_hand(dora=[bt_m(4), bt_p(4), bt_s(4), bt_m(5, red=true)])
-  assert_eq(try! calculate_bonus_han(hand), {
-    dora: 4,
-    ura_dora: 0,
-    aka_dora: 3,
-  })
+  assert_eq(calculate_bonus_han(hand), { dora: 4, ura_dora: 0, aka_dora: 3, })
 }
 
 ///|
 test "ura dora require riichi and duplicate indicators stack" {
   let indicators = [bt_m(4), bt_m(4), bt_p(4)]
   let no_riichi = bt_red_hand(ura=indicators)
-  assert_eq(try! calculate_bonus_han(no_riichi).ura_dora, 0)
+  assert_eq(calculate_bonus_han(no_riichi).ura_dora, 0)
   let riichi = bt_red_hand(context=bt_context(riichi=Riichi), ura=indicators)
-  assert_eq(try! calculate_bonus_han(riichi).ura_dora, 5)
+  assert_eq(calculate_bonus_han(riichi).ura_dora, 5)
   let double_riichi = bt_red_hand(
     context=bt_context(riichi=DoubleRiichi),
     ura=indicators,
   )
-  assert_eq(try! calculate_bonus_han(double_riichi).ura_dora, 5)
+  assert_eq(calculate_bonus_han(double_riichi).ura_dora, 5)
 }
 
 ///|
@@ -192,24 +184,20 @@ test "an open kan contributes all four physical tiles and its red tile" {
     melds=[kan],
     dora=[bt_m(4), bt_m(4)],
   )
-  assert_eq(try! calculate_bonus_han(hand), {
-    dora: 8,
-    ura_dora: 0,
-    aka_dora: 1,
-  })
+  assert_eq(calculate_bonus_han(hand), { dora: 8, ura_dora: 0, aka_dora: 1, })
 }
 
 ///|
-test "bonus calculation validates indicator representations" {
+test "hand validation covers indicator representations" {
   let hand = bt_red_hand()
   let invalid : HandInput = {
     ..hand,
-    dora_indicators: [{ kind: Numbered(Man, 10), is_red: false }],
+    dora_indicators: [{ kind: Numbered(Man, 10), is_red: false, }],
   }
-  try calculate_bonus_han(invalid) catch {
+  try validate_hand(invalid) catch {
     InvalidTile(_) => ()
     _ => fail("expected InvalidTile")
   } noraise {
-    _ => fail("expected calculate_bonus_han to raise")
+    _ => fail("expected validate_hand to raise")
   }
 }

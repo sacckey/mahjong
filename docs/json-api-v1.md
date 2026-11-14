@@ -48,7 +48,7 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 
 ### 同一牌種の枚数制限
 
-点数計算と牌姿解析では、トップレベルに任意の`tileCopyRules`を指定できます。省略時は通常麻雀と同じ4枚までです。`maxCopiesPerKind`に正の整数を指定するとその枚数を上限とし、`null`を指定すると上限を設けません。
+点数計算と牌姿解析（`calculateShanten`、`isTenpai`、`waitingTiles`）では、トップレベルに任意の`tileCopyRules`を指定できます。省略時は4枚までです。`maxCopiesPerKind`に正の整数を指定するとその枚数が上限になり、`null`では上限がなくなります。
 
 ```json
 {
@@ -58,9 +58,7 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 }
 ```
 
-この設定は物理的な同一牌種の枚数検証と、`waitingTiles`が候補牌を除外する上限だけを変更します。構造上の手牌枚数、4面子1雀頭などの和了形、役、符、点数ルールは変更しません。同じ牌が5枚なら、可能な牌姿では雀頭2枚と刻子3枚として分解されます。
-
-`tileCopyRules`は`calculateShanten`、`isTenpai`、`waitingTiles`でも使用できます。`canClosedKanAfterRiichi`は通常の四人麻雀専用であり、常に4枚制限で判定します。
+変わるのは同一牌種の枚数検証と、`waitingTiles`が候補から除く上限だけです。構造上の手牌枚数、和了形、役、符、点数は変わりません。同じ牌が5枚あれば、雀頭2枚と刻子3枚のように分解されます。`canClosedKanAfterRiichi`は常に4枚制限で判定します。
 
 ## 点数計算の成功
 
@@ -160,19 +158,11 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
   "operation": "canClosedKanAfterRiichi",
   "input": {
     "concealedTiles": [
-      { "kind": "5m", "red": false },
-      { "kind": "5m", "red": false },
-      { "kind": "5m", "red": false },
-      { "kind": "1p", "red": false },
-      { "kind": "2p", "red": false },
-      { "kind": "3p", "red": false },
-      { "kind": "4p", "red": false },
-      { "kind": "5p", "red": false },
-      { "kind": "6p", "red": false },
-      { "kind": "7s", "red": false },
-      { "kind": "8s", "red": false },
-      { "kind": "east", "red": false },
-      { "kind": "east", "red": false }
+      { "kind": "5m", "red": false }, { "kind": "5m", "red": false }, { "kind": "5m", "red": false },
+      { "kind": "1p", "red": false }, { "kind": "2p", "red": false }, { "kind": "3p", "red": false },
+      { "kind": "4p", "red": false }, { "kind": "5p", "red": false }, { "kind": "6p", "red": false },
+      { "kind": "7s", "red": false }, { "kind": "8s", "red": false },
+      { "kind": "east", "red": false }, { "kind": "east", "red": false }
     ],
     "melds": [],
     "drawnTile": { "kind": "5m", "red": false }

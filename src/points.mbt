@@ -1,29 +1,30 @@
 ///|
 /// Errors from the standalone point and payment calculation.
+#derive(Debug, Eq)
 pub(all) suberror PointCalculationError {
-  InvalidHan(Int)
-  InvalidFu(Int)
-  InvalidHonba(Int)
-  InvalidRiichiSticks(Int)
-} derive(Debug, Eq)
+  InvalidHan(Int32)
+  InvalidFu(Int32)
+  InvalidHonba(Int32)
+  InvalidRiichiSticks(Int32)
+}
 
 ///|
-fn round_up_100(value : Int) -> Int {
+fn round_up_100(value : Int32) -> Int32 {
   (value + 99) / 100 * 100
 }
 
 ///|
-fn raw_base_points(han : Int, fu : Int) -> Int {
+fn raw_base_points(han : Int32, fu : Int32) -> Int32 {
   fu * (1 << (han + 2))
 }
 
 ///|
 fn base_points_and_limit(
-  han : Int,
-  fu : Int,
+  han : Int32,
+  fu : Int32,
   kiriage_mangan : Bool,
   counted_yakuman : Bool,
-) -> (Int, Limit) {
+) -> (Int32, Limit) {
   if han >= 13 {
     if counted_yakuman {
       (8000, Yakuman(1))
@@ -50,12 +51,12 @@ fn base_points_and_limit(
 }
 
 ///|
-fn valid_fu(fu : Int) -> Bool {
+fn valid_fu(fu : Int32) -> Bool {
   fu == 20 || fu == 25 || (fu >= 30 && fu % 10 == 0)
 }
 
 ///|
-fn payment_total(payment : WinPayment) -> Int {
+fn payment_total(payment : WinPayment) -> Int32 {
   match payment {
     RonPayment(discarder~) => discarder
     DealerTsumoPayment(each~) => each * 3
@@ -66,14 +67,14 @@ fn payment_total(payment : WinPayment) -> Int {
 
 ///|
 fn point_result_from_base(
-  han : Int,
-  fu : Int,
-  base_points : Int,
+  han : Int32,
+  fu : Int32,
+  base_points : Int32,
   limit : Limit,
   dealer : Bool,
   win_method : WinMethod,
-  honba : Int,
-  riichi_sticks : Int,
+  honba : Int32,
+  riichi_sticks : Int32,
 ) -> PointResult {
   let payment = match (dealer, win_method) {
     (true, Ron) =>
@@ -102,12 +103,12 @@ fn point_result_from_base(
 
 ///|
 fn calculate_valid_points(
-  han : Int,
-  fu : Int,
+  han : Int32,
+  fu : Int32,
   dealer : Bool,
   win_method : WinMethod,
-  honba : Int,
-  riichi_sticks : Int,
+  honba : Int32,
+  riichi_sticks : Int32,
   kiriage_mangan : Bool,
   counted_yakuman : Bool,
 ) -> PointResult {
@@ -121,11 +122,11 @@ fn calculate_valid_points(
 
 ///|
 fn calculate_yakuman_points(
-  multiplier : Int,
+  multiplier : Int32,
   dealer : Bool,
   win_method : WinMethod,
-  honba : Int,
-  riichi_sticks : Int,
+  honba : Int32,
+  riichi_sticks : Int32,
 ) -> PointResult {
   point_result_from_base(
     0,
@@ -145,14 +146,14 @@ fn calculate_yakuman_points(
 /// `counted_yakuman` is false, hands with at least 13 han are capped at
 /// sanbaiman.
 pub fn calculate_points(
-  han : Int,
-  fu : Int,
+  han : Int32,
+  fu : Int32,
   dealer~ : Bool,
   win_method~ : WinMethod,
-  honba? : Int = 0,
-  riichi_sticks? : Int = 0,
-  kiriage_mangan? : Bool = false,
-  counted_yakuman? : Bool = true,
+  honba~ : Int32 = 0,
+  riichi_sticks~ : Int32 = 0,
+  kiriage_mangan~ : Bool = false,
+  counted_yakuman~ : Bool = true,
 ) -> PointResult raise PointCalculationError {
   if han < 1 {
     raise InvalidHan(han)

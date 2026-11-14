@@ -581,6 +581,7 @@ struct CfMeldSpec {{
 }}
 
 ///|
+#derive(Debug, Eq)
 struct CfExpected {{
   yaku : Array[@mahjong.YakuValue]
   bonus_han : @mahjong.BonusHan
@@ -591,7 +592,7 @@ struct CfExpected {{
   payment : @mahjong.WinPayment
   riichi_bonus : Int
   winner_gain : Int
-}} derive(Debug, Eq)
+}}
 
 ///|
 struct CfCase {{

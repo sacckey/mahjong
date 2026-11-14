@@ -1,10 +1,10 @@
 ///|
-fn fu_item(reason : FuReason, fu : Int) -> FuItem {
-  { reason, fu }
+fn fu_item(reason : FuReason, fu : Int32) -> FuItem {
+  { reason, fu, }
 }
 
 ///|
-fn round_fu(raw_fu : Int) -> Int {
+fn round_fu(raw_fu : Int32) -> Int32 {
   (raw_fu + 9) / 10 * 10
 }
 
@@ -14,7 +14,7 @@ fn has_yaku(yaku : Array[YakuValue], wanted : Yaku) -> Bool {
 }
 
 ///|
-fn pair_fu(pair : TileKind, context : WinContext, rules : RuleSet) -> Int {
+fn pair_fu(pair : TileKind, context : WinContext, rules : RuleSet) -> Int32 {
   let index = tile_kind_index_unchecked(pair)
   if index >= 31 {
     2
@@ -34,7 +34,7 @@ fn pair_fu(pair : TileKind, context : WinContext, rules : RuleSet) -> Int {
 }
 
 ///|
-fn wait_fu(wait : WaitKind) -> Int {
+fn wait_fu(wait : WaitKind) -> Int32 {
   match wait {
     Kanchan | Penchan | Tanki => 2
     Ryanmen | Shanpon | KokushiSingle | KokushiThirteenSided => 0
@@ -91,7 +91,7 @@ fn calculate_standard_fu(
   wait : WaitKind,
   yaku : Array[YakuValue],
   rules : RuleSet,
-) -> (Int, Array[FuItem]) {
+) -> (Int32, Array[FuItem]) {
   if input.context.win_method is Tsumo && has_yaku(yaku, Pinfu) {
     return (20, [fu_item(Base, 20)])
   }
@@ -130,44 +130,18 @@ fn calculate_standard_fu(
 }
 
 ///|
-/// Calculate fu and its explanation for one interpretation returned by
-/// `decompose`. `yaku` must be the result of `detect_yaku` for the same input
-/// and shape.
+/// Calculate fu and its explanation for one interpretation of a validated
+/// hand. `shape` must come from `decompose` and `yaku` from `detect_yaku` for
+/// the same input, and `rules` must already be validated.
 ///
 /// Seven pairs are fixed at 25 fu. Thirteen orphans have no applicable fu and
 /// return zero with an empty explanation.
-fn calculate_fu_with_tile_copy_rules(
-  input : HandInput,
-  shape : HandShape,
-  yaku : Array[YakuValue],
-  rules : RuleSet,
-  tile_copy_rules : TileCopyRules,
-) -> (Int, Array[FuItem]) raise ScoreError {
-  validate_rules(rules)
-  let shapes = decompose_with_tile_copy_rules(input, tile_copy_rules)
-  if !shapes.contains(shape) {
-    raise InvalidHandShape
-  }
-  match shape {
-    Standard(pair~, groups~, wait~) =>
-      calculate_standard_fu(input, pair, groups, wait, yaku, rules)
-    SevenPairs(_) => (25, [fu_item(SevenPairsFixed, 25)])
-    ThirteenOrphans(_) => (0, [])
-  }
-}
-
-///|
 fn calculate_fu(
   input : HandInput,
   shape : HandShape,
   yaku : Array[YakuValue],
   rules : RuleSet,
-) -> (Int, Array[FuItem]) raise ScoreError {
-  validate_rules(rules)
-  let shapes = decompose(input)
-  if !shapes.contains(shape) {
-    raise InvalidHandShape
-  }
+) -> (Int32, Array[FuItem]) {
   match shape {
     Standard(pair~, groups~, wait~) =>
       calculate_standard_fu(input, pair, groups, wait, yaku, rules)

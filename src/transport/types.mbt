@@ -1,25 +1,29 @@
 ///|
+#derive(FromJson)
 priv struct TileDto {
   kind : String
   red : Bool
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct MeldDto {
   kind : String
   tiles : Array[TileDto]
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct HandDto {
   concealedTiles : Array[TileDto]
   winningTile : TileDto
   melds : Array[MeldDto]
   doraIndicators : Array[TileDto]
   uraDoraIndicators : Array[TileDto]
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct ContextDto {
   winMethod : String
   seatWind : String
@@ -32,142 +36,160 @@ priv struct ContextDto {
   houtei : Bool
   tenhou : Bool
   chiihou : Bool
-  honba : Int
-  riichiSticks : Int
-} derive(FromJson)
+  honba : Int32
+  riichiSticks : Int32
+}
 
 ///|
+#derive(FromJson)
 priv struct TileCopyRulesDto {
   maxCopiesPerKind : Json
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct ScoreRequestDto {
-  apiVersion : Int
+  apiVersion : Int32
   hand : HandDto
   context : ContextDto
   rules : String
   tileCopyRules : TileCopyRulesDto?
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct AnalysisInputDto {
   concealedTiles : Array[TileDto]
   melds : Array[MeldDto]
   drawnTile : TileDto?
-} derive(FromJson)
+}
 
 ///|
+#derive(FromJson)
 priv struct AnalysisRequestDto {
-  apiVersion : Int
+  apiVersion : Int32
   operation : String
   input : AnalysisInputDto
   tileCopyRules : TileCopyRulesDto?
-} derive(FromJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct YakuDto {
   id : String
-  han : Int
-  yakumanMultiplier : Int
-} derive(ToJson)
+  han : Int32
+  yakumanMultiplier : Int32
+}
 
 ///|
+#derive(ToJson)
 priv struct BonusHanDto {
-  dora : Int
-  uraDora : Int
-  akaDora : Int
-} derive(ToJson)
+  dora : Int32
+  uraDora : Int32
+  akaDora : Int32
+}
 
 ///|
+#derive(ToJson)
 priv struct FuItemDto {
   reason : String
-  fu : Int
-} derive(ToJson)
+  fu : Int32
+}
 
 ///|
+#derive(ToJson)
 priv struct GroupDto {
   kind : String
   tile : String
   open : Bool
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ShapeDto {
   kind : String
   pair : String?
   groups : Array[GroupDto]
   tiles : Array[String]
   wait : String
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct LimitDto {
   kind : String
-  yakumanMultiplier : Int
-} derive(ToJson)
+  yakumanMultiplier : Int32
+}
 
 ///|
+#derive(ToJson)
 priv struct PaymentDto {
   kind : String
-  discarder : Int?
-  each : Int?
-  dealer : Int?
-  nonDealerEach : Int?
-} derive(ToJson)
+  discarder : Int32?
+  each : Int32?
+  dealer : Int32?
+  nonDealerEach : Int32?
+}
 
 ///|
+#derive(ToJson)
 priv struct ScoreResultDto {
-  han : Int
-  fu : Int
+  han : Int32
+  fu : Int32
   limit : LimitDto
-  basePoints : Int
+  basePoints : Int32
   payment : PaymentDto
-  riichiBonus : Int
-  winnerGain : Int
+  riichiBonus : Int32
+  winnerGain : Int32
   yaku : Array[YakuDto]
   bonusHan : BonusHanDto
   fuItems : Array[FuItemDto]
   shape : ShapeDto
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ShantenResultDto {
-  minimum : Int
-  standard : Int
-  sevenPairs : Int?
-  thirteenOrphans : Int?
-} derive(ToJson)
+  minimum : Int32
+  standard : Int32
+  sevenPairs : Int32?
+  thirteenOrphans : Int32?
+}
 
 ///|
+#derive(ToJson)
 priv struct SuccessEnvelope {
-  apiVersion : Int
+  apiVersion : Int32
   ok : Bool
   result : ScoreResultDto
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct AnalysisSuccessEnvelope {
-  apiVersion : Int
+  apiVersion : Int32
   ok : Bool
   result : Json
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ErrorDto {
   code : String
   message : String
   details : Json
-} derive(ToJson)
+}
 
 ///|
+#derive(ToJson)
 priv struct ErrorEnvelope {
-  apiVersion : Int
+  apiVersion : Int32
   ok : Bool
   error : ErrorDto
-} derive(ToJson)
+}
 
 ///|
+#derive(Debug)
 priv suberror RequestError {
   InvalidRequest(String)
-} derive(Debug)
+}

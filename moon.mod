@@ -27,13 +27,7 @@ description = "A four-player riichi mahjong scoring and hand analysis library fo
 
 source = "src"
 
-options(
-  exclude: [
-    "AGENTS.md",
-    "examples",
-    "packages",
-    "tools",
-    "**/*_test.mbt",
-    "**/*_wbtest.mbt",
-  ],
-)
+// Derived trait methods are used through operators and trait calls only, so
+// the implicit dot-syntax promotion is not part of this module's API.
+
+warnings = "-implicit_impl_as_method"

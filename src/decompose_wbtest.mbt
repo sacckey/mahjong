@@ -1,15 +1,15 @@
 ///|
-fn m(rank : Int) -> Tile {
+fn m(rank : Int32) -> Tile {
   try! Tile::numbered(Man, rank)
 }
 
 ///|
-fn p(rank : Int) -> Tile {
+fn p(rank : Int32) -> Tile {
   try! Tile::numbered(Pin, rank)
 }
 
 ///|
-fn s(rank : Int) -> Tile {
+fn s(rank : Int32) -> Tile {
   try! Tile::numbered(Sou, rank)
 }
 
@@ -21,7 +21,7 @@ fn h(honor : Honor) -> Tile {
 ///|
 fn context(
   win_method : WinMethod,
-  riichi? : RiichiState = NoRiichi,
+  riichi~ : RiichiState = NoRiichi,
 ) -> WinContext {
   {
     win_method,
@@ -44,8 +44,8 @@ fn context(
 fn input(
   concealed_tiles : Array[Tile],
   winning_tile : Tile,
-  melds? : Array[Meld] = [],
-  win_context? : WinContext = context(Ron),
+  melds~ : Array[Meld] = [],
+  win_context~ : WinContext = context(Ron),
 ) -> HandInput {
   {
     concealed_tiles,
@@ -196,7 +196,7 @@ test "identify standard wait shapes" {
 
 ///|
 test "decompose called melds and normalize their tile order" {
-  let chi : Meld = { kind: Chi, tiles: [m(3), m(1), m(2)] }
+  let chi : Meld = { kind: Chi, tiles: [m(3), m(1), m(2)], }
   let hand = input(
     [p(4), p(5), p(6), s(7), s(8), s(9), h(White), h(White), h(White), h(East)],
     h(East),
@@ -225,7 +225,7 @@ test "decompose called melds and normalize their tile order" {
 
 ///|
 test "a closed kan keeps the hand closed and counts four physical tiles" {
-  let closed_kan : Meld = { kind: ClosedKan, tiles: [m(1), m(1), m(1), m(1)] }
+  let closed_kan : Meld = { kind: ClosedKan, tiles: [m(1), m(1), m(1), m(1)], }
   let hand = input(
     [p(1), p(2), p(3), s(1), s(2), s(3), h(White), h(White), h(White), h(East)],
     h(East),
@@ -393,7 +393,7 @@ test "tile order does not affect decomposition order" {
 
 ///|
 test "reject invalid tiles and excess copies" {
-  let invalid_rank : Tile = { kind: Numbered(Man, 0), is_red: false }
+  let invalid_rank : Tile = { kind: Numbered(Man, 0), is_red: false, }
   let bad_rank = basic_standard_input()
   bad_rank.concealed_tiles[0] = invalid_rank
   try validate_hand(bad_rank) catch {
@@ -436,7 +436,7 @@ test "reject invalid tiles and excess copies" {
 
 ///|
 test "reject malformed melds, sizes, and contexts" {
-  let bad_chi : Meld = { kind: Chi, tiles: [m(1), m(2), m(4)] }
+  let bad_chi : Meld = { kind: Chi, tiles: [m(1), m(2), m(4)], }
   let malformed = input(
     [p(4), p(5), p(6), s(7), s(8), s(9), h(White), h(White), h(White), h(East)],
     h(East),
@@ -455,7 +455,7 @@ test "reject malformed melds, sizes, and contexts" {
   } noraise {
     _ => fail("expected validation to fail")
   }
-  let chi : Meld = { kind: Chi, tiles: [m(1), m(2), m(3)] }
+  let chi : Meld = { kind: Chi, tiles: [m(1), m(2), m(3)], }
   let open_riichi = input(
     [p(4), p(5), p(6), s(7), s(8), s(9), h(White), h(White), h(White), h(East)],
     h(East),

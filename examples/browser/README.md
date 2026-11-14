@@ -12,8 +12,8 @@ python3 -m http.server 8000
 
 その後、<http://127.0.0.1:8000/examples/browser/>を開きます。
 
-アプリはWasm-GCを先に読み込みます。JS String Builtinsに対応していないブラウザでは、同じ`mahjong_score_json`境界を持つMoonBitのJavaScript生成物へ自動的に切り替わります。画面右上に実際に選ばれたバックエンドが表示されます。
+アプリはWasm-GCを先に読み込み、JS String Builtinsに対応していないブラウザではMoonBitのJavaScript生成物へ切り替わります。選ばれたバックエンドは画面右上に表示されます。
 
 生成物は`_build`以下に置かれ、Gitとmooncakesの配布物には含まれません。
 
-牌の表示には[`FluffyStuff/riichi-mahjong-tiles`](https://github.com/FluffyStuff/riichi-mahjong-tiles)のRegular版SVGを使用しています。`Front.svg`を牌本体として、その上に各牌面のSVGを重ねています。素材はパブリックドメインです。表示の再現性を保つため、参照先をコミット`26e127ba2117f45cdce5ea0225748cc0cfad3169`へ固定しています。牌画像はGitHubから読み込むため、表示にはインターネット接続が必要です。読み込めない場合は文字牌表示へフォールバックします。
+牌画像は[`FluffyStuff/riichi-mahjong-tiles`](https://github.com/FluffyStuff/riichi-mahjong-tiles)のRegular版SVG（パブリックドメイン）です。コミット`26e127ba2117f45cdce5ea0225748cc0cfad3169`に固定してGitHubから読み込むため、表示にはインターネット接続が必要です。読み込めない場合は文字表示になります。

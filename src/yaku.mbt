@@ -1,15 +1,15 @@
 ///|
-fn yaku_value(yaku : Yaku, han : Int) -> YakuValue {
-  { yaku, han, yakuman_multiplier: 0 }
+fn yaku_value(yaku : Yaku, han : Int32) -> YakuValue {
+  { yaku, han, yakuman_multiplier: 0, }
 }
 
 ///|
-fn yakuman_value(yaku : Yaku, multiplier : Int) -> YakuValue {
-  { yaku, han: 0, yakuman_multiplier: multiplier }
+fn yakuman_value(yaku : Yaku, multiplier : Int32) -> YakuValue {
+  { yaku, han: 0, yakuman_multiplier: multiplier, }
 }
 
 ///|
-fn double_if_enabled(rules : RuleSet) -> Int {
+fn double_if_enabled(rules : RuleSet) -> Int32 {
   if rules.double_yakuman {
     2
   } else {
@@ -18,22 +18,22 @@ fn double_if_enabled(rules : RuleSet) -> Int {
 }
 
 ///|
-fn is_honor(index : Int) -> Bool {
+fn is_honor(index : Int32) -> Bool {
   index >= 27
 }
 
 ///|
-fn is_terminal(index : Int) -> Bool {
+fn is_terminal(index : Int32) -> Bool {
   index < 27 && (index % 9 == 0 || index % 9 == 8)
 }
 
 ///|
-fn is_terminal_or_honor(index : Int) -> Bool {
+fn is_terminal_or_honor(index : Int32) -> Bool {
   is_terminal(index) || is_honor(index)
 }
 
 ///|
-fn wind_index(wind : Wind) -> Int {
+fn wind_index(wind : Wind) -> Int32 {
   match wind {
     East => 27
     South => 28
@@ -58,7 +58,7 @@ fn shape_is_closed(shape : HandShape) -> Bool {
 }
 
 ///|
-fn group_kind_index(group : Group) -> Int {
+fn group_kind_index(group : Group) -> Int32 {
   match group {
     Sequence(kind, ..) | Triplet(kind, ..) | Quad(kind, ..) =>
       tile_kind_index_unchecked(kind)
@@ -71,7 +71,7 @@ fn group_is_triplet_or_quad(group : Group) -> Bool {
 }
 
 ///|
-fn has_triplet_or_quad_kind(groups : Array[Group], index : Int) -> Bool {
+fn has_triplet_or_quad_kind(groups : Array[Group], index : Int32) -> Bool {
   groups.any(group => {
     group_is_triplet_or_quad(group) && group_kind_index(group) == index
   })
@@ -80,9 +80,9 @@ fn has_triplet_or_quad_kind(groups : Array[Group], index : Int) -> Bool {
 ///|
 fn count_distinct_triplet_kinds(
   groups : Array[Group],
-  first : Int,
-  last : Int,
-) -> Int {
+  first : Int32,
+  last : Int32,
+) -> Int32 {
   let mut count = 0
   for index in first..<=last {
     if has_triplet_or_quad_kind(groups, index) {
@@ -93,7 +93,7 @@ fn count_distinct_triplet_kinds(
 }
 
 ///|
-fn all_tiles_match(counts : Array[Int], predicate : (Int) -> Bool) -> Bool {
+fn all_tiles_match(counts : Array[Int32], predicate : (Int32) -> Bool) -> Bool {
   for index, count in counts {
     if count > 0 && !predicate(index) {
       return false
@@ -103,7 +103,7 @@ fn all_tiles_match(counts : Array[Int], predicate : (Int) -> Bool) -> Bool {
 }
 
 ///|
-fn numbered_suit_mask(counts : Array[Int]) -> Int {
+fn numbered_suit_mask(counts : Array[Int32]) -> Int32 {
   let mut mask = 0
   for index in 0..<27 {
     if counts[index] > 0 {
@@ -114,7 +114,7 @@ fn numbered_suit_mask(counts : Array[Int]) -> Int {
 }
 
 ///|
-fn has_honor_tiles(counts : Array[Int]) -> Bool {
+fn has_honor_tiles(counts : Array[Int32]) -> Bool {
   for index in 27..<34 {
     if counts[index] > 0 {
       return true
@@ -124,7 +124,7 @@ fn has_honor_tiles(counts : Array[Int]) -> Bool {
 }
 
 ///|
-fn is_tanyao(counts : Array[Int]) -> Bool {
+fn is_tanyao(counts : Array[Int32]) -> Bool {
   all_tiles_match(counts, index => index < 27 && !is_terminal(index))
 }
 
@@ -153,12 +153,17 @@ fn group_contains_terminal(group : Group) -> Bool {
 }
 
 ///|
+fn quad_count(groups : Array[Group]) -> Int32 {
+  groups.filter(group => group is Quad(_, ..)).length()
+}
+
+///|
 fn has_sequence(groups : Array[Group]) -> Bool {
   groups.any(group => group is Sequence(_, ..))
 }
 
 ///|
-fn sequence_count(groups : Array[Group], start : Int) -> Int {
+fn sequence_count(groups : Array[Group], start : Int32) -> Int32 {
   let mut count = 0
   for group in groups {
     match group {
@@ -196,7 +201,7 @@ fn has_ittsu(groups : Array[Group]) -> Bool {
 }
 
 ///|
-fn peikou_pairs(groups : Array[Group]) -> Int {
+fn peikou_pairs(groups : Array[Group]) -> Int32 {
   let mut pairs = 0
   for start in 0..<27 {
     if start % 9 <= 6 {
@@ -209,16 +214,9 @@ fn peikou_pairs(groups : Array[Group]) -> Int {
 ///|
 fn has_sanshoku_doukou(groups : Array[Group]) -> Bool {
   for rank in 0..<9 {
-    let mut suits = 0
-    for suit in 0..<3 {
-      let wanted = suit * 9 + rank
-      if groups.any(group => {
-          group_is_triplet_or_quad(group) && group_kind_index(group) == wanted
-        }) {
-        suits += 1
-      }
-    }
-    if suits == 3 {
+    if has_triplet_or_quad_kind(groups, rank) &&
+      has_triplet_or_quad_kind(groups, 9 + rank) &&
+      has_triplet_or_quad_kind(groups, 18 + rank) {
       return true
     }
   }
@@ -234,30 +232,34 @@ fn is_value_pair(pair : TileKind, context : WinContext) -> Bool {
 }
 
 ///|
-fn concealed_triplet_count(input : HandInput, shape : HandShape) -> Int {
-  match shape {
-    Standard(groups~, wait~, ..) => {
-      let winning = tile_kind_index_unchecked(input.winning_tile.kind)
-      let mut count = 0
-      for group in groups {
-        match group {
-          Triplet(kind, is_open=false) | Quad(kind, is_open=false) =>
-            if !(input.context.win_method is Ron &&
-              wait is Shanpon &&
-              tile_kind_index_unchecked(kind) == winning) {
-              count += 1
-            }
-          _ => ()
+/// A triplet completed by ron on a shanpon wait does not count as concealed.
+fn concealed_triplet_count(
+  input : HandInput,
+  groups : Array[Group],
+  wait : WaitKind,
+) -> Int32 {
+  let winning = tile_kind_index_unchecked(input.winning_tile.kind)
+  let mut count = 0
+  for group in groups {
+    match group {
+      Triplet(kind, is_open=false) | Quad(kind, is_open=false) =>
+        if !(input.context.win_method is Ron &&
+          wait is Shanpon &&
+          tile_kind_index_unchecked(kind) == winning) {
+          count += 1
         }
-      }
-      count
+      _ => ()
     }
-    _ => 0
   }
+  count
 }
 
 ///|
-fn is_chuuren(counts : Array[Int], shape : HandShape) -> Bool {
+/// Minimum copies of ranks one through nine in a nine-gates hand.
+let chuuren_minimum : Array[Int32] = [3, 1, 1, 1, 1, 1, 1, 1, 3]
+
+///|
+fn is_chuuren(counts : Array[Int32], shape : HandShape) -> Bool {
   let suit_mask = numbered_suit_mask(counts)
   if !shape_is_closed(shape) ||
     !(suit_mask == 1 || suit_mask == 2 || suit_mask == 4) ||
@@ -266,9 +268,8 @@ fn is_chuuren(counts : Array[Int], shape : HandShape) -> Bool {
   }
   let suit = if suit_mask == 1 { 0 } else if suit_mask == 2 { 1 } else { 2 }
   let base = suit * 9
-  let required : Array[Int] = [3, 1, 1, 1, 1, 1, 1, 1, 3]
   let mut extras = 0
-  for rank, minimum in required {
+  for rank, minimum in chuuren_minimum {
     if counts[base + rank] < minimum {
       return false
     }
@@ -282,17 +283,13 @@ fn is_pure_chuuren_wait(input : HandInput) -> Bool {
   if !input.melds.is_empty() {
     return false
   }
-  let counts = Array::make(34, 0)
-  for tile in input.concealed_tiles {
-    counts[tile_kind_index_unchecked(tile.kind)] += 1
-  }
+  let counts = concealed_counts(input)
   let suit = tile_kind_index_unchecked(input.winning_tile.kind) / 9
   if suit >= 3 {
     return false
   }
   let base = suit * 9
-  let required : Array[Int] = [3, 1, 1, 1, 1, 1, 1, 1, 3]
-  for rank, expected in required {
+  for rank, expected in chuuren_minimum {
     if counts[base + rank] != expected {
       return false
     }
@@ -309,7 +306,7 @@ fn is_pure_chuuren_wait(input : HandInput) -> Bool {
 fn detect_yakuman(
   input : HandInput,
   shape : HandShape,
-  counts : Array[Int],
+  counts : Array[Int32],
   rules : RuleSet,
 ) -> Array[YakuValue] {
   let result : Array[YakuValue] = []
@@ -329,7 +326,7 @@ fn detect_yakuman(
       result.push(yakuman_value(KokushiMusou, multiplier))
     }
     Standard(pair~, groups~, wait~) => {
-      if concealed_triplet_count(input, shape) == 4 {
+      if concealed_triplet_count(input, groups, wait) == 4 {
         let multiplier = if wait is Tanki {
           double_if_enabled(rules)
         } else {
@@ -351,7 +348,7 @@ fn detect_yakuman(
       if wind_triplets == 4 {
         result.push(yakuman_value(Daisuushi, double_if_enabled(rules)))
       }
-      if groups.filter(group => group is Quad(_, ..)).length() == 4 {
+      if quad_count(groups) == 4 {
         result.push(yakuman_value(Suukantsu, 1))
       }
     }
@@ -412,7 +409,7 @@ fn append_context_yaku(
 ///|
 fn append_flush_yaku(
   result : Array[YakuValue],
-  counts : Array[Int],
+  counts : Array[Int32],
   closed : Bool,
 ) -> Unit {
   let mask = numbered_suit_mask(counts)
@@ -429,8 +426,7 @@ fn append_flush_yaku(
 fn append_standard_yaku(
   result : Array[YakuValue],
   input : HandInput,
-  shape : HandShape,
-  counts : Array[Int],
+  counts : Array[Int32],
   pair : TileKind,
   groups : Array[Group],
   wait : WaitKind,
@@ -459,9 +455,7 @@ fn append_standard_yaku(
       (33, RedDragon),
     ] {
     let (index, yaku) = item
-    if groups.any(group => {
-        group_is_triplet_or_quad(group) && group_kind_index(group) == index
-      }) {
+    if has_triplet_or_quad_kind(groups, index) {
       result.push(yaku_value(yaku, 1))
     }
   }
@@ -486,13 +480,13 @@ fn append_standard_yaku(
   if groups.all(group_is_triplet_or_quad) {
     result.push(yaku_value(Toitoi, 2))
   }
-  if concealed_triplet_count(input, shape) >= 3 {
+  if concealed_triplet_count(input, groups, wait) >= 3 {
     result.push(yaku_value(Sanankou, 2))
   }
   if has_sanshoku_doukou(groups) {
     result.push(yaku_value(SanshokuDoukou, 2))
   }
-  if groups.filter(group => group is Quad(_, ..)).length() >= 3 {
+  if quad_count(groups) >= 3 {
     result.push(yaku_value(Sankantsu, 2))
   }
   if count_distinct_triplet_kinds(groups, 31, 33) == 2 &&
@@ -506,7 +500,7 @@ fn append_standard_yaku(
 fn detect_regular_yaku(
   input : HandInput,
   shape : HandShape,
-  counts : Array[Int],
+  counts : Array[Int32],
   rules : RuleSet,
 ) -> Array[YakuValue] {
   let result : Array[YakuValue] = []
@@ -517,9 +511,7 @@ fn detect_regular_yaku(
   }
   match shape {
     Standard(pair~, groups~, wait~) =>
-      append_standard_yaku(
-        result, input, shape, counts, pair, groups, wait, closed,
-      )
+      append_standard_yaku(result, input, counts, pair, groups, wait, closed)
     SevenPairs(_) => result.push(yaku_value(Chiitoitsu, 2))
     ThirteenOrphans(_) => ()
   }
@@ -531,44 +523,21 @@ fn detect_regular_yaku(
 }
 
 ///|
-/// Detect yaku for one interpretation returned by `decompose`.
+/// Detect yaku for one interpretation of a validated hand. `shape` must come
+/// from `decompose` for the same input.
 ///
 /// If one or more yakuman match, only yakuman are returned. Dora are evaluated
 /// separately and are not included in this result.
-fn detect_yaku_with_tile_copy_rules(
-  input : HandInput,
-  shape : HandShape,
-  rules : RuleSet,
-  tile_copy_rules : TileCopyRules,
-) -> Array[YakuValue] raise ScoreError {
-  let shapes = decompose_with_tile_copy_rules(input, tile_copy_rules)
-  if !shapes.contains(shape) {
-    raise InvalidHandShape
-  }
-  let counts = hand_tile_counts_with_tile_copy_rules(input, tile_copy_rules)
-  let yakuman = detect_yakuman(input, shape, counts, rules)
-  if !yakuman.is_empty() {
-    yakuman
-  } else {
-    detect_regular_yaku(input, shape, counts, rules)
-  }
-}
-
-///|
 fn detect_yaku(
   input : HandInput,
   shape : HandShape,
   rules : RuleSet,
-) -> Array[YakuValue] raise ScoreError {
-  let shapes = decompose(input)
-  if !shapes.contains(shape) {
-    raise InvalidHandShape
-  }
+) -> Array[YakuValue] {
   let counts = hand_tile_counts(input)
   let yakuman = detect_yakuman(input, shape, counts, rules)
-  if !yakuman.is_empty() {
-    yakuman
-  } else {
+  if yakuman.is_empty() {
     detect_regular_yaku(input, shape, counts, rules)
+  } else {
+    yakuman
   }
 }

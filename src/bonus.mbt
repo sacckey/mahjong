@@ -14,7 +14,10 @@ fn dora_kind(indicator : TileKind) -> TileKind {
 }
 
 ///|
-fn count_indicator_dora(counts : Array[Int], indicators : Array[Tile]) -> Int {
+fn count_indicator_dora(
+  counts : Array[Int32],
+  indicators : Array[Tile],
+) -> Int32 {
   let mut total = 0
   for indicator in indicators {
     let kind = dora_kind(indicator.kind)
@@ -24,7 +27,7 @@ fn count_indicator_dora(counts : Array[Int], indicators : Array[Tile]) -> Int {
 }
 
 ///|
-fn count_red_tiles(input : HandInput) -> Int {
+fn count_red_tiles(input : HandInput) -> Int32 {
   let mut total = 0
   for tile in input.concealed_tiles {
     if tile.is_red {
@@ -50,21 +53,13 @@ fn count_red_tiles(input : HandInput) -> Int {
 /// Every supplied indicator is counted, including duplicates. Ura-dora are
 /// counted only after riichi or double riichi. Indicator tiles themselves are
 /// never included in red-dora totals.
-fn calculate_bonus_han_with_tile_copy_rules(
-  input : HandInput,
-  tile_copy_rules : TileCopyRules,
-) -> BonusHan raise ScoreError {
-  let counts = hand_tile_counts_with_tile_copy_rules(input, tile_copy_rules)
+fn calculate_bonus_han(input : HandInput) -> BonusHan {
+  let counts = hand_tile_counts(input)
   let dora = count_indicator_dora(counts, input.dora_indicators)
   let ura_dora = match input.context.riichi {
     Riichi | DoubleRiichi =>
       count_indicator_dora(counts, input.ura_dora_indicators)
     NoRiichi => 0
   }
-  { dora, ura_dora, aka_dora: count_red_tiles(input) }
-}
-
-///|
-fn calculate_bonus_han(input : HandInput) -> BonusHan raise ScoreError {
-  calculate_bonus_han_with_tile_copy_rules(input, TileCopyRules::standard())
+  { dora, ura_dora, aka_dora: count_red_tiles(input), }
 }

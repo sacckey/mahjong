@@ -1,5 +1,5 @@
 ///|
-fn numbered(suit : @mahjong.Suit, rank : Int) -> @mahjong.Tile raise {
+fn numbered(suit : @mahjong.Suit, rank : Int32) -> @mahjong.Tile raise {
   @mahjong.Tile::numbered(suit, rank)
 }
 

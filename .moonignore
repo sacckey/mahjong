@@ -1,0 +1,12 @@
+# Files left out of the published package. This file replaces .gitignore for
+# packaging, so build outputs are listed here as well.
+_build/
+target/
+.mooncakes/
+.moonagent/
+AGENTS.md
+examples/
+packages/
+tools/
+*_test.mbt
+*_wbtest.mbt

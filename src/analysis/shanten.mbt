@@ -1,10 +1,10 @@
 ///|
-let orphan_indices : Array[Int] = [
+let orphan_indices : Array[Int32] = [
   0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33,
 ]
 
 ///|
-fn first_present(counts : Array[Int]) -> Int {
+fn first_present(counts : Array[Int32]) -> Int32 {
   for index in 0..<34 {
     if counts[index] > 0 {
       return index
@@ -15,10 +15,10 @@ fn first_present(counts : Array[Int]) -> Int {
 
 ///|
 fn record_standard_shanten(
-  melds : Int,
-  taatsu : Int,
+  melds : Int32,
+  taatsu : Int32,
   has_pair : Bool,
-  best : Ref[Int],
+  best : Ref[Int32],
 ) -> Unit {
   let usable_taatsu = taatsu.min(4 - melds)
   let value = 8 - melds * 2 - usable_taatsu - (if has_pair { 1 } else { 0 })
@@ -29,11 +29,11 @@ fn record_standard_shanten(
 
 ///|
 fn search_standard(
-  counts : Array[Int],
-  melds : Int,
-  taatsu : Int,
+  counts : Array[Int32],
+  melds : Int32,
+  taatsu : Int32,
   has_pair : Bool,
-  best : Ref[Int],
+  best : Ref[Int32],
 ) -> Unit {
   let index = first_present(counts)
   if index == -1 {
@@ -89,14 +89,14 @@ fn search_standard(
 }
 
 ///|
-fn standard_shanten(counts : Array[Int], fixed_melds : Int) -> Int {
+fn standard_shanten(counts : Array[Int32], fixed_melds : Int32) -> Int32 {
   let best = Ref(8)
   search_standard(counts, fixed_melds, 0, false, best)
   best.val
 }
 
 ///|
-fn seven_pairs_shanten(counts : Array[Int]) -> Int {
+fn seven_pairs_shanten(counts : Array[Int32]) -> Int32 {
   let mut pairs = 0
   let mut distinct = 0
   for count in counts {
@@ -111,7 +111,7 @@ fn seven_pairs_shanten(counts : Array[Int]) -> Int {
 }
 
 ///|
-fn thirteen_orphans_shanten(counts : Array[Int]) -> Int {
+fn thirteen_orphans_shanten(counts : Array[Int32]) -> Int32 {
   let mut distinct = 0
   let mut has_pair = false
   for index in orphan_indices {
@@ -126,7 +126,10 @@ fn thirteen_orphans_shanten(counts : Array[Int]) -> Int {
 }
 
 ///|
-fn shanten_from_counts(counts : Array[Int], meld_count : Int) -> ShantenResult {
+fn shanten_from_counts(
+  counts : Array[Int32],
+  meld_count : Int32,
+) -> ShantenResult {
   let standard = standard_shanten(counts, meld_count)
   let seven_pairs = if meld_count == 0 {
     Some(seven_pairs_shanten(counts))
@@ -141,7 +144,7 @@ fn shanten_from_counts(counts : Array[Int], meld_count : Int) -> ShantenResult {
   let minimum = standard
     .min(seven_pairs.unwrap_or(standard))
     .min(thirteen_orphans.unwrap_or(standard))
-  { minimum, standard, seven_pairs, thirteen_orphans }
+  { minimum, standard, seven_pairs, thirteen_orphans, }
 }
 
 ///|

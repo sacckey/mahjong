@@ -1,5 +1,5 @@
 ///|
-fn tile(suit : @mahjong.Suit, rank : Int) -> @mahjong.Tile raise {
+fn tile(suit : @mahjong.Suit, rank : Int32) -> @mahjong.Tile raise {
   @mahjong.Tile::numbered(suit, rank)
 }
 
@@ -153,7 +153,7 @@ test "complete fourteen-tile hands have minus-one shanten" {
 
 ///|
 test "analysis validates tile copies and meld structure" {
-  let invalid_tile : @mahjong.Tile = { kind: Numbered(Man, 10), is_red: false }
+  let invalid_tile : @mahjong.Tile = { kind: Numbered(Man, 10), is_red: false, }
   let invalid = @analysis.AnalysisInput::new(Array::make(13, invalid_tile))
   try @analysis.calculate_shanten(invalid) catch {
     InvalidTile(_) => ()
