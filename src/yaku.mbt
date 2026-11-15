@@ -18,6 +18,11 @@ fn double_if_enabled(rules : RuleSet) -> Int32 {
 }
 
 ///|
+fn has_local_yaku(rules : RuleSet, yaku : LocalYaku) -> Bool {
+  rules.local_yaku.contains(yaku)
+}
+
+///|
 fn is_honor(index : Int32) -> Bool {
   index >= 27
 }
@@ -124,6 +129,26 @@ fn has_honor_tiles(counts : Array[Int32]) -> Bool {
 }
 
 ///|
+/// Whether the hand is exactly one pair of every tile kind accepted by
+/// `wanted` and nothing else.
+fn is_pair_of_each(counts : Array[Int32], wanted : (Int32) -> Bool) -> Bool {
+  for index, count in counts {
+    if count != (if wanted(index) { 2 } else { 0 }) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+/// Whether man, pin, sou, a wind, and a dragon all appear in the hand.
+fn is_uumensai(counts : Array[Int32]) -> Bool {
+  let has_wind = counts[27] + counts[28] + counts[29] + counts[30] > 0
+  let has_dragon = counts[31] + counts[32] + counts[33] > 0
+  numbered_suit_mask(counts) == 7 && has_wind && has_dragon
+}
+
+///|
 fn is_tanyao(counts : Array[Int32]) -> Bool {
   all_tiles_match(counts, index => index < 27 && !is_terminal(index))
 }
@@ -209,6 +234,29 @@ fn peikou_pairs(groups : Array[Group]) -> Int32 {
     }
   }
   pairs
+}
+
+///|
+fn has_isshoku_sanjun(groups : Array[Group]) -> Bool {
+  for start in 0..<27 {
+    if sequence_count(groups, start) >= 3 {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn has_sanrenkou(groups : Array[Group]) -> Bool {
+  for start in 0..<27 {
+    if start % 9 <= 6 &&
+      has_triplet_or_quad_kind(groups, start) &&
+      has_triplet_or_quad_kind(groups, start + 1) &&
+      has_triplet_or_quad_kind(groups, start + 2) {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -367,8 +415,21 @@ fn detect_yakuman(
     }
     SevenPairs(_) => ()
   }
-  if all_tiles_match(counts, is_honor) {
+  if has_local_yaku(rules, Daichisei) && is_pair_of_each(counts, is_honor) {
+    result.push(yakuman_value(Local(Daichisei), double_if_enabled(rules)))
+  } else if all_tiles_match(counts, is_honor) {
     result.push(yakuman_value(Tsuuiisou, 1))
+  }
+  if input.melds.is_empty() {
+    for item in [(0, Daisuurin), (1, Daisharin), (2, Daichikurin)] {
+      let (suit, yaku) = item
+      if has_local_yaku(rules, yaku) &&
+        is_pair_of_each(counts, index => {
+          index / 9 == suit && index % 9 >= 1 && index % 9 <= 7
+        }) {
+        result.push(yakuman_value(Local(yaku), 1))
+      }
+    }
   }
   let green = [19, 20, 21, 23, 25, 32]
   if all_tiles_match(counts, index => green.contains(index)) {
@@ -444,6 +505,7 @@ fn append_standard_yaku(
   groups : Array[Group],
   wait : WaitKind,
   closed : Bool,
+  rules : RuleSet,
 ) -> Unit {
   if closed &&
     groups.all(group => group is Sequence(_, ..)) &&
@@ -451,7 +513,9 @@ fn append_standard_yaku(
     wait is Ryanmen {
     result.push(yaku_value(Pinfu, 1))
   }
-  if closed {
+  if has_local_yaku(rules, IsshokuSanjun) && has_isshoku_sanjun(groups) {
+    result.push(yaku_value(Local(IsshokuSanjun), if closed { 3 } else { 2 }))
+  } else if closed {
     let pairs = peikou_pairs(groups)
     if pairs >= 2 {
       result.push(yaku_value(Ryanpeikou, 3))
@@ -499,6 +563,9 @@ fn append_standard_yaku(
   if has_sanshoku_doukou(groups) {
     result.push(yaku_value(SanshokuDoukou, 2))
   }
+  if has_local_yaku(rules, Sanrenkou) && has_sanrenkou(groups) {
+    result.push(yaku_value(Local(Sanrenkou), 2))
+  }
   if quad_count(groups) >= 3 {
     result.push(yaku_value(Sankantsu, 2))
   }
@@ -524,12 +591,17 @@ fn detect_regular_yaku(
   }
   match shape {
     Standard(pair~, groups~, wait~) =>
-      append_standard_yaku(result, input, counts, pair, groups, wait, closed)
+      append_standard_yaku(
+        result, input, counts, pair, groups, wait, closed, rules,
+      )
     SevenPairs(_) => result.push(yaku_value(Chiitoitsu, 2))
     ThirteenOrphans(_) => ()
   }
   if all_tiles_match(counts, is_terminal_or_honor) {
     result.push(yaku_value(Honroutou, 2))
+  }
+  if has_local_yaku(rules, Uumensai) && is_uumensai(counts) {
+    result.push(yaku_value(Local(Uumensai), 2))
   }
   append_flush_yaku(result, counts, closed)
   result

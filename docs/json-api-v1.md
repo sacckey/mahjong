@@ -46,6 +46,18 @@ JSON関数は例外を外へ送出せず、成功と失敗のどちらもJSONで
 
 `melds[].kind`は`chi`、`pon`、`openKan`、`closedKan`、`addedKan`のいずれかです。v1では`rules`は`standard`のみを受け付けます。
 
+### ローカル役
+
+トップレベルに任意の`localYaku`を指定すると、列挙したローカル役を採用します。省略時は採用しません。未知のIDは`invalid_request`になります。
+
+```json
+{
+  "localYaku": ["sanrenkou", "daisharin"]
+}
+```
+
+指定できるIDは`uumensai`（五門斉）、`sanrenkou`（三連刻）、`isshokuSanjun`（一色三順）、`daisharin`（大車輪）、`daichikurin`（大竹林）、`daisuurin`（大数隣）、`daichisei`（大七星）です。成立した役は、結果の`yaku[].id`に同じIDで入ります。条件と翻数は[`rules-v1.md`](rules-v1.md)を参照してください。
+
 ### 同一牌種の枚数制限
 
 点数計算と牌姿解析（`calculateShanten`、`isTenpai`、`waitingTiles`）では、トップレベルに任意の`tileCopyRules`を指定できます。省略時は4枚までです。`maxCopiesPerKind`に正の整数を指定するとその枚数が上限になり、`null`では上限がなくなります。

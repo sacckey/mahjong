@@ -113,6 +113,17 @@ pub(all) enum Limit {
   Yakuman(Int32)
 }
 
+#derive(Compare, Eq, @debug.Debug)
+pub(all) enum LocalYaku {
+  Uumensai
+  Sanrenkou
+  IsshokuSanjun
+  Daisharin
+  Daichikurin
+  Daisuurin
+  Daichisei
+}
+
 #derive(Eq, @debug.Debug)
 pub(all) struct Meld {
   kind : MeldKind
@@ -153,6 +164,7 @@ pub(all) struct RuleSet {
   double_yakuman : Bool
   counted_yakuman : Bool
   double_wind_pair_fu : Int32
+  local_yaku : Array[LocalYaku]
 }
 pub fn RuleSet::standard() -> Self
 
@@ -293,6 +305,7 @@ pub(all) enum Yaku {
   Chinroutou
   ChuurenPoutou
   Suukantsu
+  Local(LocalYaku)
 }
 
 #derive(Eq, @debug.Debug)

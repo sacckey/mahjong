@@ -183,6 +183,8 @@ pub(all) struct RuleSet {
   double_yakuman : Bool
   counted_yakuman : Bool
   double_wind_pair_fu : Int32
+  /// Local yaku to score in addition to the standard yaku.
+  local_yaku : Array[LocalYaku]
 }
 
 ///|
@@ -194,6 +196,7 @@ pub fn RuleSet::standard() -> RuleSet {
     double_yakuman: true,
     counted_yakuman: true,
     double_wind_pair_fu: 4,
+    local_yaku: [],
   }
 }
 
@@ -229,7 +232,27 @@ pub(all) enum HandShape {
 }
 
 ///|
-/// Standard yaku and yakuman supported by version one.
+/// Local yaku that `RuleSet.local_yaku` can enable. None are scored by default.
+#derive(Debug, Eq, Compare)
+pub(all) enum LocalYaku {
+  /// Man, pin, sou, a wind, and a dragon all appear. Two han.
+  Uumensai
+  /// Three triplets or quads of consecutive ranks in one suit. Two han.
+  Sanrenkou
+  /// Three identical sequences. Three han, two when open. Replaces iipeikou.
+  IsshokuSanjun
+  /// Pairs of two through eight in pin, closed. Yakuman.
+  Daisharin
+  /// Pairs of two through eight in sou, closed. Yakuman.
+  Daichikurin
+  /// Pairs of two through eight in man, closed. Yakuman.
+  Daisuurin
+  /// Pairs of all seven honors. Double yakuman. Replaces tsuuiisou.
+  Daichisei
+}
+
+///|
+/// Standard yaku and yakuman supported by version one, plus enabled local yaku.
 #derive(Debug, Eq, Compare)
 pub(all) enum Yaku {
   Riichi
@@ -274,6 +297,7 @@ pub(all) enum Yaku {
   Chinroutou
   ChuurenPoutou
   Suukantsu
+  Local(LocalYaku)
 }
 
 ///|

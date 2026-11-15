@@ -53,6 +53,7 @@ priv struct ScoreRequestDto {
   hand : HandDto
   context : ContextDto
   rules : String
+  localYaku : Array[String]?
   tileCopyRules : TileCopyRulesDto?
 }
 

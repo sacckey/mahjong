@@ -155,7 +155,7 @@ pub fn score_json(input : String) -> String {
       }),
     )
   }
-  let hand = hand_from_request(request) catch {
+  let (hand, rules, tile_copy_rules) = score_inputs_from_request(request) catch {
     InvalidRequest(message) =>
       return encode_error(
         "invalid_request",
@@ -163,19 +163,7 @@ pub fn score_json(input : String) -> String {
         Json::object({ "reason": Json::string(message) }),
       )
   }
-  let tile_copy_rules = tile_copy_rules_from_dto(request.tileCopyRules) catch {
-    InvalidRequest(message) =>
-      return encode_error(
-        "invalid_request",
-        "The scoring request contains an unsupported value.",
-        Json::object({ "reason": Json::string(message) }),
-      )
-  }
-  let result = @mahjong.score_with_tile_copy_rules(
-    hand,
-    @mahjong.RuleSet::standard(),
-    tile_copy_rules,
-  ) catch {
+  let result = @mahjong.score_with_tile_copy_rules(hand, rules, tile_copy_rules) catch {
     error => return score_error_response(error)
   }
   @json.to_json(SuccessEnvelope::{

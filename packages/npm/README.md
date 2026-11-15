@@ -75,6 +75,19 @@ console.log(waits); // ["6s", "9s"]
 
 `waitingTiles()`と`isTenpai()`は構造上13枚の入力だけを受け付けます。役、フリテン、河や山に残る枚数は考慮しません。
 
+## ローカル役
+
+リクエストの`localYaku`に列挙した役だけを採用します。省略時は採用しません。
+
+```js
+const result = calculator.score({
+  ...request,
+  localYaku: ["sanrenkou", "daisharin"],
+});
+```
+
+指定できるIDは`uumensai`（五門斉）、`sanrenkou`（三連刻）、`isshokuSanjun`（一色三順）、`daisharin`（大車輪）、`daichikurin`（大竹林）、`daisuurin`（大数隣）、`daichisei`（大七星）です。
+
 ## 同一牌を5枚以上使うゲーム
 
 通常は同一牌種を4枚までに制限します。第2引数に`maxCopiesPerKind: null`を渡すと、この枚数制限だけを解除できます。正の整数を渡すとその枚数が上限になります。手牌枚数、和了形、役、符などのルールは変わりません。
