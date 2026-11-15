@@ -83,6 +83,8 @@ fn main raise {
 
 `ScoreResult`からは翻数`han`、符数`fu`、支払い内訳`payment`、供託を含む和了者の受取額`winner_gain`などを取得できます。
 
+ローカル役は既定では採用しません。`{ ..RuleSet::standard(), local_yaku: [Sanrenkou, Daisharin] }`のように`RuleSet`へ指定した役だけを判定します。対応する役は[`docs/rules-v1.md`](../docs/rules-v1.md)を参照してください。
+
 同一牌種を5枚以上使えるゲームでは`TileCopyRules::unlimited()`を渡します。変わるのは物理枚数の検証だけで、5枚あれば雀頭2枚と刻子3枚のように通常どおり分解されます。
 
 ## 牌姿解析

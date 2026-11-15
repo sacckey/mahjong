@@ -114,6 +114,20 @@ fn yaku_id(yaku : @mahjong.Yaku) -> String {
     @mahjong.Chinroutou => "chinroutou"
     @mahjong.ChuurenPoutou => "chuurenPoutou"
     @mahjong.Suukantsu => "suukantsu"
+    @mahjong.Local(local_yaku) => local_yaku_id(local_yaku)
+  }
+}
+
+///|
+fn local_yaku_id(yaku : @mahjong.LocalYaku) -> String {
+  match yaku {
+    @mahjong.Uumensai => "uumensai"
+    @mahjong.Sanrenkou => "sanrenkou"
+    @mahjong.IsshokuSanjun => "isshokuSanjun"
+    @mahjong.Daisharin => "daisharin"
+    @mahjong.Daichikurin => "daichikurin"
+    @mahjong.Daisuurin => "daisuurin"
+    @mahjong.Daichisei => "daichisei"
   }
 }
 

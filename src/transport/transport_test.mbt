@@ -146,3 +146,30 @@ test "JSON boundary accepts unlimited tile copies explicitly" {
   )
   assert_true(invalid_limit.contains("\"code\":\"invalid_rule\""))
 }
+
+///|
+let daisharin_request : String =
+  #|{"apiVersion":1,"hand":{"concealedTiles":[{"kind":"2p","red":false},{"kind":"2p","red":false},{"kind":"3p","red":false},{"kind":"3p","red":false},{"kind":"4p","red":false},{"kind":"4p","red":false},{"kind":"5p","red":false},{"kind":"5p","red":false},{"kind":"6p","red":false},{"kind":"6p","red":false},{"kind":"7p","red":false},{"kind":"7p","red":false},{"kind":"8p","red":false}],"winningTile":{"kind":"8p","red":false},"melds":[],"doraIndicators":[],"uraDoraIndicators":[]},"context":{"winMethod":"ron","seatWind":"south","roundWind":"east","riichi":"none","ippatsu":false,"rinshan":false,"chankan":false,"haitei":false,"houtei":false,"tenhou":false,"chiihou":false,"honba":0,"riichiSticks":0},"rules":"standard"}
+
+///|
+test "JSON boundary scores local yaku only when requested" {
+  let standard = @transport.score_json(daisharin_request)
+  assert_true(standard.contains("\"kind\":\"sanbaiman\""))
+  assert_false(standard.contains("daisharin"))
+  let enabled = @transport.score_json(
+    daisharin_request.replace(
+      old="\"rules\":\"standard\"",
+      new="\"rules\":\"standard\",\"localYaku\":[\"daisharin\"]",
+    ),
+  )
+  assert_true(enabled.contains("\"kind\":\"yakuman\""))
+  assert_true(enabled.contains("\"id\":\"daisharin\""))
+  let unknown = @transport.score_json(
+    daisharin_request.replace(
+      old="\"rules\":\"standard\"",
+      new="\"rules\":\"standard\",\"localYaku\":[\"renhou\"]",
+    ),
+  )
+  assert_true(unknown.contains("\"code\":\"invalid_request\""))
+  assert_true(unknown.contains("unknown local yaku: renhou"))
+}

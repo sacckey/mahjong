@@ -97,9 +97,13 @@ fn yt_has(
 }
 
 ///|
-fn yt_max_han(hand : HandInput, yaku : Yaku) -> Int32 {
+fn yt_max_han(
+  hand : HandInput,
+  yaku : Yaku,
+  rules~ : RuleSet = RuleSet::standard(),
+) -> Int32 {
   let mut maximum = 0
-  for value in yt_values(hand) {
+  for value in yt_values(hand, rules~) {
     if value.yaku == yaku && value.han > maximum {
       maximum = value.han
     }
@@ -796,4 +800,348 @@ test "detect kokushi, chuuren, suukantsu, and tenhou" {
   let singles : RuleSet = { ..RuleSet::standard(), double_yakuman: false, }
   assert_eq(yt_max_yakuman(kokushi, KokushiMusou, rules=singles), 1)
   assert_eq(yt_max_yakuman(chuuren, ChuurenPoutou, rules=singles), 1)
+}
+
+///|
+fn yt_local_rules(local_yaku : Array[LocalYaku]) -> RuleSet {
+  { ..RuleSet::standard(), local_yaku, }
+}
+
+///|
+/// Two of each rank from two to eight in one suit, won on the last eight.
+fn yt_simple_pairs_hand(tile : (Int32) -> Tile) -> HandInput {
+  yt_input(
+    [
+      tile(2),
+      tile(2),
+      tile(3),
+      tile(3),
+      tile(4),
+      tile(4),
+      tile(5),
+      tile(5),
+      tile(6),
+      tile(6),
+      tile(7),
+      tile(7),
+      tile(8),
+    ],
+    tile(8),
+  )
+}
+
+///|
+test "local yaku are scored only when the ruleset enables them" {
+  let hand = yt_simple_pairs_hand(yt_p)
+  assert_eq(yt_max_yakuman(hand, Local(Daisharin)), 0)
+  assert_true(yt_has(hand, Chinitsu))
+  let other = yt_local_rules([Daichikurin, Daisuurin])
+  assert_eq(yt_max_yakuman(hand, Local(Daisharin), rules=other), 0)
+  let enabled = yt_local_rules([Daisharin])
+  assert_eq(yt_max_yakuman(hand, Local(Daisharin), rules=enabled), 1)
+  assert_false(yt_has(hand, Chinitsu, rules=enabled))
+}
+
+///|
+test "detect the three suit variants of daisharin as closed yakuman" {
+  let rules = yt_local_rules([Daisharin, Daichikurin, Daisuurin])
+  let pin = yt_simple_pairs_hand(yt_p)
+  let sou = yt_simple_pairs_hand(yt_s)
+  let man = yt_simple_pairs_hand(yt_m)
+  assert_eq(yt_max_yakuman(pin, Local(Daisharin), rules~), 1)
+  assert_eq(yt_max_yakuman(sou, Local(Daichikurin), rules~), 1)
+  assert_eq(yt_max_yakuman(man, Local(Daisuurin), rules~), 1)
+  assert_eq(yt_max_yakuman(pin, Local(Daichikurin), rules~), 0)
+  // The same tiles with two chi are open and stay an ordinary flush.
+  let open = yt_input(
+    [yt_p(5), yt_p(5), yt_p(6), yt_p(6), yt_p(7), yt_p(7), yt_p(8)],
+    yt_p(8),
+    melds=[
+      yt_meld(Chi, [yt_p(2), yt_p(3), yt_p(4)]),
+      yt_meld(Chi, [yt_p(2), yt_p(3), yt_p(4)]),
+    ],
+  )
+  assert_eq(yt_max_yakuman(open, Local(Daisharin), rules~), 0)
+  assert_eq(yt_max_han(open, Chinitsu, rules~), 5)
+  // Pairs of one through seven are not the required ranks.
+  let shifted = yt_input(
+    [
+      yt_p(1),
+      yt_p(1),
+      yt_p(2),
+      yt_p(2),
+      yt_p(3),
+      yt_p(3),
+      yt_p(4),
+      yt_p(4),
+      yt_p(5),
+      yt_p(5),
+      yt_p(6),
+      yt_p(6),
+      yt_p(7),
+    ],
+    yt_p(7),
+  )
+  assert_eq(yt_max_yakuman(shifted, Local(Daisharin), rules~), 0)
+}
+
+///|
+test "daichisei replaces tsuuiisou and follows the double yakuman rule" {
+  let hand = yt_input(
+    [
+      yt_h(East),
+      yt_h(East),
+      yt_h(South),
+      yt_h(South),
+      yt_h(West),
+      yt_h(West),
+      yt_h(North),
+      yt_h(North),
+      yt_h(White),
+      yt_h(White),
+      yt_h(Green),
+      yt_h(Green),
+      yt_h(Red),
+    ],
+    yt_h(Red),
+  )
+  assert_eq(yt_max_yakuman(hand, Tsuuiisou), 1)
+  assert_eq(yt_max_yakuman(hand, Local(Daichisei)), 0)
+  let rules = yt_local_rules([Daichisei])
+  assert_eq(yt_max_yakuman(hand, Local(Daichisei), rules~), 2)
+  assert_false(yt_has(hand, Tsuuiisou, rules~))
+  let singles : RuleSet = { ..rules, double_yakuman: false, }
+  assert_eq(yt_max_yakuman(hand, Local(Daichisei), rules=singles), 1)
+  // Honor triplets are still tsuuiisou, not daichisei.
+  let triplets = yt_input(
+    [
+      yt_h(East),
+      yt_h(East),
+      yt_h(East),
+      yt_h(South),
+      yt_h(South),
+      yt_h(South),
+      yt_h(White),
+      yt_h(White),
+      yt_h(White),
+      yt_h(Green),
+      yt_h(Green),
+      yt_h(Green),
+      yt_h(Red),
+    ],
+    yt_h(Red),
+  )
+  assert_eq(yt_max_yakuman(triplets, Local(Daichisei), rules~), 0)
+  assert_eq(yt_max_yakuman(triplets, Tsuuiisou, rules~), 1)
+}
+
+///|
+test "detect uumensai in standard, open, and seven-pairs hands" {
+  let rules = yt_local_rules([Uumensai])
+  let uumensai : Yaku = Local(Uumensai)
+  let closed = yt_input(
+    [
+      yt_m(1),
+      yt_m(2),
+      yt_m(3),
+      yt_p(4),
+      yt_p(5),
+      yt_p(6),
+      yt_s(7),
+      yt_s(8),
+      yt_s(9),
+      yt_h(East),
+      yt_h(East),
+      yt_h(East),
+      yt_h(White),
+    ],
+    yt_h(White),
+  )
+  assert_false(yt_has(closed, uumensai))
+  assert_eq(yt_max_han(closed, uumensai, rules~), 2)
+  let open = yt_input(
+    [
+      yt_m(1),
+      yt_m(2),
+      yt_m(3),
+      yt_p(4),
+      yt_p(5),
+      yt_p(6),
+      yt_s(7),
+      yt_s(8),
+      yt_s(9),
+      yt_h(White),
+    ],
+    yt_h(White),
+    melds=[yt_meld(Pon, [yt_h(East), yt_h(East), yt_h(East)])],
+  )
+  assert_eq(yt_max_han(open, uumensai, rules~), 2)
+  let seven_pairs = yt_input(
+    [
+      yt_m(1),
+      yt_m(1),
+      yt_p(2),
+      yt_p(2),
+      yt_s(3),
+      yt_s(3),
+      yt_h(East),
+      yt_h(East),
+      yt_h(South),
+      yt_h(South),
+      yt_h(White),
+      yt_h(White),
+      yt_h(Green),
+    ],
+    yt_h(Green),
+  )
+  assert_eq(yt_max_han(seven_pairs, uumensai, rules~), 2)
+  // A wind without a dragon is only four of the five families.
+  let no_dragon = yt_input(
+    [
+      yt_m(1),
+      yt_m(2),
+      yt_m(3),
+      yt_p(4),
+      yt_p(5),
+      yt_p(6),
+      yt_s(7),
+      yt_s(8),
+      yt_s(9),
+      yt_h(East),
+      yt_h(East),
+      yt_h(East),
+      yt_h(South),
+    ],
+    yt_h(South),
+  )
+  assert_false(yt_has(no_dragon, uumensai, rules~))
+}
+
+///|
+/// Two, three, and four of man three times each, a 6-7 pin wait, and a pair.
+/// It reads either as three triplets or as three identical sequences.
+fn yt_triple_run_hand() -> HandInput {
+  yt_input(
+    [
+      yt_m(2),
+      yt_m(2),
+      yt_m(2),
+      yt_m(3),
+      yt_m(3),
+      yt_m(3),
+      yt_m(4),
+      yt_m(4),
+      yt_m(4),
+      yt_p(6),
+      yt_p(7),
+      yt_s(9),
+      yt_s(9),
+    ],
+    yt_p(8),
+  )
+}
+
+///|
+test "detect sanrenkou for consecutive triplets and quads in one suit" {
+  let rules = yt_local_rules([Sanrenkou])
+  let sanrenkou : Yaku = Local(Sanrenkou)
+  assert_false(yt_has(yt_triple_run_hand(), sanrenkou))
+  assert_eq(yt_max_han(yt_triple_run_hand(), sanrenkou, rules~), 2)
+  let open_with_quad = yt_input(
+    [yt_m(4), yt_m(4), yt_m(4), yt_p(6), yt_p(7), yt_s(9), yt_s(9)],
+    yt_p(8),
+    melds=[
+      yt_meld(OpenKan, [yt_m(2), yt_m(2), yt_m(2), yt_m(2)]),
+      yt_meld(Pon, [yt_m(3), yt_m(3), yt_m(3)]),
+    ],
+  )
+  assert_eq(yt_max_han(open_with_quad, sanrenkou, rules~), 2)
+  // Eight and nine of man with one of pin do not continue across suits.
+  let across_suits = yt_input(
+    [
+      yt_m(8),
+      yt_m(8),
+      yt_m(8),
+      yt_m(9),
+      yt_m(9),
+      yt_m(9),
+      yt_p(1),
+      yt_p(1),
+      yt_p(1),
+      yt_p(6),
+      yt_p(7),
+      yt_s(9),
+      yt_s(9),
+    ],
+    yt_p(8),
+  )
+  assert_false(yt_has(across_suits, sanrenkou, rules~))
+  let same_rank = yt_input(
+    [
+      yt_m(2),
+      yt_m(2),
+      yt_m(2),
+      yt_p(3),
+      yt_p(3),
+      yt_p(3),
+      yt_m(4),
+      yt_m(4),
+      yt_m(4),
+      yt_p(6),
+      yt_p(7),
+      yt_s(9),
+      yt_s(9),
+    ],
+    yt_p(8),
+  )
+  assert_false(yt_has(same_rank, sanrenkou, rules~))
+}
+
+///|
+test "isshoku sanjun replaces iipeikou and loses one han when open" {
+  let rules = yt_local_rules([IsshokuSanjun])
+  let isshoku_sanjun : Yaku = Local(IsshokuSanjun)
+  let closed = yt_triple_run_hand()
+  assert_true(yt_has(closed, Iipeikou))
+  assert_false(yt_has(closed, isshoku_sanjun))
+  assert_eq(yt_max_han(closed, isshoku_sanjun, rules~), 3)
+  assert_false(yt_has(closed, Iipeikou, rules~))
+  let open = yt_input(
+    [
+      yt_m(2),
+      yt_m(3),
+      yt_m(4),
+      yt_m(2),
+      yt_m(3),
+      yt_m(4),
+      yt_p(6),
+      yt_p(7),
+      yt_s(9),
+      yt_s(9),
+    ],
+    yt_p(8),
+    melds=[yt_meld(Chi, [yt_m(2), yt_m(3), yt_m(4)])],
+  )
+  assert_eq(yt_max_han(open, isshoku_sanjun, rules~), 2)
+  // Two identical sequences are still iipeikou.
+  let two_runs = yt_input(
+    [
+      yt_m(2),
+      yt_m(3),
+      yt_m(4),
+      yt_m(2),
+      yt_m(3),
+      yt_m(4),
+      yt_s(2),
+      yt_s(3),
+      yt_s(4),
+      yt_p(6),
+      yt_p(7),
+      yt_s(9),
+      yt_s(9),
+    ],
+    yt_p(8),
+  )
+  assert_false(yt_has(two_runs, isshoku_sanjun, rules~))
+  assert_true(yt_has(two_runs, Iipeikou, rules~))
 }

@@ -115,6 +115,8 @@ export interface ScoreRequest {
   hand: Hand;
   context: WinContext;
   rules: "standard";
+  /** Local yaku to score in addition to the standard yaku. Defaults to none. */
+  localYaku?: LocalYakuId[];
   tileCopyRules?: TileCopyRules;
 }
 
@@ -188,7 +190,17 @@ export type YakuId =
   | "ryuuiisou"
   | "chinroutou"
   | "chuurenPoutou"
-  | "suukantsu";
+  | "suukantsu"
+  | LocalYakuId;
+
+export type LocalYakuId =
+  | "uumensai"
+  | "sanrenkou"
+  | "isshokuSanjun"
+  | "daisharin"
+  | "daichikurin"
+  | "daisuurin"
+  | "daichisei";
 
 export interface YakuValue {
   id: YakuId;

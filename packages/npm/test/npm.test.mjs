@@ -177,6 +177,30 @@ test("score throws MahjongError for scoring errors", async () => {
   );
 });
 
+test("score applies local yaku listed in the request", async () => {
+  const calculator = await createCalculator({ backend: "javascript" });
+  const request = {
+    ...sampleRequest,
+    hand: {
+      ...sampleRequest.hand,
+      concealedTiles: [
+        "2p", "2p", "3p", "3p", "4p", "4p", "5p",
+        "5p", "6p", "6p", "7p", "7p", "8p",
+      ].map((kind) => tile(kind)),
+      winningTile: tile("8p"),
+    },
+  };
+  assert.notEqual(calculator.score(request).limit.kind, "yakuman");
+  const result = calculator.score({ ...request, localYaku: ["daisharin"] });
+  assert.equal(result.limit.kind, "yakuman");
+  assert.deepEqual(result.yaku.map((yaku) => yaku.id), ["daisharin"]);
+  assert.throws(
+    () => calculator.score({ ...request, localYaku: ["renhou"] }),
+    (error) =>
+      error instanceof MahjongError && error.code === "invalid_request",
+  );
+});
+
 test("scoreJson exposes the raw JSON boundary", async () => {
   const calculator = await createCalculator({ backend: "javascript" });
   const response = JSON.parse(calculator.scoreJson("{"));

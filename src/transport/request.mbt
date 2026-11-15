@@ -152,12 +152,36 @@ fn tile_copy_rules_from_dto(
 }
 
 ///|
-fn hand_from_request(
+fn local_yaku_from_id(id : String) -> @mahjong.LocalYaku raise RequestError {
+  match id {
+    "uumensai" => @mahjong.Uumensai
+    "sanrenkou" => @mahjong.Sanrenkou
+    "isshokuSanjun" => @mahjong.IsshokuSanjun
+    "daisharin" => @mahjong.Daisharin
+    "daichikurin" => @mahjong.Daichikurin
+    "daisuurin" => @mahjong.Daisuurin
+    "daichisei" => @mahjong.Daichisei
+    _ => raise InvalidRequest("unknown local yaku: \{id}")
+  }
+}
+
+///|
+fn rules_from_request(
   request : ScoreRequestDto,
-) -> @mahjong.HandInput raise RequestError {
+) -> @mahjong.RuleSet raise RequestError {
   if request.rules != "standard" {
     raise InvalidRequest("unsupported rules: \{request.rules}")
   }
+  {
+    ..@mahjong.RuleSet::standard(),
+    local_yaku: request.localYaku.unwrap_or([]).map(local_yaku_from_id),
+  }
+}
+
+///|
+fn hand_from_request(
+  request : ScoreRequestDto,
+) -> @mahjong.HandInput raise RequestError {
   {
     concealed_tiles: request.hand.concealedTiles.map(tile_from_dto),
     winning_tile: tile_from_dto(request.hand.winningTile),
@@ -166,6 +190,16 @@ fn hand_from_request(
     ura_dora_indicators: request.hand.uraDoraIndicators.map(tile_from_dto),
     context: context_from_dto(request.context),
   }
+}
+
+///|
+/// Convert a scoring request into the hand, scoring rules, and copy rules.
+fn score_inputs_from_request(
+  request : ScoreRequestDto,
+) -> (@mahjong.HandInput, @mahjong.RuleSet, @mahjong.TileCopyRules) raise RequestError {
+  let rules = rules_from_request(request)
+  let hand = hand_from_request(request)
+  (hand, rules, tile_copy_rules_from_dto(request.tileCopyRules))
 }
 
 ///|

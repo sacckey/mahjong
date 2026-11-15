@@ -510,3 +510,65 @@ test "a ron on a shanpon wait opens exactly one triplet" {
   )
   assert_true(twin_tsumo.yaku.any(value => value.yaku == Suuankou))
 }
+
+///|
+test "enabled local yaku change the score and the chosen reading" {
+  let standard = @mahjong.RuleSet::standard()
+  let with_local : @mahjong.RuleSet = {
+    ..standard,
+    local_yaku: [Sanrenkou, IsshokuSanjun, Daisharin],
+  }
+  let daisharin = st_input(
+    [
+      st_p(2),
+      st_p(2),
+      st_p(3),
+      st_p(3),
+      st_p(4),
+      st_p(4),
+      st_p(5),
+      st_p(5),
+      st_p(6),
+      st_p(6),
+      st_p(7),
+      st_p(7),
+      st_p(8),
+    ],
+    st_p(8),
+  )
+  assert_eq(@mahjong.score(daisharin, standard).limit, Sanbaiman)
+  let daisharin_result = @mahjong.score(daisharin, with_local)
+  assert_eq(daisharin_result.limit, Yakuman(1))
+  assert_eq(daisharin_result.yaku, [
+    { yaku: Local(Daisharin), han: 0, yakuman_multiplier: 1, },
+  ])
+  // Three triplets (sanrenkou and sanankou, 50 fu) outscore three identical
+  // sequences (isshoku sanjun and pinfu, 30 fu).
+  let triple_run = st_input(
+    [
+      st_m(2),
+      st_m(2),
+      st_m(2),
+      st_m(3),
+      st_m(3),
+      st_m(3),
+      st_m(4),
+      st_m(4),
+      st_m(4),
+      st_p(6),
+      st_p(7),
+      st_s(9),
+      st_s(9),
+    ],
+    st_p(8),
+  )
+  let triple_run_result = @mahjong.score(triple_run, with_local)
+  assert_true(
+    triple_run_result.yaku.any(value => value.yaku == Local(Sanrenkou)),
+  )
+  assert_false(
+    triple_run_result.yaku.any(value => value.yaku == Local(IsshokuSanjun)),
+  )
+  assert_eq(triple_run_result.han, 4)
+  assert_eq(triple_run_result.fu, 50)
+}
